@@ -20,6 +20,7 @@ func Test_StubBoletoRequest_WhenCreateAndSetBoletoRequest_ReturnBoletoRequestSuc
 	expectedAcceptDivergentAmount := true
 	expectedInstructions := "campo de instruções"
 	expectedBuyerName := "Nome Do Comprador"
+	expectedZipCode := "12345-123"
 
 	s := NewStubBoletoRequest(models.BancoDoBrasil)
 	s.WithAgreementNumber(expectedAgreementNumber)
@@ -32,6 +33,7 @@ func Test_StubBoletoRequest_WhenCreateAndSetBoletoRequest_ReturnBoletoRequestSuc
 	s.WithAcceptDivergentAmount(expectedAcceptDivergentAmount)
 	s.WithInstructions(expectedInstructions)
 	s.WithBuyerName(expectedBuyerName)
+	s.WithBuyerZipCode(expectedZipCode)
 
 	b := s.Build()
 
@@ -46,4 +48,5 @@ func Test_StubBoletoRequest_WhenCreateAndSetBoletoRequest_ReturnBoletoRequestSuc
 	assert.Equal(t, expectedRecipientDocument, s.Recipient.Document.Number)
 	assert.Equal(t, expectedInstructions, s.Title.Instructions)
 	assert.Equal(t, expectedBuyerName, s.Buyer.Name)
+	assert.Equal(t, expectedZipCode, s.Buyer.Address.ZipCode)
 }
