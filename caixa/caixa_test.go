@@ -31,6 +31,14 @@ var boletoInstructionsParameters = []test.Parameter{
 	{Input: "@ # $ % ¨ { } [ ] ^ ~ \" & < > \\", Expected: "                              "},
 }
 
+var boletoCepParameters = []test.Parameter{
+	{Input: "12345-123", Expected: "<CEP>12345123</CEP>"},
+	{Input: "01000-000", Expected: "<CEP>01000000</CEP>"},
+	{Input: "08000-123", Expected: "<CEP>08000123</CEP>"},
+	{Input: "5000-098", Expected: "<CEP>5000098</CEP>"},
+	{Input: "98765-456", Expected: "<CEP>98765456</CEP>"},
+}
+
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
 	mock.StartMockService("9094")
 
@@ -98,6 +106,17 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 		request.Title = fact.Input.(models.Title)
 		_, result := getBoletoType(request)
 		assert.Equal(t, fact.Expected, result, "Deve mapear o boleto type corretamente")
+	}
+}
+
+func TestTemplateRequestCaixa_CEP_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	s := newStubBoletoRequestCaixa()
+
+	for _, fact := range boletoCepParameters {
+		request := s.WithBuyerZipCode(fact.Input.(string))
+		result := fmt.Sprintf("%v", f.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+		assert.Contains(t, result, fact.Expected, "Conversão não realizada como esperado")
 	}
 }
 

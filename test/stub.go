@@ -88,6 +88,11 @@ func (s *StubBoletoRequest) WithBuyerName(buyerName string) *StubBoletoRequest {
 	return s
 }
 
+func (s *StubBoletoRequest) WithBuyerZipCode(zipcode string) *StubBoletoRequest {
+	s.Buyer.Address.ZipCode = zipcode
+	return s
+}
+
 func (s *StubBoletoRequest) Build() *models.BoletoRequest {
 	s.SetAuthentication(s.Authentication)
 	s.SetAgreement(s.Agreement)

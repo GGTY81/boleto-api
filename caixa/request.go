@@ -85,7 +85,7 @@ const requestToCaixa = `
                         <BAIRRO>{{truncateOnly (clearStringCaixa .Buyer.Address.District) 15}}</BAIRRO>
                         <CIDADE>{{truncateOnly (clearStringCaixa .Buyer.Address.City) 15}}</CIDADE>
                         <UF>{{truncateOnly (clearStringCaixa .Buyer.Address.StateCode) 2}}</UF>
-                        <CEP>{{truncateOnly (clearStringCaixa .Buyer.Address.ZipCode) 8}}</CEP>
+                        <CEP>{{truncateOnly (replace (clearStringCaixa .Buyer.Address.ZipCode) "-" "") 8}}</CEP>
                      </ENDERECO>
                   </PAGADOR>
                   <FICHA_COMPENSACAO>
