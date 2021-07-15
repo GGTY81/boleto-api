@@ -125,7 +125,7 @@ func Test_GetBankLog(t *testing.T) {
 }
 
 func Test_bankStone_ProcessBoleto(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9099")
 
 	bankInst := New()
 
@@ -171,4 +171,13 @@ func Test_bankStone_ProcessBoleto(t *testing.T) {
 			assert.Equal(t, err.Message, "o campo AccessKey não pode ser vazio")
 		})
 	}
+}
+
+func BenchmarkBankStoneProcessBoleto(b *testing.B) {
+	mock.StartMockService("9099")
+
+	input := newStubBoletoRequestStone().WithAmountInCents(201).Build()
+	bank := New()
+
+	bank.ProcessBoleto(input)
 }
