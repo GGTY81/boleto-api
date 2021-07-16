@@ -22,10 +22,9 @@ import (
 )
 
 var (
-	conn                  *mongo.Client // is concurrent safe: https://github.com/mongodb/mongo-go-driver/blob/master/mongo/client.go#L46
-	ConnectionTimeout     = 10 * time.Second
-	mu                    sync.RWMutex
-	SafeDurationInMinutes int = 13
+	conn              *mongo.Client // is concurrent safe: https://github.com/mongodb/mongo-go-driver/blob/master/mongo/client.go#L46
+	ConnectionTimeout = 10 * time.Second
+	mu                sync.RWMutex
 )
 
 const (
@@ -233,7 +232,7 @@ func GetTokenByClientIDAndIssuerBank(clientID, issuerBank string) (models.Token,
 		return result, err
 	}
 
-	if time.Now().After(result.CreatedAt.Add(time.Duration(SafeDurationInMinutes) * time.Minute)) { // safety margin
+	if time.Now().After(result.CreatedAt.Add(time.Duration(config.Get().TokenSafeDurationInMinutes) * time.Minute)) { // safety margin
 		result = models.Token{} // a little help for GC
 	}
 
