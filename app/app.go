@@ -50,6 +50,7 @@ func Run(params *Params) {
 
 func installCertificates() {
 	l := log.CreateLog()
+	l.Operation = "InstallCertificates"
 
 	if config.Get().MockMode == false && config.Get().EnableFileServerCertificate == false {
 		err := certificate.InstanceStoreCertificatesFromAzureVault(config.Get().VaultName, config.Get().CertificateICPName, config.Get().CertificateSSLName)
@@ -72,6 +73,7 @@ func installCertificates() {
 	sk, err := openBankSkFromBlob()
 	if err != nil {
 		l.Error(err.Error(), "Error loading open bank secret key from blob")
+		time.Sleep(10 * time.Second)
 		os.Exit(1)
 	}
 
