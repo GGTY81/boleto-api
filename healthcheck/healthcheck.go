@@ -15,6 +15,7 @@ func EnsureDependencies() bool {
 
 func ensureMongo() {
 	l := log.CreateLog()
+	l.Operation = "EnsureMongo"
 	err := db.CheckMongo()
 	if err != nil {
 		l.Error(err.Error(), "healthcheck.ensureMongo - Error creating mongo connection")

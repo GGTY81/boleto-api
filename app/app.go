@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/mundipagg/boleto-api/api"
@@ -48,6 +50,7 @@ func Run(params *Params) {
 
 func installCertificates() {
 	l := log.CreateLog()
+	l.Operation = "InstallCertificates"
 
 	if config.Get().MockMode == false && config.Get().EnableFileServerCertificate == false {
 		err := certificate.InstanceStoreCertificatesFromAzureVault(config.Get().VaultName, config.Get().CertificateICPName, config.Get().CertificateSSLName)
@@ -66,4 +69,35 @@ func installCertificates() {
 			l.Error(err.Error(), "Error in load certificates from fileServer")
 		}
 	}
+
+	sk, err := openBankSkFromBlob()
+	if err != nil {
+		l.Error(err.Error(), "Error loading open bank secret key from blob")
+		time.Sleep(10 * time.Second)
+		os.Exit(1)
+	}
+
+	l.Info(fmt.Sprintf("Success loading [%s] PK from blob", config.Get().AzureStorageOpenBankSkName))
+	certificate.SetCertificateOnStore(config.Get().AzureStorageOpenBankSkName, sk)
+}
+
+func openBankSkFromBlob() ([]byte, error) {
+	azureBlobInst, err := certificate.NewAzureBlob(
+		config.Get().AzureStorageAccount,
+		config.Get().AzureStorageAccessKey,
+		config.Get().AzureStorageContainerName,
+	)
+	if err != nil {
+		return []byte(""), err
+	}
+
+	skBytes, err := azureBlobInst.Download(
+		config.Get().AzureStorageOpenBankSkPath,
+		config.Get().AzureStorageOpenBankSkName,
+	)
+	if err != nil {
+		return []byte(""), err
+	}
+
+	return skBytes, nil
 }
