@@ -1,3 +1,5 @@
+// +build integration
+
 package certificate_test
 
 import (
