@@ -7,6 +7,8 @@ import (
 	"github.com/mundipagg/boleto-api/models"
 )
 
+const persistenceErrorMessage = "Failure during send boleto to recovery queue. This boleto can't be recovery until manual insert content into database."
+
 var validate = map[string]int{
 	"MP400":                   http.StatusBadRequest,
 	"MPAmountInCents":         http.StatusBadRequest,
@@ -44,7 +46,7 @@ func handleErrors(c *gin.Context) {
 	bankcode := response.Errors[0].Code
 
 	if status, exist = validate[bankcode]; !exist {
-		status, _ = getMapper(bank)[bankcode]
+		status = getMapper(bank)[bankcode]
 	}
 
 	switch status {

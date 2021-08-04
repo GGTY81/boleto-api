@@ -43,42 +43,42 @@ func registerBoleto(c *gin.Context) {
 		return
 	}
 
-	st := http.StatusOK
-	if len(resp.Errors) > 0 {
+	st := getResponseStatusCode(resp)
 
-		if resp.StatusCode > 0 {
-			st = resp.StatusCode
-		} else {
-			st = http.StatusBadRequest
-		}
+	if st == http.StatusOK {
 
-	} else {
 		boView := models.NewBoletoView(bol, resp, bank.GetBankNameIntegration())
 		resp.ID = boView.ID.Hex()
 		resp.Links = boView.Links
-
-		redis := db.CreateRedis()
 
 		errMongo := db.SaveBoleto(boView)
 
 		if errMongo != nil {
 			lg.Warn(errMongo.Error(), fmt.Sprintf("Error saving to mongo - %s", errMongo.Error()))
+
 			b := boView.ToMinifyJSON()
 			p := queue.NewPublisher(b)
 
 			if !queue.WriteMessage(p) {
-				err = redis.SetBoletoJSON(b, resp.ID, boView.PublicKey, lg)
-				if checkError(c, err, lg) {
-					return
-				}
+				lg.Error(b, persistenceErrorMessage)
 			}
 		}
-
-		s := boleto.MinifyHTML(boView)
-		redis.SetBoletoHTML(s, resp.ID, boView.PublicKey, lg)
 	}
+
 	c.JSON(st, resp)
 	c.Set("boletoResponse", resp)
+}
+
+func getResponseStatusCode(response models.BoletoResponse) int {
+	if len(response.Errors) > 0 {
+		if response.StatusCode > 0 {
+			return response.StatusCode
+		} else {
+			return http.StatusBadRequest
+		}
+	} else {
+		return http.StatusOK
+	}
 }
 
 func getBoleto(c *gin.Context) {
@@ -100,29 +100,23 @@ func getBoleto(c *gin.Context) {
 		return
 	}
 
-	redis := db.CreateRedis()
-	boletoHtml, result.CacheElapsedTimeInMilliseconds = redis.GetBoletoHTMLByID(result.Id, result.PrivateKey, log)
+	var err error
+	var boView models.BoletoView
 
-	if boletoHtml == "" {
-		var err error
-		var boView models.BoletoView
+	boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PrivateKey)
 
-		boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PrivateKey)
-
-		if err != nil && (err.Error() == db.NotFoundDoc || err.Error() == db.InvalidPK) {
-			result.SetErrorResponse(c, models.NewErrorResponse("MP404", "Not Found"), http.StatusNotFound)
-			result.LogSeverity = "Warning"
-			return
-		} else if err != nil {
-			result.SetErrorResponse(c, models.NewErrorResponse("MP500", err.Error()), http.StatusInternalServerError)
-			result.LogSeverity = "Error"
-			return
-		}
-		result.BoletoSource = "mongo"
-		boletoHtml = boleto.MinifyHTML(boView)
-	} else {
-		result.BoletoSource = "redis"
+	if err != nil && (err.Error() == db.NotFoundDoc || err.Error() == db.InvalidPK) {
+		result.SetErrorResponse(c, models.NewErrorResponse("MP404", "Not Found"), http.StatusNotFound)
+		result.LogSeverity = "Warning"
+		return
+	} else if err != nil {
+		result.SetErrorResponse(c, models.NewErrorResponse("MP500", err.Error()), http.StatusInternalServerError)
+		result.LogSeverity = "Error"
+		return
 	}
+
+	result.BoletoSource = "mongo"
+	boletoHtml = boleto.MinifyHTML(boView)
 
 	if result.Format == "html" {
 		c.Header("Content-Type", "text/html; charset=utf-8")
