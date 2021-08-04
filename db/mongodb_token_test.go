@@ -1,4 +1,4 @@
-// +build integration
+// +build integration !unit
 
 package db_test
 

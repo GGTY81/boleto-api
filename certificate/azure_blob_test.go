@@ -1,4 +1,4 @@
-// +build integration
+// +build integration !unit
 
 package certificate_test
 
