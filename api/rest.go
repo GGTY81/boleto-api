@@ -13,6 +13,7 @@ import (
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/db"
 	"github.com/mundipagg/boleto-api/log"
+	"github.com/mundipagg/boleto-api/queue"
 )
 
 //InstallRestAPI "instala" e sobe o servico de rest
@@ -55,18 +56,26 @@ func InstallRestAPI() {
 	// Close DB Connection
 	err := db.CloseConnection()
 	if err != nil {
-		l.Error(err, "Shutdown server with error")
+		l.Error(err, "error closing Mongodb connection")
 	} else {
-		l.InfoWithParams("Mongodb connection successfully closed", "Information", nil)
+		l.InfoWithParams("mongodb connection successfully closed", "Information", nil)
+	}
+
+	// Close RabbitMQ Connection
+	err = queue.CloseConnection()
+	if err != nil {
+		l.Error(err, "error closing rabbitmq connection")
+	} else {
+		l.InfoWithParams("rabbitmq connection successfully closed", "Information", nil)
 	}
 
 	// Server Shutdown
 	err = server.Shutdown(context.Background())
 	if err != nil {
-		l.Error(err, "Shutdown server with error")
+		l.Error(err, "shutdown server with error")
 	}
 
-	l.InfoWithParams("Shutdown completed", "Information", nil)
+	l.InfoWithParams("shutdown completed", "Information", nil)
 	stdlog.Println("shutdown completed")
 	time.Sleep(10 * time.Second)
 }

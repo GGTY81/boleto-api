@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+
 	"github.com/mundipagg/boleto-api/log"
 
 	"github.com/streadway/amqp"
@@ -24,6 +25,15 @@ func OpenConnection() error {
 // GetConnectionReadOnly Obtém conexão de leitura com RabbitMQ
 func GetConnection() *amqp.Connection {
 	return conn
+}
+
+// CloseConnection close RabbitMQ connection
+func CloseConnection() error {
+	if conn == nil {
+		return nil
+	}
+
+	return conn.Close()
 }
 
 func failOnError(err error, title string, op string, msg ...string) {
