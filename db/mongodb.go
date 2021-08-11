@@ -274,10 +274,3 @@ func ping() error {
 
 	return nil
 }
-
-func CloseConnection() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	return conn.Disconnect(ctx)
-}

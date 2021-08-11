@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/signal"
 	"runtime"
 	"strconv"
+	"syscall"
 
 	"github.com/mundipagg/boleto-api/app"
 	"github.com/mundipagg/boleto-api/config"
+	"github.com/mundipagg/boleto-api/log"
 )
 
 var (
@@ -24,6 +27,19 @@ var (
 
 func init() {
 	createPIDfile()
+	// Configure signal handler
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	signal.Notify(c, syscall.SIGTERM)
+	go handleSignal(c)
+}
+
+func handleSignal(c chan os.Signal) {
+	<-c
+	config.Stop()
+	log.Info("Quiting BoletoApi")
+	fmt.Println("Done")
+	os.Exit(1)
 }
 
 func createPIDfile() {
