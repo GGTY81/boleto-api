@@ -10,7 +10,6 @@ func mockInstallApi() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
-	r.Use(executionController())
 	Base(r)
 	V1(r)
 	V2(r)
