@@ -124,6 +124,25 @@ func (l *Log) ResponseApplication(content interface{}, url string, errorCode str
 	})()
 }
 
+//ResponseApplicationFatal loga o response que sai do panic recovery
+func (l *Log) ResponseApplicationFatal(content interface{}, url string, errorCode string) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.defaultProperties("Response", content)
+		props["URL"] = url
+
+		if errorCode != "" {
+			props["ErrorCode"] = errorCode
+		}
+
+		msg := formatter("{Operation} | {Recipient}")
+
+		l.logger.Fatal(msg, props)
+	})()
+}
+
 //Info loga mensagem do level INFO
 func (l *Log) Info(msg string) {
 	if config.Get().DisableLog {
