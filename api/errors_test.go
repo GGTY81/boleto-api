@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -95,4 +96,24 @@ func arrangeContextWithBankAndResponse(bankNumber int, response models.BoletoRes
 	c.Set(bankKey, b)
 	c.Set(responseKey, response)
 	return c
+}
+
+func Test_RotaRegisterV1_WhenPanicOccurred_RunsPanicRecovery(t *testing.T) {
+	router, w := arrangeMiddlewareRoute("/boleto/register", parseBoleto, logger, errorResponseToClient, panicRecoveryHandler, mockPanicRegistration)
+	req, _ := http.NewRequest("POST", "/boleto/register", bytes.NewBuffer([]byte(mockPanicRegistrationRequestJSON)))
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 500, w.Code)
+	assert.Equal(t, mockPanicRegistrationResponseJSON, w.Body.String())
+}
+
+func Test_RotaRegisterV2_WhenPanicOccurred_RunsPanicRecovery(t *testing.T) {
+	router, w := arrangeMiddlewareRoute("/boleto/register", parseBoleto, logger, handleErrors, panicRecoveryHandler, mockPanicRegistration)
+	req, _ := http.NewRequest("POST", "/boleto/register", bytes.NewBuffer([]byte(mockPanicRegistrationRequestJSON)))
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, 500, w.Code)
+	assert.Equal(t, mockPanicRegistrationResponseJSON, w.Body.String())
 }
