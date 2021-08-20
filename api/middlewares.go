@@ -83,7 +83,11 @@ func logger(c *gin.Context) {
 
 	resp, _ := c.Get(responseKey)
 
-	l.ResponseApplication(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
+	if hasPanic(c) {
+		l.ResponseApplicationFatal(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
+	} else {
+		l.ResponseApplication(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
+	}
 
 	tag := bank.GetBankNameIntegration() + "-status"
 	metrics.PushBusinessMetric(tag, c.Writer.Status())
