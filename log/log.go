@@ -151,14 +151,6 @@ func (l *Log) Info(msg string) {
 	go l.logger.Info(msg, nil)
 }
 
-//Info loga mensagem do level INFO
-func Info(msg string) {
-	if config.Get().DisableLog {
-		return
-	}
-	go logger.Info(msg, nil)
-}
-
 // InfoWithParams cria log generico para um map
 func (l *Log) InfoWithParams(msg, msgType string, params map[string]interface{}) {
 	if config.Get().DisableLog {
@@ -166,6 +158,20 @@ func (l *Log) InfoWithParams(msg, msgType string, params map[string]interface{})
 	}
 	go (func() {
 		props := l.defaultProperties(msgType, "")
+		for k, v := range params {
+			props[k] = v
+		}
+		l.logger.Info(formatter(msg), props)
+	})()
+}
+
+// InfoWithBasic  Cria um log de information com as informações básicas do log
+func (l *Log) InfoWithBasic(msg, msgType string, params map[string]interface{}) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.basicProperties(msgType)
 		for k, v := range params {
 			props[k] = v
 		}
@@ -195,6 +201,18 @@ func (l *Log) Error(content interface{}, msg string) {
 		m := formatter(msg)
 
 		l.logger.Error(m, props)
+	})()
+}
+
+// ErrorWithBasic Cria um log de erro com as informações básicas do log
+func (l *Log) ErrorWithBasic(msg, msgType string, err error) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.basicProperties(msgType)
+		props["Error"] = fmt.Sprintf("%v", err)
+		l.logger.Error(formatter(msg), props)
 	})()
 }
 
@@ -245,6 +263,7 @@ func (l *Log) defaultProperties(messageType string, content interface{}) LogEntr
 		"RequestKey":  l.RequestKey,
 		"BankName":    l.BankName,
 		"ServiceUser": l.ServiceUser,
+		"IPAddress":   l.IPAddress,
 	}
 
 	for k, v := range l.basicProperties(messageType) {
@@ -278,7 +297,6 @@ func (l *Log) basicProperties(messageType string) LogEntry {
 	props := LogEntry{
 		"MessageType": messageType,
 		"Operation":   l.Operation,
-		"IPAddress":   l.IPAddress,
 	}
 	return props
 }

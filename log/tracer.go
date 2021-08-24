@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+
 	"regexp"
 	"strconv"
 	"time"
@@ -41,10 +42,11 @@ func configureTracer() {
 			Timeout:      3 * time.Second,
 			MinimumLevel: tracer.Debug,
 			DefaultProperties: LogEntry{
-				"Application": config.Get().ApplicationName,
-				"Environment": config.Get().Environment,
-				"Domain":      config.Get().SEQDomain,
-				"MachineName": config.Get().MachineName,
+				"Application":  config.Get().ApplicationName,
+				"Environment":  config.Get().Environment,
+				"Domain":       config.Get().SEQDomain,
+				"MachineName":  config.Get().MachineName,
+				"BuildVersion": config.Get().BuildVersion,
 			},
 			Application: config.Get().ApplicationName,
 			Key:         config.Get().SEQAPIKey,
@@ -74,10 +76,11 @@ func configureTracer() {
 				"ProductVersion": "1.0",
 			},
 			DefaultPropertiesApp: LogEntry{
-				"Application": config.Get().ApplicationName,
-				"Environment": config.Get().Environment,
-				"Domain":      config.Get().SEQDomain,
-				"MachineName": config.Get().MachineName,
+				"Application":  config.Get().ApplicationName,
+				"Environment":  config.Get().Environment,
+				"Domain":       config.Get().SEQDomain,
+				"MachineName":  config.Get().MachineName,
+				"BuildVersion": config.Get().BuildVersion,
 			},
 			Application: config.Get().ApplicationName,
 			Key:         config.Get().SplunkKey,
