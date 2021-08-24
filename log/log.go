@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/mralves/tracer"
 
@@ -294,9 +295,13 @@ func (l *Log) GetBoleto(content interface{}, msgType string) {
 }
 
 func (l *Log) basicProperties(messageType string) LogEntry {
+	loc, _ := time.LoadLocation("UTC")
+	now := time.Now().In(loc)
+
 	props := LogEntry{
-		"MessageType": messageType,
-		"Operation":   l.Operation,
+		"MessageType":   messageType,
+		"Operation":     l.Operation,
+		"ExecutionDate": now,
 	}
 	return props
 }

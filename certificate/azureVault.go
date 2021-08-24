@@ -28,6 +28,7 @@ type azureKeyVaultCertificate struct {
 
 func InstanceStoreCertificatesFromAzureVault(vaultName string, certificatesName ...string) (err error) {
 	l := log.CreateLog()
+	l.Operation = "InstanceStoreCertificatesFromAzureVault"
 	ctx := context.Background()
 	configCertificate := azureKeyVaultCertificate{
 		Ctx:       ctx,
