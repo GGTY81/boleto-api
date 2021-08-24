@@ -49,7 +49,7 @@ func InstanceStoreCertificatesFromAzureVault(vaultName string, certificatesName 
 			return err
 		}
 
-		l.Info(fmt.Sprintf("Success in load certificate [%s] from azureVault", certificateName))
+		l.InfoWithBasic(fmt.Sprintf("Success in load certificate [%s] from azureVault", certificateName), "LoadFromAzureVault", nil)
 	}
 
 	return nil

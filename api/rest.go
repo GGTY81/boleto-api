@@ -20,6 +20,8 @@ import (
 func InstallRestAPI() {
 
 	l := log.CreateLog()
+	l.Operation = "InstallAPI"
+
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
@@ -56,26 +58,26 @@ func InstallRestAPI() {
 	// Close DB Connection
 	err := db.CloseConnection()
 	if err != nil {
-		l.Error(err, "error closing Mongodb connection")
+		l.ErrorWithBasic("error closing Mongodb connection", "Error", err)
 	} else {
-		l.InfoWithParams("mongodb connection successfully closed", "Information", nil)
+		l.InfoWithBasic("mongodb connection successfully closed", "Information", nil)
 	}
 
 	// Close RabbitMQ Connection
 	err = queue.CloseConnection()
 	if err != nil {
-		l.Error(err, "error closing rabbitmq connection")
+		l.ErrorWithBasic("error closing rabbitmq connection", "Error", err)
 	} else {
-		l.InfoWithParams("rabbitmq connection successfully closed", "Information", nil)
+		l.InfoWithBasic("rabbitmq connection successfully closed", "Information", nil)
 	}
 
 	// Server Shutdown
 	err = server.Shutdown(context.Background())
 	if err != nil {
-		l.Error(err, "shutdown server with error")
+		l.ErrorWithBasic("shutdown server with error", "Error", err)
 	}
 
-	l.InfoWithParams("shutdown completed", "Information", nil)
+	l.InfoWithBasic("shutdown completed", "Information", nil)
 	stdlog.Println("shutdown completed")
 	time.Sleep(10 * time.Second)
 }

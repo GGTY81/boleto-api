@@ -55,29 +55,29 @@ func installCertificates() {
 	if config.Get().MockMode == false && config.Get().EnableFileServerCertificate == false {
 		err := certificate.InstanceStoreCertificatesFromAzureVault(config.Get().VaultName, config.Get().CertificateICPName, config.Get().CertificateSSLName)
 		if err == nil {
-			l.Info("Success in load certificates from azureVault")
+			l.InfoWithBasic("Success in load certificates from azureVault", "LoadFromAzureVault", nil)
 		} else {
-			l.Error(err.Error(), "Error in load certificates from azureVault")
+			l.ErrorWithBasic("Error in load certificates from azureVault", "LoadFromAzureVault", err)
 		}
 	}
 
 	if config.Get().MockMode == false && config.Get().EnableFileServerCertificate == true {
 		err := certificate.InstanceStoreCertificatesFromFileServer(config.Get().CertificateICPName, config.Get().CertificateSSLName)
 		if err == nil {
-			l.Info("Success in load certificates from fileserver")
+			l.InfoWithBasic("Success in load certificates from fileserver", "LoadFromFileServer", nil)
 		} else {
-			l.Error(err.Error(), "Error in load certificates from fileServer")
+			l.ErrorWithBasic("Error in load certificates from fileServer", "LoadFromFileServer", err)
 		}
 	}
 
 	sk, err := openBankSkFromBlob()
 	if err != nil {
-		l.Error(err.Error(), "Error loading open bank secret key from blob")
+		l.ErrorWithBasic("Error loading open bank secret key from blob", "LoadFromAzureBlob", err)
 		time.Sleep(10 * time.Second)
 		os.Exit(1)
 	}
 
-	l.Info(fmt.Sprintf("Success loading [%s] PK from blob", config.Get().AzureStorageOpenBankSkName))
+	l.InfoWithBasic(fmt.Sprintf("Success loading [%s] PK from blob", config.Get().AzureStorageOpenBankSkName), "LoadFromAzureBlob", nil)
 	certificate.SetCertificateOnStore(config.Get().AzureStorageOpenBankSkName, sk)
 }
 
