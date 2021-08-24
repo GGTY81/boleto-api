@@ -7,13 +7,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/config"
-	"github.com/mundipagg/boleto-api/db"
 	"github.com/mundipagg/boleto-api/log"
-	"github.com/mundipagg/boleto-api/queue"
 )
 
 //InstallRestAPI "instala" e sobe o servico de rest
@@ -47,37 +44,37 @@ func InstallRestAPI() {
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			interrupt <- syscall.SIGTERM
-			l.Error(err, "Got an error when trying serve.ListAndServe()")
+			l.ErrorWithBasic("got an error when trying serve.ListAndServe()", "Error", err)
 			stdlog.Println("err: ", err)
 		}
 	}()
 
 	<-interrupt
-	stdlog.Println("shutdown server")
+	stdlog.Println("start shutdown server...")
 
-	// Close DB Connection
-	err := db.CloseConnection()
-	if err != nil {
-		l.ErrorWithBasic("error closing Mongodb connection", "Error", err)
-	} else {
-		l.InfoWithBasic("mongodb connection successfully closed", "Information", nil)
-	}
+	// // Close DB Connection
+	// err := db.CloseConnection()
+	// if err != nil {
+	// 	l.ErrorWithBasic("error closing Mongodb connection", "Error", err)
+	// } else {
+	// 	l.InfoWithBasic("mongodb connection successfully closed", "Information", nil)
+	// }
 
-	// Close RabbitMQ Connection
-	err = queue.CloseConnection()
-	if err != nil {
-		l.ErrorWithBasic("error closing rabbitmq connection", "Error", err)
-	} else {
-		l.InfoWithBasic("rabbitmq connection successfully closed", "Information", nil)
-	}
+	// // Close RabbitMQ Connection
+	// err = queue.CloseConnection()
+	// if err != nil {
+	// 	l.ErrorWithBasic("error closing rabbitmq connection", "Error", err)
+	// } else {
+	// 	l.InfoWithBasic("rabbitmq connection successfully closed", "Information", nil)
+	// }
 
 	// Server Shutdown
-	err = server.Shutdown(context.Background())
+	err := server.Shutdown(context.Background())
 	if err != nil {
 		l.ErrorWithBasic("shutdown server with error", "Error", err)
 	}
 
 	l.InfoWithBasic("shutdown completed", "Information", nil)
 	stdlog.Println("shutdown completed")
-	time.Sleep(10 * time.Second)
+	// time.Sleep(10 * time.Second)
 }
