@@ -38,11 +38,16 @@ func Run(params *Params) {
 
 	log.Install()
 
+	start := time.Now()
+
 	healthcheck.EnsureDependencies()
 
 	installCertificates()
 
 	usermanagement.LoadUserCredentials()
+
+	props := getLoadDependenciesLogProp(start)
+	go log.CreateLog().InfoWithBasic("Load Dependencies with success", "Information", props)
 
 	api.InstallRestAPI()
 
@@ -100,4 +105,11 @@ func openBankSkFromBlob() ([]byte, error) {
 	}
 
 	return skBytes, nil
+}
+
+func getLoadDependenciesLogProp(start time.Time) map[string]interface{} {
+	props := make(map[string]interface{})
+	props["totalElapsedTimeInMilliseconds"] = time.Since(start).Milliseconds()
+	props["Operation"] = "RunApp"
+	return props
 }

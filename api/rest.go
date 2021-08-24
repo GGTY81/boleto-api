@@ -10,7 +10,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/config"
+	"github.com/mundipagg/boleto-api/db"
 	"github.com/mundipagg/boleto-api/log"
+	"github.com/mundipagg/boleto-api/queue"
 )
 
 //InstallRestAPI "instala" e sobe o servico de rest
@@ -50,28 +52,29 @@ func InstallRestAPI() {
 	}()
 
 	<-interrupt
+	l.InfoWithBasic("start shutdown server...", "Information", nil)
 	stdlog.Println("start shutdown server...")
-
-	// // Close DB Connection
-	// err := db.CloseConnection()
-	// if err != nil {
-	// 	l.ErrorWithBasic("error closing Mongodb connection", "Error", err)
-	// } else {
-	// 	l.InfoWithBasic("mongodb connection successfully closed", "Information", nil)
-	// }
-
-	// // Close RabbitMQ Connection
-	// err = queue.CloseConnection()
-	// if err != nil {
-	// 	l.ErrorWithBasic("error closing rabbitmq connection", "Error", err)
-	// } else {
-	// 	l.InfoWithBasic("rabbitmq connection successfully closed", "Information", nil)
-	// }
 
 	// Server Shutdown
 	err := server.Shutdown(context.Background())
 	if err != nil {
 		l.ErrorWithBasic("shutdown server with error", "Error", err)
+	}
+
+	// Close DB Connection
+	err = db.CloseConnection()
+	if err != nil {
+		l.ErrorWithBasic("error closing Mongodb connection", "Error", err)
+	} else {
+		l.InfoWithBasic("mongodb connection successfully closed", "Information", nil)
+	}
+
+	// Close RabbitMQ Connection
+	err = queue.CloseConnection()
+	if err != nil {
+		l.ErrorWithBasic("error closing rabbitmq connection", "Error", err)
+	} else {
+		l.InfoWithBasic("rabbitmq connection successfully closed", "Information", nil)
 	}
 
 	l.InfoWithBasic("shutdown completed", "Information", nil)
