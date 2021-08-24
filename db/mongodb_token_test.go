@@ -13,7 +13,7 @@ import (
 )
 
 func TestGetTokenByClientIDAndIssuerBank(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9082")
 	token := models.NewToken("9979b005-5k40-41c4-976e-3cec24f8006s", "SarumanBank", "Palantir")
 
 	err := deleteTokenByIssuerBank(token.IssuerBank)
@@ -30,7 +30,7 @@ func TestGetTokenByClientIDAndIssuerBank(t *testing.T) {
 }
 
 func TestGetTokenByClientIDAndIssuerBankWithExpiratedToken(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9082")
 	token := models.NewToken("5999h015-5l40-41c4-976e-2cec24f8006s", "Alatar", "The Blue")
 	token.CreatedAt = token.CreatedAt.Add(-14 * time.Minute)
 
@@ -48,7 +48,7 @@ func TestGetTokenByClientIDAndIssuerBankWithExpiratedToken(t *testing.T) {
 }
 
 func TestSaveToken(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9082")
 	token := models.NewToken("6275b002-5e20-67y1-716t-4aec24f8004w", "OlorinBank", "Mellon")
 
 	err := deleteTokenByIssuerBank(token.IssuerBank)
