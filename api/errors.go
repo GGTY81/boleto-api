@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/models"
@@ -101,7 +102,7 @@ func getErrorCodeToLog(c *gin.Context) string {
 func panicRecoveryHandler(c *gin.Context) {
 	defer func() {
 		if rec := recover(); rec != nil {
-			err := fmt.Errorf("An internal error occurred: %s", rec)
+			err := fmt.Errorf("an internal error occurred: %v.\ninner exception: %s", rec, string(debug.Stack()))
 
 			errorResponse := getResponseError("MP500", err.Error())
 
