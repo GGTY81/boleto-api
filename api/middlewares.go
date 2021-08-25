@@ -1,14 +1,12 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/bank"
-	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/metrics"
 	"github.com/mundipagg/boleto-api/models"
@@ -27,15 +25,6 @@ func returnHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
 		c.Next()
-	}
-}
-
-func executionController() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if config.IsRunning() {
-			c.AbortWithError(500, errors.New("a aplicação está sendo finalizada"))
-			return
-		}
 	}
 }
 
@@ -94,7 +83,11 @@ func logger(c *gin.Context) {
 
 	resp, _ := c.Get(responseKey)
 
-	l.ResponseApplication(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
+	if hasPanic(c) {
+		l.ResponseApplicationFatal(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
+	} else {
+		l.ResponseApplication(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
+	}
 
 	tag := bank.GetBankNameIntegration() + "-status"
 	metrics.PushBusinessMetric(tag, c.Writer.Status())

@@ -15,7 +15,7 @@ API responsável pelo registro online de um boleto. Atualmente, oferecemos supor
 
 ## Pré-requisitos
  * Estar logado na VPN através do programa [CiscoVPN](https://www.cisco.com/c/pt_br/products/security/anyconnect-secure-mobility-client/index.html)
- * [Golang](https://golang.org/dl/)
+ * [Golang](https://golang.org/dl/go1.13.15.windows-amd64.msi)
  * Container [Docker](https://docs.docker.com/desktop/)
 
 ____________________________________________________________

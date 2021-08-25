@@ -66,6 +66,8 @@ func registerPefisa(c *gin.Context) {
 		c.Data(200, "application/json", []byte(resp))
 	} else if strings.Contains(string(b), `"valorTitulo": "3.00"`) {
 		c.Data(400, "application/json", []byte(respErrorTitleExist))
+	} else if strings.Contains(string(b), `"valorTitulo": "1.00"`) {
+		panic("")
 	} else {
 		c.Data(400, "application/json", []byte(respError))
 	}
