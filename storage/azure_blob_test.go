@@ -1,20 +1,21 @@
-package certificate_test
+package storage_test
 
 import (
 	"testing"
 
-	"github.com/mundipagg/boleto-api/certificate"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/mock"
+	"github.com/mundipagg/boleto-api/storage"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAzureBlob_Download(t *testing.T) {
 	mock.StartMockService("9093")
-	azureBlobInst, err := certificate.NewAzureBlob(
+	azureBlobInst, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
 		config.Get().AzureStorageContainerName,
+		true,
 	)
 	assert.Nil(t, err)
 
@@ -24,11 +25,21 @@ func TestAzureBlob_Download(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		ab      *certificate.AzureBlob
+		ab      *storage.AzureBlob
 		args    args
 		want    string
 		wantErr bool
 	}{
+		{
+			name: "Donwload successfully",
+			ab:   azureBlobInst,
+			args: args{
+				path:     "docker/Fallback",
+				filename: "teste.json",
+			},
+			want:    "secret",
+			wantErr: false,
+		},
 		{
 			name: "Donwload successfully",
 			ab:   azureBlobInst,

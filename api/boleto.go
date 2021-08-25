@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/mundipagg/boleto-api/queue"
+	"github.com/mundipagg/boleto-api/storage"
 
 	"github.com/gin-gonic/gin"
 
@@ -61,24 +62,14 @@ func registerBoleto(c *gin.Context) {
 
 			if !queue.WriteMessage(p) {
 				lg.Error(b, persistenceErrorMessage)
+				//ab, _ := getClientBlob()
+				//ab.Upload()
 			}
 		}
 	}
 
 	c.JSON(st, resp)
 	c.Set("boletoResponse", resp)
-}
-
-func getResponseStatusCode(response models.BoletoResponse) int {
-	if len(response.Errors) > 0 {
-		if response.StatusCode > 0 {
-			return response.StatusCode
-		} else {
-			return http.StatusBadRequest
-		}
-	} else {
-		return http.StatusOK
-	}
 }
 
 func getBoleto(c *gin.Context) {
@@ -136,6 +127,18 @@ func getBoleto(c *gin.Context) {
 	result.LogSeverity = "Information"
 }
 
+func getResponseStatusCode(response models.BoletoResponse) int {
+	if len(response.Errors) > 0 {
+		if response.StatusCode > 0 {
+			return response.StatusCode
+		} else {
+			return http.StatusBadRequest
+		}
+	} else {
+		return http.StatusOK
+	}
+}
+
 func logResult(result *models.GetBoletoResult, log *log.Log, start time.Time) {
 	result.TotalElapsedTimeInMilliseconds = time.Since(start).Milliseconds()
 	log.GetBoleto(result, result.LogSeverity)
@@ -176,4 +179,13 @@ func confirmation(c *gin.Context) {
 		l.Request(string(dump), c.Request.URL.String(), nil)
 	}
 	c.String(200, "OK")
+}
+
+func getClientBlob() (*storage.AzureBlob, error) {
+	return storage.NewAzureBlob(
+		config.Get().AzureStorageAccount,
+		config.Get().AzureStorageAccessKey,
+		config.Get().AzureStorageContainerName,
+		false,
+	)
 }

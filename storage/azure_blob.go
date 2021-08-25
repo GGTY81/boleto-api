@@ -1,10 +1,11 @@
-package certificate
+package storage
 
 import (
 	"bytes"
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
@@ -16,21 +17,23 @@ type AzureBlob struct {
 	accessKey     string
 	containerName string
 	containerURL  azblob.ContainerURL
+	devMode       bool
 }
 
 // NewAzureBlob creates an instance of AzureBlob
 // accountName is the AZURE_STORAGE_ACCOUNT
 // accessKey is the AZURE_STORAGE_ACCESS_KEY
 // containerName is the container name
-func NewAzureBlob(accountName, accessKey, containerName string) (*AzureBlob, error) {
+func NewAzureBlob(accountName, accessKey, containerName string, devmode bool) (*AzureBlob, error) {
 	if len(accountName) == 0 || len(accessKey) == 0 || len(containerName) == 0 {
-		return nil, fmt.Errorf("Either the AZURE_STORAGE_ACCOUNT, AZURE_STORAGE_ACCESS_KEY or Container name cannot be empty")
+		return nil, fmt.Errorf("either the AZURE_STORAGE_ACCOUNT, AZURE_STORAGE_ACCESS_KEY or Container name cannot be empty")
 	}
 
 	return &AzureBlob{
 		accountName:   accountName,
 		accessKey:     accessKey,
 		containerName: containerName,
+		devMode:       devmode,
 	}, nil
 }
 
@@ -42,11 +45,8 @@ func (ab *AzureBlob) connect() error {
 
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
 
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", ab.accountName, ab.containerName),
-	)
+	URL := ab.urlConnectionString()
 
-	// Create a ContainerURL object that wraps the container URL and a request
 	// pipeline to make requests.
 	ab.containerURL = azblob.NewContainerURL(*URL, p)
 
@@ -82,4 +82,33 @@ func (ab *AzureBlob) Download(path, filename string) ([]byte, error) {
 	}
 
 	return downloadedData.Bytes(), nil
+}
+
+func (ab *AzureBlob) urlConnectionString() *url.URL {
+	var URL *url.URL
+	if ab.devMode {
+		URL, _ = url.Parse(fmt.Sprintf("http://127.0.0.1:10000/%s/%s", ab.accountName, ab.containerName))
+	} else {
+		URL, _ = url.Parse(fmt.Sprintf("https://%s.blob.core.windows.net/%s", ab.accountName, ab.containerName))
+	}
+	return URL
+}
+
+//Upload
+func (ab *AzureBlob) Upload(ctx context.Context, path, filename, payload string) {
+	data := []byte(payload)
+
+	fullpath := path + "/" + filename
+
+	ab.connect()
+	blobURL := ab.containerURL.NewBlockBlobURL(fullpath)
+
+	file, _ := os.Open(filename)
+	defer file.Close()
+
+	azblob.UploadBufferToBlockBlob(ctx, data, blobURL,
+		azblob.UploadToBlockBlobOptions{
+			BlockSize:   4 * 1024 * 1024,
+			Parallelism: 16,
+		})
 }

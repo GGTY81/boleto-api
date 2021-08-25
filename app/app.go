@@ -12,6 +12,7 @@ import (
 	"github.com/mundipagg/boleto-api/healthcheck"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/mock"
+	"github.com/mundipagg/boleto-api/storage"
 	"github.com/mundipagg/boleto-api/usermanagement"
 )
 
@@ -45,7 +46,6 @@ func Run(params *Params) {
 	usermanagement.LoadUserCredentials()
 
 	api.InstallRestAPI()
-
 }
 
 func installCertificates() {
@@ -82,10 +82,11 @@ func installCertificates() {
 }
 
 func openBankSkFromBlob() ([]byte, error) {
-	azureBlobInst, err := certificate.NewAzureBlob(
+	azureBlobInst, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
 		config.Get().AzureStorageContainerName,
+		false,
 	)
 	if err != nil {
 		return []byte(""), err
