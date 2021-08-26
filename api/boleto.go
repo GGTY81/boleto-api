@@ -151,15 +151,15 @@ func getBoleto(c *gin.Context) {
 }
 
 func getResponseStatusCode(response models.BoletoResponse) int {
-	if len(response.Errors) > 0 {
-		if response.StatusCode > 0 {
-			return response.StatusCode
-		} else {
-			return http.StatusBadRequest
-		}
-	} else {
+	if len(response.Errors) == 0 {
 		return http.StatusOK
 	}
+
+	if response.StatusCode < 1 {
+		return http.StatusBadRequest
+	}
+
+	return response.StatusCode
 }
 
 func logResult(result *models.GetBoletoResult, log *log.Log, start time.Time) {
