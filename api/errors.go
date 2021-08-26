@@ -7,7 +7,7 @@ import (
 	"github.com/mundipagg/boleto-api/models"
 )
 
-const persistenceErrorMessage = "Failure during send boleto to recovery queue. This boleto can't be recovery until manual insert content into database."
+const persistenceErrorMessage = "Failure during send boleto to Azure Blob Storage. This boleto can't be recovery until manual insert content into database."
 
 var validate = map[string]int{
 	"MP400":                   http.StatusBadRequest,

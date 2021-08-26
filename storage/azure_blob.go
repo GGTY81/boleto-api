@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
@@ -94,21 +93,23 @@ func (ab *AzureBlob) urlConnectionString() *url.URL {
 	return URL
 }
 
-//Upload
-func (ab *AzureBlob) Upload(ctx context.Context, path, filename, payload string) {
+//Upload loads the payload into Azure Blob Storage
+func (ab *AzureBlob) Upload(ctx context.Context, path, filename, payload string) (err error) {
 	data := []byte(payload)
 
 	fullpath := path + "/" + filename
 
-	ab.connect()
+	if err = ab.connect(); err != nil {
+		return
+	}
+
 	blobURL := ab.containerURL.NewBlockBlobURL(fullpath)
 
-	file, _ := os.Open(filename)
-	defer file.Close()
-
-	azblob.UploadBufferToBlockBlob(ctx, data, blobURL,
+	_, err = azblob.UploadBufferToBlockBlob(ctx, data, blobURL,
 		azblob.UploadToBlockBlobOptions{
 			BlockSize:   4 * 1024 * 1024,
 			Parallelism: 16,
 		})
+
+	return
 }

@@ -61,15 +61,38 @@ func registerBoleto(c *gin.Context) {
 			p := queue.NewPublisher(b)
 
 			if !queue.WriteMessage(p) {
-				lg.Error(b, persistenceErrorMessage)
-				//ab, _ := getClientBlob()
-				//ab.Upload()
+				err := uploadPayloadBlob(
+					c,
+					boView.ID.Hex(),
+					b)
+
+				if err != nil {
+					lg.Error(b, persistenceErrorMessage)
+				}
 			}
 		}
 	}
 
 	c.JSON(st, resp)
 	c.Set("boletoResponse", resp)
+}
+
+func uploadPayloadBlob(context *gin.Context, registerId, payload string) (err error) {
+	clientBlob, err := getClientBlob()
+
+	if err != nil {
+		return
+	}
+
+	fileName := config.Get().AzureStoragePrefixUpload + "-" + registerId + ".json"
+
+	err = clientBlob.Upload(
+		context,
+		config.Get().AzureStorageUploadPath,
+		fileName,
+		payload)
+
+	return
 }
 
 func getBoleto(c *gin.Context) {
@@ -186,6 +209,6 @@ func getClientBlob() (*storage.AzureBlob, error) {
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
 		config.Get().AzureStorageContainerName,
-		false,
+		config.Get().DevMode,
 	)
 }

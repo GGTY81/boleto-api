@@ -86,7 +86,7 @@ func openBankSkFromBlob() ([]byte, error) {
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
 		config.Get().AzureStorageContainerName,
-		false,
+		config.Get().DevMode,
 	)
 	if err != nil {
 		return []byte(""), err
