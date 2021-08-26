@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/models"
@@ -61,7 +63,8 @@ func handleErrors(c *gin.Context) {
 		c.JSON(http.StatusGatewayTimeout, response)
 	default:
 		response.Errors[0].Code = "MP500"
-		c.JSON(http.StatusInternalServerError, response)
+		clientResponse := getResponseError("MP500", "An internal error occurred.")
+		c.JSON(http.StatusInternalServerError, clientResponse)
 	}
 
 	c.Set(responseKey, response)
@@ -78,10 +81,16 @@ func getMapper(bank models.BankNumber) map[string]int {
 
 func qualifiedForNewErrorHandling(c *gin.Context, response models.BoletoResponse) bool {
 	bankNumber := getBankFromContext(c).GetBankNumber()
-	if bankNumber == models.Stone && response.HasErrors() {
+	if (bankNumber == models.Stone && response.HasErrors()) || hasPanic(c) {
 		return true
 	}
 	return false
+}
+
+func hasPanic(c *gin.Context) bool {
+	_, exists := c.Get("hasPanic")
+
+	return exists
 }
 
 func getErrorCodeToLog(c *gin.Context) string {
@@ -90,4 +99,39 @@ func getErrorCodeToLog(c *gin.Context) string {
 		return response.Errors[0].ErrorCode()
 	}
 	return ""
+}
+
+func panicRecoveryHandler(c *gin.Context) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			err := fmt.Errorf("an internal error occurred: %v.\ninner exception: %s", rec, string(debug.Stack()))
+
+			errorResponse := getResponseError("MP500", err.Error())
+
+			c.Set(responseKey, errorResponse)
+			c.Set("hasPanic", true)
+		}
+	}()
+
+	c.Next()
+}
+
+func errorResponseToClient(c *gin.Context) {
+	c.Next()
+
+	if hasPanic(c) {
+		errorResponse := getResponseError("MP500", "An internal error occurred.")
+
+		c.JSON(http.StatusInternalServerError, errorResponse)
+	}
+}
+
+func getResponseError(code string, message string) models.BoletoResponse {
+	errorResponse := models.BoletoResponse{
+		Errors: models.NewErrors(),
+	}
+
+	errorResponse.Errors.Append(code, message)
+
+	return errorResponse
 }
