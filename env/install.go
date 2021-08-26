@@ -87,6 +87,7 @@ func ConfigMock(port string) {
 	os.Setenv("NEW_RELIC_APP_NAME", "boleto-api")
 	os.Setenv("NEW_RELIC_LICENCE", "API_KEY")
 	os.Setenv("TELEMETRY_ENABLED", "false")
+	os.Setenv("BUILD_VERSION", "dev")
 
 	config.Install(true, true, config.Get().DisableLog)
 	registerFlowConnectors()
@@ -188,6 +189,7 @@ func configFlags(devMode, mockMode, disableLog bool) {
 		os.Setenv("NEW_RELIC_APP_NAME", "boleto-api")
 		os.Setenv("NEW_RELIC_LICENCE", "API_KEY")
 		os.Setenv("TELEMETRY_ENABLED", "false")
+		os.Setenv("BUILD_VERSION", "dev")
 	}
 
 	config.Install(mockMode, devMode, disableLog)

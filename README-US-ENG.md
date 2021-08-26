@@ -25,7 +25,7 @@ API Building
 
 The API was developed using GO language and therefore it is necessary to install the language tools in case you need to compile the application from the source.
 
-GO can be downloaded [here](https://golang.org/dl/)
+GO can be downloaded [here](https://golang.org/dl/go1.13.15.windows-amd64.msi)
 
 Before cloning the Project, you should create the file path inside $GOPATH
 

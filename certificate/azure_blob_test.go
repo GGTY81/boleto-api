@@ -12,7 +12,7 @@ import (
 )
 
 func TestAzureBlob_Download(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9081")
 	azureBlobInst, err := certificate.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,

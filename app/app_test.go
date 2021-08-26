@@ -12,7 +12,7 @@ import (
 )
 
 func Test_openBankSkFromBlob(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9080")
 
 	tests := []struct {
 		name    string
@@ -33,7 +33,7 @@ func Test_openBankSkFromBlob(t *testing.T) {
 }
 
 func Test_installCertificates(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9080")
 
 	tests := []struct {
 		name string

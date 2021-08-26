@@ -112,6 +112,7 @@ type Config struct {
 	NewRelicLicence                  string
 	TelemetryEnabled                 bool
 	URLStoneRegister                 string
+	BuildVersion                     string
 }
 
 var cnf Config
@@ -230,6 +231,7 @@ func Install(mockMode, devMode, disableLog bool) {
 		NewRelicLicence:                  os.Getenv("NEW_RELIC_LICENCE"),
 		TelemetryEnabled:                 os.Getenv("TELEMETRY_ENABLED") == "true",
 		URLStoneRegister:                 os.Getenv("URL_STONE_REGISTER"),
+		BuildVersion:                     os.Getenv("BUILD_VERSION"),
 	}
 }
 
