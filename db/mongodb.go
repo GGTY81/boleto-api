@@ -80,7 +80,7 @@ func getClientOptions() *options.ClientOptions {
 		co.SetTLSConfig(&tls.Config{})
 	}
 
-	return co.ApplyURI(fmt.Sprintf("mongodb://%s", mongoURL)).SetAuth(mongoCredential())
+	return co.ApplyURI(mongoURL).SetAuth(mongoCredential())
 }
 
 func mongoCredential() options.Credential {
