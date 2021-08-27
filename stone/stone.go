@@ -42,7 +42,7 @@ func (b bankStone) ProcessBoleto(boleto *models.BoletoRequest) (models.BoletoRes
 	}
 
 	if accToken, err := authenticate(boleto.Authentication.AccessKey, b.log); err != nil {
-		return models.BoletoResponse{Errors: errs}, err
+		return models.GetBoletoResponseError("MP500", err.Error()), nil
 	} else {
 		boleto.Authentication.AuthorizationToken = accToken
 	}
