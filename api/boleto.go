@@ -84,7 +84,7 @@ func uploadPayloadBlob(context *gin.Context, registerId, payload string) (err er
 		return
 	}
 
-	fileName := config.Get().AzureStoragePrefixUpload + "-" + registerId + ".json"
+	fileName := registerId + ".json"
 
 	err = clientBlob.Upload(
 		context,

@@ -113,7 +113,6 @@ type Config struct {
 	TelemetryEnabled                 bool
 	URLStoneRegister                 string
 	BuildVersion                     string
-	AzureStoragePrefixUpload         string
 	AzureStorageUploadPath           string
 }
 
@@ -159,7 +158,6 @@ func Install(mockMode, devMode, disableLog bool) {
 		AzureStorageContainerName:   os.Getenv("AZURE_STORAGE_CONTAINER_NAME"),
 		AzureStorageOpenBankSkPath:  os.Getenv("AZURE_STORAGE_OPEN_BANK_SK_PATH"),
 		AzureStorageOpenBankSkName:  os.Getenv("AZURE_STORAGE_OPEN_BANK_SK_NAME"),
-		AzureStoragePrefixUpload:    os.Getenv("AZURE_STORAGE_PREFIX_UPLOAD"),
 		AzureStorageUploadPath:      os.Getenv("AZURE_STORAGE_UPLOAD_PATH"),
 
 		MockMode:                         mockMode,
