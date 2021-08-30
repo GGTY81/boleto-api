@@ -61,10 +61,7 @@ func registerBoleto(c *gin.Context) {
 			p := queue.NewPublisher(b)
 
 			if !queue.WriteMessage(p) {
-				err := uploadPayloadBlob(
-					c,
-					boView.ID.Hex(),
-					b)
+				err := uploadPayloadBlob(c, boView.ID.Hex(), b)
 
 				if err != nil {
 					lg.Error(b, persistenceErrorMessage)
@@ -85,10 +82,11 @@ func uploadPayloadBlob(context *gin.Context, registerId, payload string) (err er
 	}
 
 	fileName := registerId + ".json"
+	uploadPath := config.Get().AzureStorageUploadPath + config.Get().AzureStorageFallbackFolder
 
 	err = clientBlob.Upload(
 		context,
-		config.Get().AzureStorageUploadPath,
+		uploadPath,
 		fileName,
 		payload)
 
