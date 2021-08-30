@@ -14,7 +14,7 @@ import (
 )
 
 func TestAzureBlob_Download(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9100")
 	azureBlobInst, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
@@ -55,7 +55,7 @@ func TestAzureBlob_Download(t *testing.T) {
 }
 
 func TestAzureBlob_Upload(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9100")
 	clientBlob, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
@@ -70,9 +70,11 @@ func TestAzureBlob_Upload(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*20))
 	defer cancel()
 
+	uploadPath := config.Get().AzureStorageUploadPath + config.Get().AzureStorageFallbackFolder
+
 	err = clientBlob.Upload(
 		ctx,
-		config.Get().AzureStorageUploadPath,
+		uploadPath,
 		"FileNameTest.json",
 		payload)
 
