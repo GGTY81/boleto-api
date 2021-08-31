@@ -230,6 +230,21 @@ func (l *Log) Fatal(content interface{}, msg string) {
 	})()
 }
 
+// Fatal Cria um log fatal com as informações básicas do log
+func (l *Log) FatalWithBasic(msg string, messageType string, params map[string]interface{}) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.basicProperties(messageType)
+		for k, v := range params {
+			props[k] = v
+		}
+
+		l.logger.Fatal(formatter(msg), props)
+	})()
+}
+
 //InitRobot loga o inicio da execução do robô de recovery
 func (l *Log) InitRobot(totalRecords int) {
 	msg := formatter("- Starting execution")

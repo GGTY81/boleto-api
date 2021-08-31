@@ -40,7 +40,7 @@ func Run(params *Params) {
 
 	start := time.Now()
 
-	healthcheck.EnsureDependencies()
+	healthcheck.ExecuteOnStartup()
 
 	installCertificates()
 

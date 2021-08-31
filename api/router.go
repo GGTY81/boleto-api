@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/mundipagg/boleto-api/healthcheck"
 )
 
 func Base(router *gin.Engine) {
@@ -11,6 +12,7 @@ func Base(router *gin.Engine) {
 	router.GET("/boleto/memory-check/", memory)
 	router.GET("/boleto/confirmation", confirmation)
 	router.POST("/boleto/confirmation", confirmation)
+	router.GET("/healthcheck", healthcheck.Endpoint)
 }
 
 //V1 configura as rotas da v1
