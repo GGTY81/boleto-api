@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
-	"github.com/mundipagg/boleto-api/log"
 )
 
 // AzureBlob represents a AzureBlob connection to a named container
@@ -21,10 +20,11 @@ type AzureBlob struct {
 }
 
 const MAX_UPLOAD_BLOCK_SIZE = 32 * 1024 * 1024 // 32MB
+const CORE_MACHINE_NUMBER = 8
 
 var jsonUploadOptions = azblob.UploadToBlockBlobOptions{
 	BlockSize:   MAX_UPLOAD_BLOCK_SIZE,
-	Parallelism: 8, //Número de cores da máquina
+	Parallelism: CORE_MACHINE_NUMBER,
 }
 
 // NewAzureBlob creates an instance of AzureBlob
@@ -102,10 +102,8 @@ func (ab *AzureBlob) urlConnectionString() *url.URL {
 }
 
 //Upload loads the payload into Azure Blob Storage
-func (ab *AzureBlob) Upload(ctx context.Context, path, filename, payload string) (err error) {
+func (ab *AzureBlob) Upload(ctx context.Context, fullpath, payload string) (totalElapsedTimeInMilliseconds int64, err error) {
 	data := []byte(payload)
-
-	fullpath := path + "/" + filename
 
 	if err = ab.connect(); err != nil {
 		return
@@ -117,17 +115,7 @@ func (ab *AzureBlob) Upload(ctx context.Context, path, filename, payload string)
 
 	_, err = azblob.UploadBufferToBlockBlob(ctx, data, blobURL, jsonUploadOptions)
 
-	props := getLogUploadProperties(start, fullpath, filename)
-	log.CreateLog().InfoWithBasic("loaded the payload into Azure Blob Storage with success", "Information", props)
+	totalElapsedTimeInMilliseconds = time.Since(start).Milliseconds()
 
 	return
-}
-
-func getLogUploadProperties(start time.Time, fullpath, filename string) map[string]interface{} {
-	props := make(map[string]interface{})
-	props["TotalElapsedTimeInMilliseconds"] = time.Since(start).Milliseconds()
-	props["Fullpath"] = fullpath
-	props["Filename"] = filename
-	props["Operation"] = "Upload Fallback"
-	return props
 }

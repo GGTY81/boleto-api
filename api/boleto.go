@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/mundipagg/boleto-api/queue"
-	"github.com/mundipagg/boleto-api/storage"
 
 	"github.com/gin-gonic/gin"
 
@@ -61,36 +60,13 @@ func registerBoleto(c *gin.Context) {
 			p := queue.NewPublisher(b)
 
 			if !queue.WriteMessage(p) {
-				err := uploadPayloadBlob(c, boView.ID.Hex(), b)
-
-				if err != nil {
-					lg.Error(b, persistenceErrorMessage)
-				}
+				fallback(c, boView.ID.Hex(), b)
 			}
 		}
 	}
 
 	c.JSON(st, resp)
 	c.Set("boletoResponse", resp)
-}
-
-func uploadPayloadBlob(context *gin.Context, registerId, payload string) (err error) {
-	clientBlob, err := getClientBlob()
-
-	if err != nil {
-		return
-	}
-
-	fileName := registerId + ".json"
-	uploadPath := config.Get().AzureStorageUploadPath + config.Get().AzureStorageFallbackFolder
-
-	err = clientBlob.Upload(
-		context,
-		uploadPath,
-		fileName,
-		payload)
-
-	return
 }
 
 func getBoleto(c *gin.Context) {
@@ -153,7 +129,7 @@ func getResponseStatusCode(response models.BoletoResponse) int {
 		return http.StatusOK
 	}
 
-	if response.StatusCode < 1 {
+	if response.StatusCode == 0 {
 		return http.StatusBadRequest
 	}
 
@@ -200,13 +176,4 @@ func confirmation(c *gin.Context) {
 		l.Request(string(dump), c.Request.URL.String(), nil)
 	}
 	c.String(200, "OK")
-}
-
-func getClientBlob() (*storage.AzureBlob, error) {
-	return storage.NewAzureBlob(
-		config.Get().AzureStorageAccount,
-		config.Get().AzureStorageAccessKey,
-		config.Get().AzureStorageContainerName,
-		config.Get().DevMode,
-	)
 }
