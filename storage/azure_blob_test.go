@@ -13,6 +13,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_NewAzureBlob_WhenInvalidParameters_ReturnError(t *testing.T) {
+	AzureBlobClient, err := storage.NewAzureBlob("", "", "", false)
+
+	expected := "either the AZURE_STORAGE_ACCOUNT, AZURE_STORAGE_ACCESS_KEY or Container name cannot be empty"
+
+	assert.Equal(t, expected, err.Error())
+	assert.Nil(t, AzureBlobClient)
+}
+
+func Test_NewAzureBlob_WhenValidParameters_ReturAzureBlobClient(t *testing.T) {
+	mock.StartMockService("9100")
+	AzureBlobClient, err := storage.NewAzureBlob(
+		config.Get().AzureStorageAccount,
+		config.Get().AzureStorageAccessKey,
+		config.Get().AzureStorageContainerName,
+		config.Get().DevMode)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, AzureBlobClient)
+}
+
 func TestAzureBlob_Download(t *testing.T) {
 	mock.StartMockService("9100")
 	azureBlobInst, err := storage.NewAzureBlob(
@@ -54,7 +75,7 @@ func TestAzureBlob_Download(t *testing.T) {
 	}
 }
 
-func TestAzureBlob_Upload(t *testing.T) {
+func Test_Upload_WhenValidParameters_LoadsSuccessfully(t *testing.T) {
 	mock.StartMockService("9100")
 	clientBlob, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
@@ -70,13 +91,32 @@ func TestAzureBlob_Upload(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*20))
 	defer cancel()
 
-	uploadPath := config.Get().AzureStorageUploadPath + config.Get().AzureStorageFallbackFolder
+	fullpath := config.Get().AzureStorageUploadPath + "/" + config.Get().AzureStorageFallbackFolder + "/" + "FileNameTest.json"
 
-	err = clientBlob.Upload(
+	_, err = clientBlob.Upload(
 		ctx,
-		uploadPath,
-		"FileNameTest.json",
+		fullpath,
 		payload)
 
 	assert.Nil(t, err)
+}
+
+func Test_Upload_WhenInvalidAuthentication_LoadsSuccessfully(t *testing.T) {
+	mock.StartMockService("9100")
+	clientBlob, _ := storage.NewAzureBlob(
+		"loginXXX",
+		"passwordXXX",
+		config.Get().AzureStorageContainerName,
+		config.Get().DevMode,
+	)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*20))
+	defer cancel()
+
+	_, err := clientBlob.Upload(
+		ctx,
+		"fullpath",
+		"payload")
+
+	assert.NotNil(t, err)
 }
