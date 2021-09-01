@@ -1,25 +1,23 @@
 package api
 
 import (
-	"net/http"
-	"net/http/httputil"
-	"time"
-
-	"github.com/mundipagg/boleto-api/queue"
-
-	"github.com/gin-gonic/gin"
-
-	"strings"
-
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/http/httputil"
+	"strings"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/boleto"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/db"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/models"
+	"github.com/mundipagg/boleto-api/queue"
 )
+
+var fallback = new(Fallback)
 
 //Regista um boleto em um determinado banco
 func registerBoleto(c *gin.Context) {
@@ -60,7 +58,7 @@ func registerBoleto(c *gin.Context) {
 			p := queue.NewPublisher(b)
 
 			if !queue.WriteMessage(p) {
-				fallback(c, boView.ID.Hex(), b)
+				fallback.Save(c, boView.ID.Hex(), b)
 			}
 		}
 	}

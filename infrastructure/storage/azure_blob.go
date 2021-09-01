@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Azure/azure-storage-blob-go/azblob"
+	"github.com/mundipagg/boleto-api/config"
 )
 
 // AzureBlob represents a AzureBlob connection to a named container
@@ -101,13 +102,22 @@ func (ab *AzureBlob) urlConnectionString() *url.URL {
 	return URL
 }
 
-//Upload loads the payload into Azure Blob Storage
-func (ab *AzureBlob) Upload(ctx context.Context, fullpath, payload string) (totalElapsedTimeInMilliseconds int64, err error) {
-	data := []byte(payload)
-
+//UploadAsJson loads the payload into Azure Blob Storage
+func (ab *AzureBlob) UploadAsJson(ctx context.Context, fileNamePrefix, payload string) (elapsedTime int64, err error) {
 	if err = ab.connect(); err != nil {
 		return
 	}
+
+	filename := fileNamePrefix + ".json"
+	fullpath := config.Get().AzureStorageUploadPath + "/" + config.Get().AzureStorageFallbackFolder + "/" + filename
+
+	elapsedTime, err = upload(ctx, ab, fullpath, payload)
+
+	return
+}
+
+func upload(ctx context.Context, ab *AzureBlob, fullpath, payload string) (elapsedTime int64, err error) {
+	data := []byte(payload)
 
 	blobURL := ab.containerURL.NewBlockBlobURL(fullpath)
 
@@ -115,7 +125,7 @@ func (ab *AzureBlob) Upload(ctx context.Context, fullpath, payload string) (tota
 
 	_, err = azblob.UploadBufferToBlockBlob(ctx, data, blobURL, jsonUploadOptions)
 
-	totalElapsedTimeInMilliseconds = time.Since(start).Milliseconds()
+	elapsedTime = time.Since(start).Milliseconds()
 
 	return
 }

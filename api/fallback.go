@@ -2,31 +2,31 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mundipagg/boleto-api/config"
-	"github.com/mundipagg/boleto-api/storage"
+	"github.com/mundipagg/boleto-api/infrastructure/storage"
 )
 
-func fallback(context *gin.Context, registerId, payload string) {
+const persistenceErrorMessage = "Failure during send boleto to fallback. This boleto can't be recovery until manual insert content into database."
+
+type IFallback interface {
+	Save(context *gin.Context, registerId, payload string)
+}
+
+type Fallback struct{}
+
+// Save resilience application
+func (f *Fallback) Save(context *gin.Context, registerId, payload string) {
 	lg := loadBankLog(context)
 
-	client, err := storage.NewAzureBlob(
-		config.Get().AzureStorageAccount,
-		config.Get().AzureStorageAccessKey,
-		config.Get().AzureStorageContainerName,
-		config.Get().DevMode,
-	)
+	client, err := storage.GetClient()
 
 	if err != nil {
 		lg.FallbackErrorWithBasic(persistenceErrorMessage, "Error", err, payload)
 		return
 	}
 
-	filename := registerId + ".json"
-	fullpath := config.Get().AzureStorageUploadPath + "/" + config.Get().AzureStorageFallbackFolder + "/" + filename
-
-	elapsedTime, err := client.Upload(
+	elapsedTime, err := client.UploadAsJson(
 		context,
-		fullpath,
+		registerId,
 		payload)
 
 	if err != nil {

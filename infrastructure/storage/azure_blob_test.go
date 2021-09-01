@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/mundipagg/boleto-api/config"
+	"github.com/mundipagg/boleto-api/infrastructure/storage"
 	"github.com/mundipagg/boleto-api/mock"
-	"github.com/mundipagg/boleto-api/storage"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -77,12 +77,7 @@ func TestAzureBlob_Download(t *testing.T) {
 
 func Test_Upload_WhenValidParameters_LoadsSuccessfully(t *testing.T) {
 	mock.StartMockService("9100")
-	clientBlob, err := storage.NewAzureBlob(
-		config.Get().AzureStorageAccount,
-		config.Get().AzureStorageAccessKey,
-		config.Get().AzureStorageContainerName,
-		config.Get().DevMode,
-	)
+	clientBlob, err := storage.GetClient()
 
 	assert.Nil(t, err)
 
@@ -93,7 +88,7 @@ func Test_Upload_WhenValidParameters_LoadsSuccessfully(t *testing.T) {
 
 	fullpath := config.Get().AzureStorageUploadPath + "/" + config.Get().AzureStorageFallbackFolder + "/" + "FileNameTest.json"
 
-	_, err = clientBlob.Upload(
+	_, err = clientBlob.UploadAsJson(
 		ctx,
 		fullpath,
 		payload)
@@ -113,9 +108,9 @@ func Test_Upload_WhenInvalidAuthentication_LoadsSuccessfully(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*20))
 	defer cancel()
 
-	_, err := clientBlob.Upload(
+	_, err := clientBlob.UploadAsJson(
 		ctx,
-		"fullpath",
+		"fileNamePrefix",
 		"payload")
 
 	assert.NotNil(t, err)
