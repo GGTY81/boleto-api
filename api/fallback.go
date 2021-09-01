@@ -20,7 +20,7 @@ func (f *Fallback) Save(context *gin.Context, registerId, payload string) {
 	client, err := storage.GetClient()
 
 	if err != nil {
-		lg.FallbackErrorWithBasic(persistenceErrorMessage, "Error", err, payload)
+		lg.ErrorWithContent("failure to get client", "Error", err, payload)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (f *Fallback) Save(context *gin.Context, registerId, payload string) {
 		payload)
 
 	if err != nil {
-		lg.FallbackErrorWithBasic(persistenceErrorMessage, "Error", err, payload)
+		lg.ErrorWithContent(persistenceErrorMessage, "Error", err, payload)
 		return
 	}
 

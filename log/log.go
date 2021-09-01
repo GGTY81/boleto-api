@@ -218,7 +218,7 @@ func (l *Log) ErrorWithBasic(msg, msgType string, err error) {
 }
 
 // FallbackErrorWithBasic Cria um log de erro com as informações básicas do log de fallback
-func (l *Log) FallbackErrorWithBasic(msg, msgType string, err error, content interface{}) {
+func (l *Log) ErrorWithContent(msg, msgType string, err error, content interface{}) {
 	if config.Get().DisableLog {
 		return
 	}
