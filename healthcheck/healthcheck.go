@@ -7,10 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/log"
-	HealthCheckLib "github.com/wesleycosta/gohealthcheck"
+	HealthCheckLib "github.com/wesleycosta/healthcheck-go"
 
-	"github.com/wesleycosta/gohealthcheck/checks/mongo"
-	"github.com/wesleycosta/gohealthcheck/checks/rabbit"
+	"github.com/wesleycosta/healthcheck-go/checks/mongo"
+	"github.com/wesleycosta/healthcheck-go/checks/rabbit"
 )
 
 const (
@@ -33,8 +33,8 @@ func createHealthCheck() HealthCheckLib.HealthCheck {
 	}
 
 	healthCheck := HealthCheckLib.New()
-	healthCheck.AddMongo(&mongoConfig)
-	healthCheck.AddRabbit(&rabbitConfig)
+	healthCheck.AddService(&mongoConfig)
+	healthCheck.AddService(&rabbitConfig)
 
 	return healthCheck
 }

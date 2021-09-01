@@ -620,6 +620,30 @@
 			"revisionTime": "2018-02-27T16:17:03Z"
 		},
 		{
+			"checksumSHA1": "rjyPJc8g0f5tcaHFPbMgVym53nA=",
+			"path": "github.com/wesleycosta/healthcheck-go",
+			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
+			"revisionTime": "2021-09-01T19:22:41Z"
+		},
+		{
+			"checksumSHA1": "F2LhKnCJ9NX//VL6Yd/Q+LwLPm0=",
+			"path": "github.com/wesleycosta/healthcheck-go/checks",
+			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
+			"revisionTime": "2021-09-01T19:22:41Z"
+		},
+		{
+			"checksumSHA1": "2wLoNRDxt9Q0IhCOiD4b1ejbrB4=",
+			"path": "github.com/wesleycosta/healthcheck-go/checks/mongo",
+			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
+			"revisionTime": "2021-09-01T19:22:41Z"
+		},
+		{
+			"checksumSHA1": "80Nnnr5WiEKcxmkkRbm1olk2mrA=",
+			"path": "github.com/wesleycosta/healthcheck-go/checks/rabbit",
+			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
+			"revisionTime": "2021-09-01T19:22:41Z"
+		},
+		{
 			"checksumSHA1": "mwhaccie0lbRNZdhkGtKdldb8og=",
 			"origin": "go.mongodb.org/mongo-driver/vendor/github.com/xdg-go/pbkdf2",
 			"path": "github.com/xdg-go/pbkdf2",
