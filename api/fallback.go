@@ -34,13 +34,14 @@ func (f *Fallback) Save(context *gin.Context, registerId, payload string) {
 		return
 	}
 
-	props := getLogUploadProperties(elapsedTime, registerId)
-	lg.InfoWithBasic("loaded the payload into Azure Blob Storage with success", "Information", props)
+	props := getLogUploadProperties(elapsedTime, registerId, payload)
+	lg.InfoWithParams("loaded the payload into Azure Blob Storage with success", "Information", props)
 }
 
-func getLogUploadProperties(totalElapsedTimeInMilliseconds int64, registerId string) map[string]interface{} {
+func getLogUploadProperties(totalElapsedTimeInMilliseconds int64, registerId, payload string) map[string]interface{} {
 	props := make(map[string]interface{})
 	props["TotalElapsedTimeInMilliseconds"] = totalElapsedTimeInMilliseconds
 	props["RegisterId"] = registerId
+	props["Content"] = payload
 	return props
 }

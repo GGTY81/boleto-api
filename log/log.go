@@ -223,9 +223,8 @@ func (l *Log) ErrorWithContent(msg, msgType string, err error, content interface
 		return
 	}
 	go (func() {
-		props := l.basicProperties(msgType)
+		props := l.defaultProperties(msgType, content)
 		props["Error"] = fmt.Sprintf("%v", err)
-		props["Content"] = content
 		l.logger.Error(formatter(msg), props)
 	})()
 }
