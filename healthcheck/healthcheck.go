@@ -1,8 +1,8 @@
 package healthcheck
 
 import (
-	"os"
-	"time"
+	stdlog "log"
+	"syscall"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/config"
@@ -18,7 +18,7 @@ const (
 )
 
 func createHealthCheck() HealthCheckLib.HealthCheck {
-	mongoConfig := mongo.Config{
+	mongoConfig := &mongo.Config{
 		Url:        config.Get().MongoURL,
 		User:       config.Get().MongoUser,
 		Password:   config.Get().MongoPassword,
@@ -28,13 +28,13 @@ func createHealthCheck() HealthCheckLib.HealthCheck {
 		ForceTLS:   config.Get().ForceTLS,
 	}
 
-	rabbitConfig := rabbit.Config{
+	rabbitConfig := &rabbit.Config{
 		ConnectionString: config.Get().ConnQueue,
 	}
 
 	healthCheck := HealthCheckLib.New()
-	healthCheck.AddService(&mongoConfig)
-	healthCheck.AddService(&rabbitConfig)
+	healthCheck.AddService(mongoConfig)
+	healthCheck.AddService(rabbitConfig)
 
 	return healthCheck
 }
@@ -46,12 +46,15 @@ func Endpoint(c *gin.Context) {
 
 func ExecuteOnStartup() bool {
 	logger := log.CreateLog()
+	logger.InfoWithBasic("HealthCheckStart", "Starting HealthCheck", nil)
+
 	healtcheck := createHealthCheck()
 	result := healtcheck.Execute()
 
 	if result.Status == Unhealthy {
-		logger.FatalWithBasic("Healthcheck is Unhealthy", "ExecuteOnStartup", map[string]interface{}{"Error": result, "Operation": "HealthCheckUnhealthy"})
-		shutdown()
+		stdlog.Println("Healthcheck is Unhealthy")
+		logger.ErrorBasicWithContent("Healthcheck is Unhealthy", "ExecuteOnStartup", map[string]interface{}{"Error": result, "Operation": "HealthCheckUnhealthy"})
+		gracefullyShutdown()
 
 		return false
 	}
@@ -60,10 +63,8 @@ func ExecuteOnStartup() bool {
 	return true
 }
 
-func shutdown() {
+func gracefullyShutdown() {
 	logger := log.CreateLog()
 	logger.InfoWithBasic("Shutdown", "The application will be terminated", nil)
-
-	time.Sleep(10 * time.Second)
-	os.Exit(1)
+	syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
 }

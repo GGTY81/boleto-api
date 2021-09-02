@@ -230,18 +230,15 @@ func (l *Log) Fatal(content interface{}, msg string) {
 	})()
 }
 
-// Fatal Cria um log fatal com as informações básicas do log
-func (l *Log) FatalWithBasic(msg string, messageType string, params map[string]interface{}) {
+// ErrorBasicWithContent Cria um log fatal com as informações básicas do log
+func (l *Log) ErrorBasicWithContent(msg, msgType string, content interface{}) {
 	if config.Get().DisableLog {
 		return
 	}
 	go (func() {
-		props := l.basicProperties(messageType)
-		for k, v := range params {
-			props[k] = v
-		}
-
-		l.logger.Fatal(formatter(msg), props)
+		props := l.basicProperties(msgType)
+		props["Content"] = content
+		l.logger.Error(formatter(msg), props)
 	})()
 }
 
