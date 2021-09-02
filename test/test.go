@@ -83,5 +83,5 @@ func AssertError(t *testing.T, err error, errType interface{}) {
 func CreateClientIP(c *gin.Context) {
 	c.Request = new(http.Request)
 	c.Request.Header = make(map[string][]string)
-	c.Request.Header.Add("X-Forwarded-For", "1.1.1.1")
+	c.Request.Header.Add("X-Forwarded-For", "0.0.0.0")
 }

@@ -34,10 +34,13 @@ func Test_fallback(t *testing.T) {
 func Test_getLogUploadProperties(t *testing.T) {
 	var time int64 = 100
 	var registerId = "RegisterXXX"
+	var content = "Content"
 
-	response := getLogUploadProperties(time, registerId)
+	response := getLogUploadProperties(time, registerId, content)
 
-	assert.Equal(t, len(response), 2)
+	assert.Equal(t, len(response), 3)
 	assert.Equal(t, response["TotalElapsedTimeInMilliseconds"], time)
 	assert.Equal(t, response["RegisterId"], registerId)
+	assert.Equal(t, response["Content"], content)
+
 }
