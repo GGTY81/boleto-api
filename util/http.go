@@ -114,9 +114,6 @@ func PostReponseWithHeader(url, body, timeout string, header map[string]string) 
 	return doRequest("POST", url, body, timeout, header)
 }
 
-//Get faz um requisição GET para uma URL e retorna o response, status e erro
-func Get(url, body, timeout string, header map[string]string) (string, int, error) {
-	return doRequest("GET", url, body, timeout, header)
 //Post faz um requisição POST para uma URL e retorna o response, status e erro
 func Post(url, body, timeout string, header map[string]string) (string, int, error) {
 	resp, _, st, err := doRequest("POST", url, body, timeout, header)
