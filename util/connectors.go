@@ -39,7 +39,7 @@ func LogConector(e *flow.ExchangeMessage, u flow.URI, params ...interface{}) err
 			l.Request(b, u.GetOption("url"), e.GetHeaderMap())
 		}
 		if u.GetOption("type") == "response" {
-			l.Response(b, u.GetOption("url"))
+			l.Response(b, u.GetOption("url"), nil)
 		}
 	}
 	return nil
