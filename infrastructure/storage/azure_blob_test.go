@@ -86,11 +86,9 @@ func Test_Upload_WhenValidParameters_LoadsSuccessfully(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*20))
 	defer cancel()
 
-	fullpath := config.Get().AzureStorageUploadPath + "/" + config.Get().AzureStorageFallbackFolder + "/" + "FileNameTest.json"
-
 	_, err = clientBlob.UploadAsJson(
 		ctx,
-		fullpath,
+		"FileNameTest.json",
 		payload)
 
 	assert.Nil(t, err)
