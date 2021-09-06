@@ -1,25 +1,23 @@
 package api
 
 import (
-	"net/http"
-	"net/http/httputil"
-	"time"
-
-	"github.com/mundipagg/boleto-api/queue"
-
-	"github.com/gin-gonic/gin"
-
-	"strings"
-
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/http/httputil"
+	"strings"
+	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/boleto"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/db"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/models"
+	"github.com/mundipagg/boleto-api/queue"
 )
+
+var fallback = new(Fallback)
 
 //Regista um boleto em um determinado banco
 func registerBoleto(c *gin.Context) {
@@ -43,40 +41,28 @@ func registerBoleto(c *gin.Context) {
 		return
 	}
 
-	st := http.StatusOK
-	if len(resp.Errors) > 0 {
+	st := getResponseStatusCode(resp)
 
-		if resp.StatusCode > 0 {
-			st = resp.StatusCode
-		} else {
-			st = http.StatusBadRequest
-		}
+	if st == http.StatusOK {
 
-	} else {
 		boView := models.NewBoletoView(bol, resp, bank.GetBankNameIntegration())
 		resp.ID = boView.ID.Hex()
 		resp.Links = boView.Links
-
-		redis := db.CreateRedis()
 
 		errMongo := db.SaveBoleto(boView)
 
 		if errMongo != nil {
 			lg.Warn(errMongo.Error(), fmt.Sprintf("Error saving to mongo - %s", errMongo.Error()))
+
 			b := boView.ToMinifyJSON()
 			p := queue.NewPublisher(b)
 
 			if !queue.WriteMessage(p) {
-				err = redis.SetBoletoJSON(b, resp.ID, boView.PublicKey, lg)
-				if checkError(c, err, lg) {
-					return
-				}
+				fallback.Save(c, boView.ID.Hex(), b)
 			}
 		}
-
-		s := boleto.MinifyHTML(boView)
-		redis.SetBoletoHTML(s, resp.ID, boView.PublicKey, lg)
 	}
+
 	c.JSON(st, resp)
 	c.Set("boletoResponse", resp)
 }
@@ -100,29 +86,23 @@ func getBoleto(c *gin.Context) {
 		return
 	}
 
-	redis := db.CreateRedis()
-	boletoHtml, result.CacheElapsedTimeInMilliseconds = redis.GetBoletoHTMLByID(result.Id, result.PrivateKey, log)
+	var err error
+	var boView models.BoletoView
 
-	if boletoHtml == "" {
-		var err error
-		var boView models.BoletoView
+	boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PrivateKey)
 
-		boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PrivateKey)
-
-		if err != nil && (err.Error() == db.NotFoundDoc || err.Error() == db.InvalidPK) {
-			result.SetErrorResponse(c, models.NewErrorResponse("MP404", "Not Found"), http.StatusNotFound)
-			result.LogSeverity = "Warning"
-			return
-		} else if err != nil {
-			result.SetErrorResponse(c, models.NewErrorResponse("MP500", err.Error()), http.StatusInternalServerError)
-			result.LogSeverity = "Error"
-			return
-		}
-		result.BoletoSource = "mongo"
-		boletoHtml = boleto.MinifyHTML(boView)
-	} else {
-		result.BoletoSource = "redis"
+	if err != nil && (err.Error() == db.NotFoundDoc || err.Error() == db.InvalidPK) {
+		result.SetErrorResponse(c, models.NewErrorResponse("MP404", "Not Found"), http.StatusNotFound)
+		result.LogSeverity = "Warning"
+		return
+	} else if err != nil {
+		result.SetErrorResponse(c, models.NewErrorResponse("MP500", err.Error()), http.StatusInternalServerError)
+		result.LogSeverity = "Error"
+		return
 	}
+
+	result.BoletoSource = "mongo"
+	boletoHtml = boleto.MinifyHTML(boView)
 
 	if result.Format == "html" {
 		c.Header("Content-Type", "text/html; charset=utf-8")
@@ -140,6 +120,18 @@ func getBoleto(c *gin.Context) {
 	}
 
 	result.LogSeverity = "Information"
+}
+
+func getResponseStatusCode(response models.BoletoResponse) int {
+	if len(response.Errors) == 0 {
+		return http.StatusOK
+	}
+
+	if response.StatusCode == 0 {
+		return http.StatusBadRequest
+	}
+
+	return response.StatusCode
 }
 
 func logResult(result *models.GetBoletoResult, log *log.Log, start time.Time) {

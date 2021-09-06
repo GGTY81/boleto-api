@@ -217,6 +217,18 @@ func (l *Log) ErrorWithBasic(msg, msgType string, err error) {
 	})()
 }
 
+// FallbackErrorWithBasic Cria um log de erro com as informações básicas do log de fallback
+func (l *Log) ErrorWithContent(msg, msgType string, err error, content interface{}) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.defaultProperties(msgType, content)
+		props["Error"] = fmt.Sprintf("%v", err)
+		l.logger.Error(formatter(msg), props)
+	})()
+}
+
 // Fatal loga erros da aplicação
 func (l *Log) Fatal(content interface{}, msg string) {
 	if config.Get().DisableLog {

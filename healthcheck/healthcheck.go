@@ -83,7 +83,7 @@ func ExecuteOnStartup() bool {
 
 func shutdown() {
 	time.Sleep(5 * time.Second)
-	panic(errors.New("healthcheck is Unhealthy"))
+	panic(errors.New("healthcheck is unhealthy"))
 }
 
 func logInstance(operation string) *log.Log {

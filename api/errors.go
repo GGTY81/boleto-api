@@ -46,7 +46,7 @@ func handleErrors(c *gin.Context) {
 	bankcode := response.Errors[0].Code
 
 	if status, exist = validate[bankcode]; !exist {
-		status, _ = getMapper(bank)[bankcode]
+		status = getMapper(bank)[bankcode]
 	}
 
 	switch status {
