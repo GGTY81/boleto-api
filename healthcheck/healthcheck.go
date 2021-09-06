@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	Unhealthy string = "Unhealthy"
+	Unhealthy    string = "Unhealthy"
+	MongoTimeout int    = 3
 )
 
 type HealthCheckResponse struct {
@@ -36,7 +37,7 @@ func createHealthCheck() HealthCheckLib.HealthCheck {
 		Password:   config.Get().MongoPassword,
 		Database:   config.Get().MongoDatabase,
 		AuthSource: config.Get().MongoAuthSource,
-		Timeout:    3,
+		Timeout:    MongoTimeout,
 		ForceTLS:   config.Get().ForceTLS,
 	}
 

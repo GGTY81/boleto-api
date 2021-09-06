@@ -242,7 +242,7 @@ func (l *Log) Fatal(content interface{}, msg string) {
 	})()
 }
 
-// ErrorBasicWithContent Cria um log fatal com as informações básicas do log
+// ErrorBasicWithContent Cria um log de erro com as informações básicas e o conteúdo
 func (l *Log) ErrorBasicWithContent(msg, msgType string, content interface{}) {
 	if config.Get().DisableLog {
 		return
