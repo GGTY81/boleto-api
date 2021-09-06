@@ -1,9 +1,10 @@
 package healthcheck
 
 import (
-	"github.com/wesleycosta/healthcheck-go/checks"
-	mongo "github.com/wesleycosta/healthcheck-go/checks/mongo"
-	rabbit "github.com/wesleycosta/healthcheck-go/checks/rabbit"
+	"github.com/mundipagg/healthcheck-go/checks"
+	mongo "github.com/mundipagg/healthcheck-go/checks/mongo"
+	rabbit "github.com/mundipagg/healthcheck-go/checks/rabbit"
+	sqlServer "github.com/mundipagg/healthcheck-go/checks/sqlServer"
 )
 
 type HealthCheck interface {
@@ -41,6 +42,10 @@ func (healthCheck *healthCheck) AddService(config checks.Config) {
 	case *mongo.Config:
 		mongoCheck := config.(*mongo.Config).CreateCheck()
 		healthCheck.addCheck(mongoCheck)
+
+	case *sqlServer.Config:
+		sqlServerCheck := config.(*sqlServer.Config).CreateCheck()
+		healthCheck.addCheck(sqlServerCheck)
 	}
 }
 

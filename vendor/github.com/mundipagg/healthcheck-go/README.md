@@ -1,5 +1,5 @@
 
-[![GoDoc](https://godoc.org/github.com/wesleycosta/goseq?status.svg)](https://godoc.org/github.com/wesleycosta/goseq)
+[![GoDoc](https://godoc.org/github.com/mundipagg/goseq?status.svg)](https://godoc.org/github.com/mundipagg/goseq)
 # Golang health check
 
 Bliblioteca de health check em Golang.
@@ -7,34 +7,37 @@ Bliblioteca de health check em Golang.
 ### Lista de serviços
 1. MongoDB;
 2. RabbitMQ.
+2. SQL Server.
 
 ## Instalação
 
 ### Usando *go get*
 
-    $ go get github.com/wesleycosta/healthcheck-go
+    $ go get github.com/mundipagg/healthcheck-go
 
-## Exemplos
+### Usando govendor
+	$ govendor add github.com/mundipagg/healthcheck-go
+	$ govendor add github.com/mundipagg/healthcheck-go/checks
+	$ govendor add github.com/mundipagg/healthcheck-go/checks/mongo
+	$ govendor add github.com/mundipagg/healthcheck-go/checks/rabbit       
+
+## Exemplo
 
 ### HealthCheck
 ```go
 package healthcheck
 
 import (
-	"os"
-	"time"
-
 	"github.com/gin-gonic/gin"
-	"github.com/wesleycosta/boleto-api/config"
-	"github.com/wesleycosta/boleto-api/log"
-	HealthCheckLib "github.com/wesleycosta/healthcheck-go"
+	"github.com/mundipagg/boleto-api/config"
 
-	"github.com/wesleycosta/healthcheck-go/checks/mongo"
-	"github.com/wesleycosta/healthcheck-go/checks/rabbit"
+	HealthCheckLib "github.com/mundipagg/healthcheck-go"
+	"github.com/mundipagg/healthcheck-go/checks/mongo"
+	"github.com/mundipagg/healthcheck-go/checks/rabbit"
 )
 
 func createHealthCheck() HealthCheckLib.HealthCheck {
-	mongoConfig := mongo.Config{
+	mongoConfig := &mongo.Config{
 		Url:        config.Get().MongoURL,
 		User:       config.Get().MongoUser,
 		Password:   config.Get().MongoPassword,
@@ -42,15 +45,16 @@ func createHealthCheck() HealthCheckLib.HealthCheck {
 		AuthSource: config.Get().MongoAuthSource,
 		Timeout:    3,
 		ForceTLS:   config.Get().ForceTLS,
+		MaxPoolSize:   100,
 	}
 
-	rabbitConfig := rabbit.Config{
+	rabbitConfig := &rabbit.Config{
 		ConnectionString: config.Get().ConnQueue,
 	}
 
 	healthCheck := HealthCheckLib.New()
-	healthCheck.AddService(&mongoConfig)
-	healthCheck.AddService(&rabbitConfig)
+	healthCheck.AddService(mongoConfig)
+	healthCheck.AddService(rabbitConfig)
 
 	return healthCheck
 }
@@ -68,7 +72,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wesleycosta/boleto-api/healthcheck"
+	"github.com/mundipagg/boleto-api/healthcheck"
 )
 
 func Base(router *gin.Engine) {

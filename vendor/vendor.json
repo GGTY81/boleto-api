@@ -163,6 +163,12 @@
 			"revisionTime": "2018-08-30T19:11:22Z"
 		},
 		{
+			"checksumSHA1": "tWmndmMyuBt40ha1I7Lt6NtlcMU=",
+			"path": "github.com/denisenkom/go-mssqldb",
+			"revision": "ee2fbc25fd8f2d8c56af5ca2d7b661fb50fdb23a",
+			"revisionTime": "2021-07-28T00:10:37Z"
+		},
+		{
 			"checksumSHA1": "q3w0WrlEQQS2rDFKOsA5xfNa54U=",
 			"path": "github.com/dgrijalva/jwt-go",
 			"revision": "3af4c746e1c248ee8491a3e0c6f7a9cd831e95f8",
@@ -221,6 +227,12 @@
 			"path": "github.com/go-stack/stack",
 			"revision": "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a",
 			"revisionTime": "2018-08-26T13:48:48Z"
+		},
+		{
+			"checksumSHA1": "OLkByck9DLl6r5SoTdE7J/3MLno=",
+			"path": "github.com/golang-sql/civil",
+			"revision": "cb61b32ac6fe84d34b81730175f91965e43d0f90",
+			"revisionTime": "2019-07-19T16:38:53Z"
 		},
 		{
 			"checksumSHA1": "v1xQNKTln7CWuv11S3up6FBRZLI=",
@@ -383,6 +395,36 @@
 			"path": "github.com/mundipagg/goseq",
 			"revision": "ac118d58394e95c89704f68f6594f3e6d60f70b9",
 			"revisionTime": "2017-10-18T15:31:37Z"
+		},
+		{
+			"checksumSHA1": "D3qlIji4qO4dduOubjNPUtswZKU=",
+			"path": "github.com/mundipagg/healthcheck-go",
+			"revision": "e91a033227a17a41a143a23fa6700c7d71d204be",
+			"revisionTime": "2021-09-06T14:46:07Z"
+		},
+		{
+			"checksumSHA1": "LdiA1DCiUEa6Te6HzZvPhI9uQPY=",
+			"path": "github.com/mundipagg/healthcheck-go/checks",
+			"revision": "e91a033227a17a41a143a23fa6700c7d71d204be",
+			"revisionTime": "2021-09-06T14:46:07Z"
+		},
+		{
+			"checksumSHA1": "IS+0lNpOxwDOu/jhy82PjhcJFKg=",
+			"path": "github.com/mundipagg/healthcheck-go/checks/mongo",
+			"revision": "e91a033227a17a41a143a23fa6700c7d71d204be",
+			"revisionTime": "2021-09-06T14:46:07Z"
+		},
+		{
+			"checksumSHA1": "Bmtnqdwt+9zL1xOZiFxRjpOHQl0=",
+			"path": "github.com/mundipagg/healthcheck-go/checks/rabbit",
+			"revision": "e91a033227a17a41a143a23fa6700c7d71d204be",
+			"revisionTime": "2021-09-06T14:46:07Z"
+		},
+		{
+			"checksumSHA1": "x1oQgULh7JSmKXMN/qubOS8pFMA=",
+			"path": "github.com/mundipagg/healthcheck-go/checks/sqlServer",
+			"revision": "e91a033227a17a41a143a23fa6700c7d71d204be",
+			"revisionTime": "2021-09-06T14:46:07Z"
 		},
 		{
 			"checksumSHA1": "S5xSDTiiYwCZvfblojiZS8vvCZ4=",
@@ -620,30 +662,6 @@
 			"revisionTime": "2018-02-27T16:17:03Z"
 		},
 		{
-			"checksumSHA1": "rjyPJc8g0f5tcaHFPbMgVym53nA=",
-			"path": "github.com/wesleycosta/healthcheck-go",
-			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
-			"revisionTime": "2021-09-01T19:22:41Z"
-		},
-		{
-			"checksumSHA1": "F2LhKnCJ9NX//VL6Yd/Q+LwLPm0=",
-			"path": "github.com/wesleycosta/healthcheck-go/checks",
-			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
-			"revisionTime": "2021-09-01T19:22:41Z"
-		},
-		{
-			"checksumSHA1": "2wLoNRDxt9Q0IhCOiD4b1ejbrB4=",
-			"path": "github.com/wesleycosta/healthcheck-go/checks/mongo",
-			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
-			"revisionTime": "2021-09-01T19:22:41Z"
-		},
-		{
-			"checksumSHA1": "80Nnnr5WiEKcxmkkRbm1olk2mrA=",
-			"path": "github.com/wesleycosta/healthcheck-go/checks/rabbit",
-			"revision": "2e0dfffcdb03ba79a1bcdf5fd5f1dc98e650f920",
-			"revisionTime": "2021-09-01T19:22:41Z"
-		},
-		{
 			"checksumSHA1": "mwhaccie0lbRNZdhkGtKdldb8og=",
 			"origin": "go.mongodb.org/mongo-driver/vendor/github.com/xdg-go/pbkdf2",
 			"path": "github.com/xdg-go/pbkdf2",
@@ -862,6 +880,12 @@
 			"path": "go.mongodb.org/mongo-driver/x/mongo/driver/wiremessage",
 			"revision": "49af6e279ffe534210dca95e375d372517145e44",
 			"revisionTime": "2021-06-10T15:52:25Z"
+		},
+		{
+			"checksumSHA1": "UDvj5huw3BaGehfVRCB1UGQAtP4=",
+			"path": "golang.org/x/crypto/md4",
+			"revision": "c07d793c2f9aacf728fe68cbd7acd73adbd04159",
+			"revisionTime": "2021-05-13T15:05:28Z"
 		},
 		{
 			"checksumSHA1": "wiUojwymKlISS/orXlZCDpG5f80=",

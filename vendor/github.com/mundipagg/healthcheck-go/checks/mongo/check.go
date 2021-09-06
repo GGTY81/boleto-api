@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wesleycosta/healthcheck-go/checks"
+	"github.com/mundipagg/healthcheck-go/checks"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -21,13 +21,14 @@ var (
 )
 
 type Config struct {
-	Url        string
-	User       string
-	Password   string
-	Database   string
-	AuthSource string
-	Timeout    int
-	ForceTLS   bool
+	Url         string
+	User        string
+	Password    string
+	Database    string
+	AuthSource  string
+	Timeout     int
+	ForceTLS    bool
+	MaxPoolSize int
 }
 
 type healthCheck struct {
@@ -112,7 +113,7 @@ func getClientOptions(config *Config) *options.ClientOptions {
 
 	co.SetConnectTimeout(time.Duration(config.Timeout) * time.Second)
 	co.SetMaxConnIdleTime(time.Duration(config.Timeout) * time.Second)
-	co.SetMaxPoolSize(512)
+	co.SetMaxPoolSize(uint64(config.MaxPoolSize))
 
 	if config.ForceTLS {
 		co.SetTLSConfig(&tls.Config{})

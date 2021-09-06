@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
+	checks "github.com/mundipagg/healthcheck-go/checks"
 	"github.com/streadway/amqp"
-	checks "github.com/wesleycosta/healthcheck-go/checks"
 )
 
 func new(config *Config) checks.Check {

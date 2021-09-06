@@ -12,7 +12,7 @@ func Base(router *gin.Engine) {
 	router.GET("/boleto/memory-check/", memory)
 	router.GET("/boleto/confirmation", confirmation)
 	router.POST("/boleto/confirmation", confirmation)
-	router.GET("/healthcheck", healthcheck.Endpoint)
+	router.GET("/healthcheck", healthcheck.ExecuteOnAPI)
 }
 
 //V1 configura as rotas da v1

@@ -1,21 +1,33 @@
 package healthcheck
 
 import (
+	"errors"
 	stdlog "log"
-	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/log"
-	HealthCheckLib "github.com/wesleycosta/healthcheck-go"
 
-	"github.com/wesleycosta/healthcheck-go/checks/mongo"
-	"github.com/wesleycosta/healthcheck-go/checks/rabbit"
+	HealthCheckLib "github.com/mundipagg/healthcheck-go"
+	checks "github.com/mundipagg/healthcheck-go/checks"
+	"github.com/mundipagg/healthcheck-go/checks/mongo"
+	"github.com/mundipagg/healthcheck-go/checks/rabbit"
 )
 
 const (
 	Unhealthy string = "Unhealthy"
 )
+
+type HealthCheckResponse struct {
+	Status string `json:"status"`
+}
+
+func newHealthCheckResponse(healthCheckResult *checks.HealthCheckResult) HealthCheckResponse {
+	return HealthCheckResponse{
+		Status: healthCheckResult.Status,
+	}
+}
 
 func createHealthCheck() HealthCheckLib.HealthCheck {
 	mongoConfig := &mongo.Config{
@@ -39,32 +51,43 @@ func createHealthCheck() HealthCheckLib.HealthCheck {
 	return healthCheck
 }
 
-func Endpoint(c *gin.Context) {
+func ExecuteOnAPI(c *gin.Context) {
 	healtcheck := createHealthCheck()
-	c.JSON(200, healtcheck.Execute())
+	result := healtcheck.Execute()
+
+	if result.Status == Unhealthy {
+		logInstance("ExecuteOnAPI").ErrorBasicWithContent("Healthcheck is Unhealthy", "HealthCheck", result)
+	}
+
+	c.JSON(200, newHealthCheckResponse(&result))
 }
 
 func ExecuteOnStartup() bool {
-	logger := log.CreateLog()
-	logger.InfoWithBasic("HealthCheckStart", "Starting HealthCheck", nil)
+	var logger = logInstance("ExecuteOnStartup")
+	logger.InfoWithBasic("Starting HealthCheck", "HealthCheck", nil)
 
 	healtcheck := createHealthCheck()
 	result := healtcheck.Execute()
 
 	if result.Status == Unhealthy {
-		stdlog.Println("Healthcheck is Unhealthy")
-		logger.ErrorBasicWithContent("Healthcheck is Unhealthy", "ExecuteOnStartup", map[string]interface{}{"Error": result, "Operation": "HealthCheckUnhealthy"})
-		gracefullyShutdown()
+		stdlog.Println("Healthcheck is Unhealthy", result)
+		logger.ErrorBasicWithContent("Application Unhealthy. The application will be terminated", "HealthCheck", result)
+		shutdown()
 
 		return false
 	}
 
-	logger.InfoWithBasic("Result of execution", "HealthCheck", map[string]interface{}{"Content": result, "Operation": "HealthCheckResult"})
+	logger.InfoWithBasic("Result of check dependecies execution", "HealthCheck", map[string]interface{}{"Content": result})
 	return true
 }
 
-func gracefullyShutdown() {
+func shutdown() {
+	time.Sleep(5 * time.Second)
+	panic(errors.New("healthcheck is Unhealthy"))
+}
+
+func logInstance(operation string) *log.Log {
 	logger := log.CreateLog()
-	logger.InfoWithBasic("Shutdown", "The application will be terminated", nil)
-	syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
+	logger.Operation = operation
+	return logger
 }

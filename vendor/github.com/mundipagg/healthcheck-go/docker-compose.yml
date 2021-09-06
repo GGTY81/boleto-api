@@ -7,8 +7,18 @@ services:
       - 8090:5672
       - 5672:5672
       - 15672:15672
+
   db:
     container_name: db
     image: mongo
     ports:
       - 27017:27017
+
+  sqlserver:
+    container_name: sqlserver
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+      SA_PASSWORD: "sa"
+      ACCEPT_EULA: "Y"
+    ports:
+      - 1434:1433

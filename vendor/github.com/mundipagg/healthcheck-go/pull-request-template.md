@@ -4,7 +4,7 @@ Exemplo: `[XPTO-000] - Primeiro commit da mensagem`
 
 # Descrição
 
-### Tarefa [CA-427](https://wesleycosta.atlassian.net/secure/RapidBoard.jspa?rapidView=76&projectKey=CA&modal=detail&selectedIssue=CA-427) 
+### Tarefa [CA-427](https://mundipagg.atlassian.net/secure/RapidBoard.jspa?rapidView=76&projectKey=CA&modal=detail&selectedIssue=CA-427) 
 
 Por favor, inclua um resumo da alteração e qual problema foi corrigido ou feature foi adicionada. Inclua também motivação relevante e contexto. Liste todas as dependências necessárias para essa mudança.
 
