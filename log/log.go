@@ -245,6 +245,18 @@ func (l *Log) Fatal(content interface{}, msg string) {
 	})()
 }
 
+// ErrorBasicWithContent Cria um log de erro com as informações básicas e o conteúdo
+func (l *Log) ErrorBasicWithContent(msg, msgType string, content interface{}) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.basicProperties(msgType)
+		props["Content"] = content
+		l.logger.Error(formatter(msg), props)
+	})()
+}
+
 //InitRobot loga o inicio da execução do robô de recovery
 func (l *Log) InitRobot(totalRecords int) {
 	msg := formatter("- Starting execution")
