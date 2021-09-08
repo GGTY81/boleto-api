@@ -73,7 +73,7 @@ func (l *Log) Request(content interface{}, url string, headers map[string]string
 }
 
 //Response loga o response para algum banco
-func (l *Log) Response(content interface{}, url string) {
+func (l *Log) Response(content interface{}, url string, params LogEntry) {
 	if config.Get().DisableLog {
 		return
 	}
@@ -84,6 +84,9 @@ func (l *Log) Response(content interface{}, url string) {
 
 		props := l.defaultProperties("Response", content)
 		props["URL"] = url
+		for k, v := range params {
+			props[k] = v
+		}
 
 		l.logger.Info(msg, props)
 	})()

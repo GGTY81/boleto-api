@@ -37,6 +37,7 @@ func generateJWT() (string, error) {
 	atClaims["clientId"] = config.Get().StoneClientID
 	atClaims["iat"] = now.Unix()
 	atClaims["jti"] = generateJTIFromTime(now)
+	atClaims["iss"] = config.Get().StoneClientID
 
 	at := jwt.NewWithClaims(jwt.SigningMethodRS256, atClaims)
 
