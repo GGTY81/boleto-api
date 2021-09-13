@@ -3,6 +3,7 @@ package healthcheck
 import (
 	"errors"
 	stdlog "log"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,15 +43,14 @@ func createHealthCheck() HealthCheckLib.HealthCheck {
 func ExecuteOnAPI(c *gin.Context) {
 	healtcheck := createHealthCheck()
 	result := healtcheck.Execute()
+	status := http.StatusOK
 
 	if result.Status == Unhealthy {
 		logInstance("ExecuteOnAPI").ErrorBasicWithContent("Healthcheck is Unhealthy", "HealthCheck", result)
-
-		c.JSON(503, newHealthCheckResponse(&result))
-		return
+		status = http.StatusServiceUnavailable
 	}
 
-	c.JSON(200, newHealthCheckResponse(&result))
+	c.JSON(status, newHealthCheckResponse(&result))
 }
 
 func ExecuteOnStartup() bool {
