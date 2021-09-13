@@ -10,6 +10,7 @@ import (
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/util"
 
+	"github.com/mundipagg/healthcheck-go/checks/rabbit"
 	"github.com/streadway/amqp"
 )
 
@@ -122,5 +123,11 @@ func closeConnection(conn *amqp.Connection, op string) {
 	if conn != nil {
 		err := conn.Close()
 		failOnError(err, "Failed to close connection to RabbitMQ", op)
+	}
+}
+
+func GetQueueConfiguration() *rabbit.Config {
+	return &rabbit.Config{
+		ConnectionString: config.Get().ConnQueue,
 	}
 }

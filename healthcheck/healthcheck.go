@@ -6,18 +6,16 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mundipagg/boleto-api/config"
+	"github.com/mundipagg/boleto-api/db"
 	"github.com/mundipagg/boleto-api/log"
+	"github.com/mundipagg/boleto-api/queue"
 
 	HealthCheckLib "github.com/mundipagg/healthcheck-go"
 	checks "github.com/mundipagg/healthcheck-go/checks"
-	"github.com/mundipagg/healthcheck-go/checks/mongo"
-	"github.com/mundipagg/healthcheck-go/checks/rabbit"
 )
 
 const (
-	Unhealthy    string = "Unhealthy"
-	MongoTimeout int    = 3
+	Unhealthy string = "Unhealthy"
 )
 
 type HealthCheckResponse struct {
@@ -31,19 +29,8 @@ func newHealthCheckResponse(healthCheckResult *checks.HealthCheckResult) HealthC
 }
 
 func createHealthCheck() HealthCheckLib.HealthCheck {
-	mongoConfig := &mongo.Config{
-		Url:        config.Get().MongoURL,
-		User:       config.Get().MongoUser,
-		Password:   config.Get().MongoPassword,
-		Database:   config.Get().MongoDatabase,
-		AuthSource: config.Get().MongoAuthSource,
-		Timeout:    MongoTimeout,
-		ForceTLS:   config.Get().ForceTLS,
-	}
-
-	rabbitConfig := &rabbit.Config{
-		ConnectionString: config.Get().ConnQueue,
-	}
+	mongoConfig := db.GetDatabaseConfiguration()
+	rabbitConfig := queue.GetQueueConfiguration()
 
 	healthCheck := HealthCheckLib.New()
 	healthCheck.AddService(mongoConfig)
@@ -58,6 +45,9 @@ func ExecuteOnAPI(c *gin.Context) {
 
 	if result.Status == Unhealthy {
 		logInstance("ExecuteOnAPI").ErrorBasicWithContent("Healthcheck is Unhealthy", "HealthCheck", result)
+
+		c.JSON(503, newHealthCheckResponse(&result))
+		return
 	}
 
 	c.JSON(200, newHealthCheckResponse(&result))

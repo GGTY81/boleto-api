@@ -51,6 +51,7 @@ type Config struct {
 	MongoCredentialsCollection       string
 	MongoTokenCollection             string
 	MongoAuthSource                  string
+	MongoTimeoutConnection           int
 	TokenSafeDurationInMinutes       int
 	RedisURL                         string
 	RedisPassword                    string
@@ -175,6 +176,7 @@ func Install(mockMode, devMode, disableLog bool) {
 		MongoTokenCollection:             os.Getenv("MONGODB_TOKEN_COLLECTION"),
 		MongoCredentialsCollection:       os.Getenv("MONGODB_CREDENTIALS_COLLECTION"),
 		MongoAuthSource:                  os.Getenv("MONGODB_AUTH_SOURCE"),
+		MongoTimeoutConnection:           getValueInt(os.Getenv("MONGODB_TIMEOUT_CONNECTION")),
 		TokenSafeDurationInMinutes:       getValueInt(os.Getenv("TOKEN_SAFE_DURATION_IN_MINUTES")),
 		RetryNumberGetBoleto:             getValueInt(os.Getenv("RETRY_NUMBER_GET_BOLETO")),
 		RedisURL:                         os.Getenv("REDIS_URL"),
