@@ -88,7 +88,7 @@ func (hc *HTTPClient) PostFormURLEncoded(endpoint string, params map[string]stri
 	}
 
 	respByte, err := ioutil.ReadAll(resp.Body)
-	log.Response(string(respByte), endpoint)
+	log.Response(string(respByte), endpoint, nil)
 
 	return respByte, err
 }
@@ -110,16 +110,17 @@ func DefaultHTTPClient() *http.Client {
 }
 
 //Post faz um requisição POST para uma URL e retorna o response, status e erro
-func Post(url, body, timeout string, header map[string]string) (string, int, error) {
+func PostReponseWithHeader(url, body, timeout string, header map[string]string) (string, string, int, error) {
 	return doRequest("POST", url, body, timeout, header)
 }
 
-//Get faz um requisição GET para uma URL e retorna o response, status e erro
-func Get(url, body, timeout string, header map[string]string) (string, int, error) {
-	return doRequest("GET", url, body, timeout, header)
+//Post faz um requisição POST para uma URL e retorna o response, status e erro
+func Post(url, body, timeout string, header map[string]string) (string, int, error) {
+	resp, _, st, err := doRequest("POST", url, body, timeout, header)
+	return resp, st, err
 }
 
-func doRequest(method, url, body, timeout string, header map[string]string) (string, int, error) {
+func doRequest(method, url, body, timeout string, header map[string]string) (string, string, int, error) {
 	t := GetDurationTimeoutRequest(timeout) * time.Second
 
 	ctx, cls := context.WithTimeout(context.Background(), t)
@@ -131,7 +132,7 @@ func doRequest(method, url, body, timeout string, header map[string]string) (str
 
 	req, err := http.NewRequestWithContext(ctx, method, url, message)
 	if err != nil {
-		return "", http.StatusInternalServerError, err
+		return "", "", http.StatusInternalServerError, err
 	}
 	if header != nil {
 		for k, v := range header {
@@ -140,15 +141,17 @@ func doRequest(method, url, body, timeout string, header map[string]string) (str
 	}
 	resp, errResp := client.Do(req)
 	if errResp != nil {
-		return "", 0, errResp
+		return "", "", 0, errResp
 	}
 	defer resp.Body.Close()
+	respHeader := fmt.Sprintf("%v", resp.Header)
+
 	data, errResponse := ioutil.ReadAll(resp.Body)
 	if errResponse != nil {
-		return "", resp.StatusCode, errResponse
+		return "", respHeader, resp.StatusCode, errResponse
 	}
 	sData := string(data)
-	return sData, resp.StatusCode, nil
+	return sData, respHeader, resp.StatusCode, nil
 }
 
 // BuildTLSTransport creates a TLS Client Transport from crt, ca and key files

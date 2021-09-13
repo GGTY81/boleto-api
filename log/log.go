@@ -73,7 +73,7 @@ func (l *Log) Request(content interface{}, url string, headers map[string]string
 }
 
 //Response loga o response para algum banco
-func (l *Log) Response(content interface{}, url string) {
+func (l *Log) Response(content interface{}, url string, params LogEntry) {
 	if config.Get().DisableLog {
 		return
 	}
@@ -84,6 +84,9 @@ func (l *Log) Response(content interface{}, url string) {
 
 		props := l.defaultProperties("Response", content)
 		props["URL"] = url
+		for k, v := range params {
+			props[k] = v
+		}
 
 		l.logger.Info(msg, props)
 	})()
@@ -217,6 +220,18 @@ func (l *Log) ErrorWithBasic(msg, msgType string, err error) {
 	})()
 }
 
+// FallbackErrorWithBasic Cria um log de erro com as informações básicas do log de fallback
+func (l *Log) ErrorWithContent(msg, msgType string, err error, content interface{}) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.defaultProperties(msgType, content)
+		props["Error"] = fmt.Sprintf("%v", err)
+		l.logger.Error(formatter(msg), props)
+	})()
+}
+
 // Fatal loga erros da aplicação
 func (l *Log) Fatal(content interface{}, msg string) {
 	if config.Get().DisableLog {
@@ -227,6 +242,18 @@ func (l *Log) Fatal(content interface{}, msg string) {
 		m := formatter(msg)
 
 		l.logger.Fatal(m, props)
+	})()
+}
+
+// ErrorBasicWithContent Cria um log de erro com as informações básicas e o conteúdo
+func (l *Log) ErrorBasicWithContent(msg, msgType string, content interface{}) {
+	if config.Get().DisableLog {
+		return
+	}
+	go (func() {
+		props := l.basicProperties(msgType)
+		props["Content"] = content
+		l.logger.Error(formatter(msg), props)
 	})()
 }
 

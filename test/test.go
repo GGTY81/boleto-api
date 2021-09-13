@@ -2,8 +2,10 @@ package test
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -75,4 +77,11 @@ func AssertError(t *testing.T, err error, errType interface{}) {
 	assert.NotNil(t, err, "Deve haver um erro")
 	assert.NotEmpty(t, err.Error(), "Deve haver uma mensagem de erro")
 	assert.IsType(t, errType, err, "Deve ser um erro do tipo "+fmt.Sprintf("%T", err))
+}
+
+//CreateClientIP cria IP no contexto
+func CreateClientIP(c *gin.Context) {
+	c.Request = new(http.Request)
+	c.Request.Header = make(map[string][]string)
+	c.Request.Header.Add("X-Forwarded-For", "0.0.0.0")
 }

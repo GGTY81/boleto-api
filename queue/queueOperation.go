@@ -41,7 +41,8 @@ func failOnError(err error, title string, op string, msg ...string) {
 		if msg != nil && msg[0] != "" {
 			l.Warn(msg[0], fmt.Sprintf("%s - %s - %s", op, title, err))
 		} else {
-			l.Error(err, fmt.Sprintf("%s - %s", op, title))
+			l.Operation = op
+			l.ErrorWithBasic(title, "Error", err)
 		}
 	}
 }

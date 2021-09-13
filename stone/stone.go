@@ -42,7 +42,7 @@ func (b bankStone) ProcessBoleto(boleto *models.BoletoRequest) (models.BoletoRes
 	}
 
 	if accToken, err := authenticate(boleto.Authentication.AccessKey, b.log); err != nil {
-		return models.BoletoResponse{Errors: errs}, err
+		return models.GetBoletoResponseError("MP500", err.Error()), nil
 	} else {
 		boleto.Authentication.AuthorizationToken = accToken
 	}
@@ -51,6 +51,7 @@ func (b bankStone) ProcessBoleto(boleto *models.BoletoRequest) (models.BoletoRes
 
 func (b bankStone) RegisterBoleto(boleto *models.BoletoRequest) (models.BoletoResponse, error) {
 	var response string
+	var header string
 	var status int
 	var err error
 
@@ -62,13 +63,22 @@ func (b bankStone) RegisterBoleto(boleto *models.BoletoRequest) (models.BoletoRe
 	b.log.Request(body, stoneURL, head)
 
 	duration := util.Duration(func() {
-		response, status, err = util.Post(stoneURL, body, config.Get().TimeoutRegister, head)
+		response, header, status, err = util.PostReponseWithHeader(stoneURL, body, config.Get().TimeoutRegister, head)
 	})
 	metrics.PushTimingMetric("stone-register-boleto-time", duration.Seconds())
 
-	b.log.Response(response, stoneURL)
+	params := getLogResponseProperties(header)
+
+	b.log.Response(response, stoneURL, params)
 
 	return mapStoneResponse(boleto, response, status, err), nil
+}
+
+func getLogResponseProperties(header string) map[string]interface{} {
+	m := make(map[string]interface{})
+	m["Header"] = header
+
+	return m
 }
 
 func mapStoneResponse(request *models.BoletoRequest, response string, status int, httpErr error) models.BoletoResponse {

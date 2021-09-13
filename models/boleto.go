@@ -49,19 +49,19 @@ type Link struct {
 // BoletoView contem as informações que serão preenchidas no boleto
 type BoletoView struct {
 	ID            primitive.ObjectID `bson:"_id,omitempty"`
-	UID           string
-	SecretKey     string
-	PublicKey     string        `json:"pk,omitempty"`
-	Format        string        `json:"format,omitempty"`
-	Boleto        BoletoRequest `json:"boleto,omitempty"`
-	BankID        BankNumber    `json:"bankId,omitempty"`
-	CreateDate    time.Time     `json:"createDate,omitempty"`
-	BankNumber    string        `json:"bankNumber,omitempty"`
-	DigitableLine string        `json:"digitableLine,omitempty"`
-	OurNumber     string        `json:"ourNumber,omitempty"`
-	Barcode       string        `json:"barcode,omitempty"`
-	Barcode64     string        `json:"barcode64,omitempty"`
-	Links         []Link        `json:"links,omitempty"`
+	UID           string             `json:"uid,omitempty"`
+	SecretKey     string             `json:"secretkey,omitempty"`
+	PublicKey     string             `json:"publickey,omitempty"`
+	Format        string             `json:"format,omitempty"`
+	Boleto        BoletoRequest      `json:"boleto,omitempty"`
+	BankID        BankNumber         `json:"bankId,omitempty"`
+	CreateDate    time.Time          `json:"createDate,omitempty"`
+	BankNumber    string             `json:"bankNumber,omitempty"`
+	DigitableLine string             `json:"digitableLine,omitempty"`
+	OurNumber     string             `json:"ourNumber,omitempty"`
+	Barcode       string             `json:"barcode,omitempty"`
+	Barcode64     string             `json:"barcode64,omitempty"`
+	Links         []Link             `json:"links,omitempty"`
 }
 
 // NewBoletoView cria um novo objeto view de boleto a partir de um boleto request, codigo de barras e linha digitavel
