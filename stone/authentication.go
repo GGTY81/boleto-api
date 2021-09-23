@@ -24,9 +24,11 @@ var (
 )
 
 const (
-	issuerBank       = "stone"
-	BadRequestError  = "status code 400"
-	DocumentNotFound = "mongo: no documents in result"
+	issuerBank              = "stone"
+	BadRequestError         = "status code 400"
+	DocumentNotFound        = "mongo: no documents in result"
+	recoverTokenFailMessage = "token query into mongo has failed"
+	saveTokenFailMessage    = "token save into mongo has failed"
 )
 
 type AuthResponse struct {
@@ -43,8 +45,7 @@ type AuthResponse struct {
 func authenticate(clientID string, log *log.Log) (string, error) {
 	tk, err := fetchTokenFromStorage(clientID)
 	if err != nil {
-		log.Error(err, "query to mongo has failed")
-		return "", err
+		log.Error(err, recoverTokenFailMessage)
 	}
 
 	if tk != "" {
@@ -65,7 +66,9 @@ func authenticateAndSaveToken(clientID string, log *log.Log) (string, error) {
 	}
 
 	token := models.NewToken(clientID, issuerBank, tk)
-	db.SaveToken(token)
+	if err := db.SaveToken(token); err != nil {
+		log.Error(err, saveTokenFailMessage)
+	}
 
 	return tk, nil
 }

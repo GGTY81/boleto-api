@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -52,7 +51,7 @@ func registerBoleto(c *gin.Context) {
 		errMongo := db.SaveBoleto(boView)
 
 		if errMongo != nil {
-			lg.Warn(errMongo.Error(), fmt.Sprintf("Error saving to mongo - %s", errMongo.Error()))
+			lg.Warn(errMongo.Error(), "Error saving to mongo")
 
 			b := boView.ToMinifyJSON()
 			p := queue.NewPublisher(b)

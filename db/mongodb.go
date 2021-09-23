@@ -19,6 +19,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
+
+	mongoCheck "github.com/mundipagg/healthcheck-go/checks/mongo"
 )
 
 var (
@@ -68,11 +70,13 @@ func CreateMongo() (*mongo.Client, error) {
 
 func getClientOptions() *options.ClientOptions {
 	mongoURL := config.Get().MongoURL
+	mongoTimeoutConnection := config.Get().MongoTimeoutConnection
+
 	co := options.Client()
 	co.SetRetryWrites(true)
 	co.SetWriteConcern(writeconcern.New(writeconcern.WMajority()))
 
-	co.SetConnectTimeout(5 * time.Second)
+	co.SetConnectTimeout(time.Duration(mongoTimeoutConnection) * time.Second)
 	co.SetMaxConnIdleTime(10 * time.Second)
 	co.SetMaxPoolSize(512)
 
@@ -280,4 +284,16 @@ func CloseConnection() error {
 	defer cancel()
 
 	return conn.Disconnect(ctx)
+}
+
+func GetDatabaseConfiguration() *mongoCheck.Config {
+	return &mongoCheck.Config{
+		Url:        config.Get().MongoURL,
+		User:       config.Get().MongoUser,
+		Password:   config.Get().MongoPassword,
+		Database:   config.Get().MongoDatabase,
+		AuthSource: config.Get().MongoAuthSource,
+		Timeout:    config.Get().MongoTimeoutConnection,
+		ForceTLS:   config.Get().ForceTLS,
+	}
 }

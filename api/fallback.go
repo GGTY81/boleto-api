@@ -5,7 +5,9 @@ import (
 	"github.com/mundipagg/boleto-api/infrastructure/storage"
 )
 
-const persistenceErrorMessage = "Failure during send boleto to fallback. This boleto can't be recovery until manual insert content into database."
+const persistenceErrorMessage = "failure during send boleto to fallback. This boleto can't be recovery until manual insert content into database."
+const getClientFallbackError = "failure to get client fallback storage"
+const fallbackSaveSuccessfully = "loaded boleto into fallback storage"
 
 type IFallback interface {
 	Save(context *gin.Context, registerId, payload string)
@@ -20,7 +22,7 @@ func (f *Fallback) Save(context *gin.Context, registerId, payload string) {
 	client, err := storage.GetClient()
 
 	if err != nil {
-		lg.ErrorWithContent("failure to get client", "Error", err, payload)
+		lg.ErrorWithContent(getClientFallbackError, "Error", err, payload)
 		return
 	}
 
@@ -35,7 +37,7 @@ func (f *Fallback) Save(context *gin.Context, registerId, payload string) {
 	}
 
 	props := getLogUploadProperties(elapsedTime, registerId, payload)
-	lg.InfoWithParams("loaded the payload into Azure Blob Storage with success", "Information", props)
+	lg.InfoWithParams(fallbackSaveSuccessfully, "Information", props)
 }
 
 func getLogUploadProperties(totalElapsedTimeInMilliseconds int64, registerId, payload string) map[string]interface{} {

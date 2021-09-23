@@ -116,7 +116,6 @@ func Test_ParseExpirationDate(t *testing.T) {
 }
 
 func Test_LoadLog(t *testing.T) {
-	expectedIP := "127.0.0.1"
 	expectedUser := "user"
 	requestOurNumber := uint(1234567890)
 	expectedOurNumber := strconv.FormatUint(uint64(requestOurNumber), 10)
@@ -128,13 +127,11 @@ func Test_LoadLog(t *testing.T) {
 	ginCtx.Set(serviceUserKey, expectedUser)
 	ginCtx.Set(boletoKey, *boleto)
 	ginCtx.Set(bankKey, bank)
-	ginCtx.Request, _ = http.NewRequest("POST", "/", nil)
-	ginCtx.Request.Header.Set("X-Forwarded-For", expectedIP)
+	test.CreateClientIP(ginCtx)
 
 	l := loadBankLog(ginCtx)
 
 	assert.NotNil(t, l)
-	assert.Equal(t, expectedIP, l.IPAddress)
 	assert.Equal(t, expectedUser, l.ServiceUser)
 	assert.Equal(t, expectedOurNumber, l.NossoNumero)
 	assert.Equal(t, bank.GetBankNameIntegration(), l.BankName)
