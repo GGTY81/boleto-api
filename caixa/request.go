@@ -68,7 +68,7 @@ const requestToCaixa = `
                   {{if .Title.HasRules}}       
                      <NUMERO_DIAS>{{.Title.Rules.MaxDaysToPayPastDue}}</NUMERO_DIAS>
                   {{else}}
-                     <NUMERO_DIAS>0</NUMERO_DIAS>
+                     <NUMERO_DIAS>1</NUMERO_DIAS>
                   {{end}}
                   </POS_VENCIMENTO>
                   <CODIGO_MOEDA>9</CODIGO_MOEDA>
