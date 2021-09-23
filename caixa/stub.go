@@ -67,7 +67,7 @@ func newStubBoletoRequestCaixa() *stubBoletoRequestCaixa {
 func (s *stubBoletoRequestCaixa) WithStrictRules() *stubBoletoRequestCaixa {
 	s.Title.Rules = &models.Rules{
 		AcceptDivergentAmount: false,
-		MaxDaysToPayPastDue:   0,
+		MaxDaysToPayPastDue:   1,
 	}
 	return s
 }

@@ -202,3 +202,12 @@ func TestTemplateRequestCaixa_WhenRequestWithFlexRulesV2_ParseSuccessful(t *test
 		assert.Contains(t, b, expected, "Erro no mapeamento das regras de pagamento")
 	}
 }
+
+func TestTemplateRequestCaixa_NumberOfDaysAfterExpirationEqualsOne_NumberOfDaysAfterExpirationIsRight(t *testing.T) {
+	flow := flow.NewFlow()
+	caixaRequestStub := newStubBoletoRequestCaixa()
+
+	request := caixaRequestStub.WithStrictRules()
+	result := fmt.Sprintf("%v", flow.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	assert.Contains(t, result, "<NUMERO_DIAS>1</NUMERO_DIAS>", "Falha ao encontrar o campo <NUMERO_DIAS>1<NUMERO_DIAS> no request")
+}
