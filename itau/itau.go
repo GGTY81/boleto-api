@@ -89,12 +89,21 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 		exec.To(itauURL, map[string]string{"method": "POST", "insecureSkipVerify": "true", "timeout": config.Get().TimeoutRegister})
 	})
 	metrics.PushTimingMetric("itau-register-boleto-time", duration.Seconds())
-	exec.To("log://?type=response&url="+itauURL, b.log)
+	b.log.Response(exec.GetBody().(string), itauURL, convertHeadertoLogEntry(exec.GetHeader()))
 
 	ch := exec.Choice()
 	ch.When(Header("status").IsEqualTo("200"))
-	ch.To("transform://?format=json", fromResponse, toAPI, tmpl.GetFuncMaps())
-	ch.To("unmarshall://?format=json", new(models.BoletoResponse))
+
+	bodyContent := strings.TrimSpace(exec.GetBody().(string))
+
+	if bodyContent == "500" {
+		exec.To("set://?prop=body", `{"codigo":"500","mensagem":"Content body was 500"}`)
+		ch.To("transform://?format=json", fromResponseError, toAPI, tmpl.GetFuncMaps())
+		ch.To("unmarshall://?format=json", new(models.BoletoResponse))
+	} else {
+		ch.To("transform://?format=json", fromResponse, toAPI, tmpl.GetFuncMaps())
+		ch.To("unmarshall://?format=json", new(models.BoletoResponse))
+	}
 
 	headerMap := exec.GetHeader()
 
@@ -118,6 +127,12 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 		return models.BoletoResponse{}, t
 	}
 	return models.BoletoResponse{}, models.NewInternalServerError("MP500", "Internal error")
+}
+
+func convertHeadertoLogEntry(header HeaderMap) log.LogEntry {
+	log := make(log.LogEntry)
+	log["Headers"] = header
+	return log
 }
 
 func (b bankItau) ProcessBoleto(boleto *models.BoletoRequest) (models.BoletoResponse, error) {

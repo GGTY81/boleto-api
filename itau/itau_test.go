@@ -79,6 +79,30 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 	test.AssertProcessBoletoFailed(t, output)
 }
 
+func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeIs500_ShouldHasFailedBoletoResponseWithWrongContentAndStatusCodeIs500(t *testing.T) {
+	mock.StartMockService("9096")
+	input := new(models.BoletoRequest)
+	util.FromJSON(baseMockJSON, input)
+	input.Title.AmountInCents = 500
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoFailed(t, output)
+}
+
+func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeDifferent500_ShouldHasFailedBoletoResponseWithWrongContentAndStatusCodeDifferent500(t *testing.T) {
+	mock.StartMockService("9096")
+	input := new(models.BoletoRequest)
+	util.FromJSON(baseMockJSON, input)
+	input.Title.AmountInCents = 300
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoFailed(t, output)
+}
+
 func TestProcessBoleto_WhenRequestHasInvalidAccountParameters_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9096")
 	input := new(models.BoletoRequest)
@@ -113,4 +137,3 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 		assert.Equal(t, fact.Expected, result, "Deve mapear o boleto type corretamente")
 	}
 }
-
