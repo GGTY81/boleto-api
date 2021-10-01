@@ -97,7 +97,7 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 	bodyContent := strings.TrimSpace(exec.GetBody().(string))
 
 	if bodyContent == "500" {
-		exec.To("set://?prop=body", `{"codigo":"500","mensagem":"Content body was 500"}`)
+		exec.To("set://?prop=body", `{"codigo":"MP502","mensagem":"Content body was 500"}`)
 		ch.To("transform://?format=json", fromResponseError, toAPI, tmpl.GetFuncMaps())
 		ch.To("unmarshall://?format=json", new(models.BoletoResponse))
 	} else {
@@ -122,11 +122,18 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 
 	switch t := exec.GetBody().(type) {
 	case *models.BoletoResponse:
+		if hasValidResponse(t) {
+			return models.BoletoResponse{}, models.NewBadGatewayError("BadGateway")
+		}
 		return *t, nil
 	case error:
 		return models.BoletoResponse{}, t
 	}
 	return models.BoletoResponse{}, models.NewInternalServerError("MP500", "Internal error")
+}
+
+func hasValidResponse(boletoResponse *models.BoletoResponse) bool {
+	return boletoResponse.Errors != nil && boletoResponse.Errors[0].ErrorCode() == "MP502"
 }
 
 func convertHeadertoLogEntry(header HeaderMap) log.LogEntry {

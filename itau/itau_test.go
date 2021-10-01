@@ -88,10 +88,10 @@ func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeIs5
 	input.Title.AmountInCents = 500
 	bank := New()
 
-	output, _ := bank.ProcessBoleto(input)
+	_, errProcessBoleto := bank.ProcessBoleto(input)
 
 	assert.Nil(t, err)
-	test.AssertProcessBoletoFailed(t, output)
+	test.AssertError(t, errProcessBoleto, models.BadGatewayError{})
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeDifferent500_ShouldHasFailedBoletoResponseWithWrongContentAndStatusCodeDifferent500(t *testing.T) {
@@ -101,10 +101,10 @@ func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeDif
 	input.Title.AmountInCents = 300
 	bank := New()
 
-	output, _ := bank.ProcessBoleto(input)
+	_, errProcessBoleto := bank.ProcessBoleto(input)
 
 	assert.Nil(t, err)
-	test.AssertProcessBoletoFailed(t, output)
+	test.AssertError(t, errProcessBoleto, models.BadGatewayError{})
 }
 
 func TestProcessBoleto_WhenRequestHasInvalidAccountParameters_ShouldHasFailedBoletoResponse(t *testing.T) {
