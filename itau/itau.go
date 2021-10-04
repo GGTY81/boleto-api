@@ -2,6 +2,7 @@ package itau
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -125,9 +126,22 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 }
 
 func hasValidResponse(boletoResponse *models.BoletoResponse) bool {
-	validBoletoData := boletoResponse.BarCodeNumber != "" && boletoResponse.DigitableLine != ""
 	validError := len(boletoResponse.Errors) > 0
-	return validBoletoData || validError
+	return (hasValidBarCode(boletoResponse.BarCodeNumber) && hasValidDigitableLine(boletoResponse.DigitableLine)) || validError
+}
+
+func hasValidBarCode(barCode string) bool {
+	if valid, err := regexp.Match(`[^\{\}]\S`, []byte(barCode)); err == nil {
+		return valid
+	}
+	return false
+}
+
+func hasValidDigitableLine(digitableLine string) bool {
+	if valid, err := regexp.Match(`[^\{\}]\S`, []byte(digitableLine)); err == nil {
+		return valid
+	}
+	return false
 }
 
 func convertHeadertoLogEntry(header HeaderMap) log.LogEntry {
