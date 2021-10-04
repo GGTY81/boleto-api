@@ -94,16 +94,8 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 	ch := exec.Choice()
 	ch.When(Header("status").IsEqualTo("200"))
 
-	bodyContent := strings.TrimSpace(exec.GetBody().(string))
-
-	if bodyContent == "500" {
-		exec.To("set://?prop=body", `{"codigo":"MP502","mensagem":"Content body was 500"}`)
-		ch.To("transform://?format=json", fromResponseError, toAPI, tmpl.GetFuncMaps())
-		ch.To("unmarshall://?format=json", new(models.BoletoResponse))
-	} else {
-		ch.To("transform://?format=json", fromResponse, toAPI, tmpl.GetFuncMaps())
-		ch.To("unmarshall://?format=json", new(models.BoletoResponse))
-	}
+	ch.To("transform://?format=json", fromResponse, toAPI, tmpl.GetFuncMaps())
+	ch.To("unmarshall://?format=json", new(models.BoletoResponse))
 
 	headerMap := exec.GetHeader()
 
@@ -122,7 +114,7 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 
 	switch t := exec.GetBody().(type) {
 	case *models.BoletoResponse:
-		if hasValidResponse(t) {
+		if !hasValidResponse(t) {
 			return models.BoletoResponse{}, models.NewBadGatewayError("BadGateway")
 		}
 		return *t, nil
@@ -133,7 +125,9 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 }
 
 func hasValidResponse(boletoResponse *models.BoletoResponse) bool {
-	return boletoResponse.Errors != nil && boletoResponse.Errors[0].ErrorCode() == "MP502"
+	validBoletoData := boletoResponse.BarCodeNumber != "" && boletoResponse.DigitableLine != ""
+	validError := len(boletoResponse.Errors) > 0
+	return validBoletoData || validError
 }
 
 func convertHeadertoLogEntry(header HeaderMap) log.LogEntry {

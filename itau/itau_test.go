@@ -94,19 +94,6 @@ func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeIs5
 	test.AssertError(t, errProcessBoleto, models.BadGatewayError{})
 }
 
-func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeDifferent500_ShouldHasFailedBoletoResponseWithWrongContentAndStatusCodeDifferent500(t *testing.T) {
-	mock.StartMockService("9096")
-	input := new(models.BoletoRequest)
-	err := util.FromJSON(baseMockJSON, input)
-	input.Title.AmountInCents = 300
-	bank := New()
-
-	_, errProcessBoleto := bank.ProcessBoleto(input)
-
-	assert.Nil(t, err)
-	test.AssertError(t, errProcessBoleto, models.BadGatewayError{})
-}
-
 func TestProcessBoleto_WhenRequestHasInvalidAccountParameters_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9096")
 	input := new(models.BoletoRequest)
