@@ -2,6 +2,7 @@ package itau
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -89,10 +90,11 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 		exec.To(itauURL, map[string]string{"method": "POST", "insecureSkipVerify": "true", "timeout": config.Get().TimeoutRegister})
 	})
 	metrics.PushTimingMetric("itau-register-boleto-time", duration.Seconds())
-	exec.To("log://?type=response&url="+itauURL, b.log)
+	b.log.Response(exec.GetBody().(string), itauURL, convertHeadertoLogEntry(exec.GetHeader()))
 
 	ch := exec.Choice()
 	ch.When(Header("status").IsEqualTo("200"))
+
 	ch.To("transform://?format=json", fromResponse, toAPI, tmpl.GetFuncMaps())
 	ch.To("unmarshall://?format=json", new(models.BoletoResponse))
 
@@ -113,11 +115,39 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 
 	switch t := exec.GetBody().(type) {
 	case *models.BoletoResponse:
+		if !hasValidResponse(t) {
+			return models.BoletoResponse{}, models.NewBadGatewayError("BadGateway")
+		}
 		return *t, nil
 	case error:
 		return models.BoletoResponse{}, t
 	}
 	return models.BoletoResponse{}, models.NewInternalServerError("MP500", "Internal error")
+}
+
+func hasValidResponse(boletoResponse *models.BoletoResponse) bool {
+	validError := len(boletoResponse.Errors) > 0
+	return (hasValidBarCode(boletoResponse.BarCodeNumber) && hasValidDigitableLine(boletoResponse.DigitableLine)) || validError
+}
+
+func hasValidBarCode(barCode string) bool {
+	if valid, err := regexp.Match(`[^\{\}]\S`, []byte(barCode)); err == nil {
+		return valid
+	}
+	return false
+}
+
+func hasValidDigitableLine(digitableLine string) bool {
+	if valid, err := regexp.Match(`[^\{\}]\S`, []byte(digitableLine)); err == nil {
+		return valid
+	}
+	return false
+}
+
+func convertHeadertoLogEntry(header HeaderMap) log.LogEntry {
+	log := make(log.LogEntry)
+	log["Headers"] = header
+	return log
 }
 
 func (b bankItau) ProcessBoleto(boleto *models.BoletoRequest) (models.BoletoResponse, error) {

@@ -108,6 +108,8 @@ func registerItau(c *gin.Context) {
 	}`
 	if strings.Contains(string(b), `"valor_cobrado": "0000000000000200"`) {
 		c.Data(200, "text/json", []byte(resp))
+	} else if strings.Contains(string(b), `"valor_cobrado": "0000000000000500"`) {
+		c.Data(200, "text/json", []byte("500"))
 	} else {
 		c.Data(400, "text/json", []byte(`
 			{
