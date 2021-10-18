@@ -1,11 +1,13 @@
 package citibank
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
 
 	"github.com/PMoneda/flow"
+	"github.com/mundipagg/boleto-api/certificate"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/issuer"
 	"github.com/mundipagg/boleto-api/log"
@@ -16,8 +18,10 @@ import (
 	"github.com/mundipagg/boleto-api/validations"
 )
 
-var o = &sync.Once{}
-var m map[string]string
+var (
+	onceTransport = &sync.Once{}
+	transportTLS  *http.Transport
+)
 
 type bankCiti struct {
 	validate  *models.Validator
@@ -32,9 +36,18 @@ func New() (bankCiti, error) {
 		log:      log.CreateLog(),
 	}
 
-	b.transport, err = util.BuildTLSTransport()
-	if err != nil {
-		return bankCiti{}, err
+	certificates := certificate.TLSCertificate{
+		Crt: config.Get().CertificateSSLName,
+		Key: config.Get().CertificateSSLName,
+	}
+
+	onceTransport.Do(func() {
+		transportTLS, err = util.BuildTLSTransport(certificates)
+	})
+	b.transport = transportTLS
+
+	if err != nil || (b.transport == nil && !config.Get().MockMode) {
+		return bankCiti{}, fmt.Errorf("fail on load TLSTransport: %v", err)
 	}
 
 	b.validate.Push(validations.ValidateAmount)

@@ -8,6 +8,7 @@ import (
 	"github.com/mundipagg/boleto-api/bradescoShopFacil"
 	"github.com/mundipagg/boleto-api/caixa"
 	"github.com/mundipagg/boleto-api/citibank"
+	"github.com/mundipagg/boleto-api/env"
 	"github.com/mundipagg/boleto-api/itau"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/pefisa"
@@ -46,6 +47,7 @@ var getBankTestData = []dataTest{
 }
 
 func TestShouldExecuteBankStrategy(t *testing.T) {
+	env.Config(true, true, true)
 	for _, fact := range getBankTestData {
 		bank, err := Get(fact.request)
 		number := bank.GetBankNumber()

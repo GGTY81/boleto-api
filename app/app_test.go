@@ -11,42 +11,35 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_openBankSkFromBlob(t *testing.T) {
-	mock.StartMockService("9080")
-
-	tests := []struct {
-		name    string
-		wantErr bool
-	}{
-		{
-			name:    "Fetch sk from blob successfully",
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			sk, err := openBankSkFromBlob()
-			assert.False(t, (err != nil) != tt.wantErr)
-			assert.NotNil(t, sk)
-		})
-	}
-}
-
 func Test_installCertificates(t *testing.T) {
 	mock.StartMockService("9080")
 
 	tests := []struct {
-		name string
+		name        string
+		certificate string
 	}{
 		{
-			name: "Fetch sk from localStorage successfully",
+			name:        "Fetch sk OpenBank from localStorage successfully",
+			certificate: config.Get().AzureStorageOpenBankSkName,
+		},
+		{
+			name:        "Fetch JPMorganPk from localStorage successfully",
+			certificate: config.Get().AzureStorageJPMorganPkName,
+		},
+		{
+			name:        "Fetch JPMorganCrt from localStorage successfully",
+			certificate: config.Get().AzureStorageJPMorganCrtName,
+		},
+		{
+			name:        "Fetch JPMorganSignCrt from localStorage successfully",
+			certificate: config.Get().AzureStorageJPMorganSignCrtName,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			installCertificates()
 		})
-		sk, err := certificate.GetCertificateFromStore(config.Get().AzureStorageOpenBankSkName)
+		sk, err := certificate.GetCertificateFromStore(tt.certificate)
 		assert.Nil(t, err)
 		assert.NotNil(t, sk)
 	}

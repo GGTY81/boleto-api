@@ -120,6 +120,12 @@ func Post(url, body, timeout string, header map[string]string) (string, int, err
 	return resp, st, err
 }
 
+//PostWithHeader faz um requisição POST para uma URL e retorna o response, status e erro
+func PostWithHeader(url, body, timeout string, header map[string]string) (string, string, int, error) {
+	resp, respHeader, st, err := doRequest("POST", url, body, timeout, header)
+	return resp, respHeader, st, err
+}
+
 func doRequest(method, url, body, timeout string, header map[string]string) (string, string, int, error) {
 	t := GetDurationTimeoutRequest(timeout) * time.Second
 
@@ -155,38 +161,47 @@ func doRequest(method, url, body, timeout string, header map[string]string) (str
 }
 
 // BuildTLSTransport creates a TLS Client Transport from crt, ca and key files
-func BuildTLSTransport() (*http.Transport, error) {
+func BuildTLSTransport(con certificate.TLSCertificate) (*http.Transport, error) {
 
 	if config.Get().MockMode {
 		return nil, nil
 	}
 
-	var errF error
-	onceTransport.Do(func() {
+	key, err := certificate.GetCertificateFromStore(con.Key)
+	if err != nil {
+		return nil, err
+	}
 
-		ssl, err := certificate.GetCertificateFromStore(config.Get().CertificateSSLName)
-		if err != nil {
-			errF = err
-			return
-		}
+	crt, err := certificate.GetCertificateFromStore(con.Crt)
+	if err != nil {
+		return nil, err
+	}
 
-		cert, err := tls.X509KeyPair(ssl.(certificate.SSLCertificate).PemData, ssl.(certificate.SSLCertificate).PemData)
-		if err != nil {
-			errF = err
-			return
-		}
+	cert, err := tls.X509KeyPair(getCertificateByType(crt), getCertificateByType(key))
 
-		transport = &http.Transport{
-			Dial:                defaultDialer.Dial,
-			TLSHandshakeTimeout: 16 * time.Second,
-			TLSClientConfig: &tls.Config{
-				Certificates:       []tls.Certificate{cert},
-				InsecureSkipVerify: true,
-			},
-		}
-		return
-	})
-	return transport, errF
+	if err != nil {
+		return nil, err
+	}
+
+	transport = &http.Transport{
+		Dial:                defaultDialer.Dial,
+		TLSHandshakeTimeout: 16 * time.Second,
+		TLSClientConfig: &tls.Config{
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: true,
+		},
+	}
+
+	return transport, nil
+}
+
+func getCertificateByType(key interface{}) []byte {
+	switch v := key.(type) {
+	case certificate.SSLCertificate:
+		return v.PemData
+	default:
+		return v.([]byte)
+	}
 }
 
 //Sign request

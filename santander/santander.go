@@ -2,6 +2,7 @@ package santander
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 
 	. "github.com/PMoneda/flow"
+	"github.com/mundipagg/boleto-api/certificate"
 	"github.com/mundipagg/boleto-api/config"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/metrics"
@@ -18,8 +20,12 @@ import (
 	"github.com/mundipagg/boleto-api/validations"
 )
 
-var o = &sync.Once{}
-var m map[string]string
+var (
+	onceMap       = &sync.Once{}
+	onceTransport = &sync.Once{}
+	transportTLS  *http.Transport
+	m             map[string]string
+)
 
 type bankSantander struct {
 	validate  *models.Validator
@@ -35,9 +41,18 @@ func New() (bankSantander, error) {
 		log:      log.CreateLog(),
 	}
 
-	b.transport, err = util.BuildTLSTransport()
-	if err != nil {
-		return bankSantander{}, err
+	certificates := certificate.TLSCertificate{
+		Crt: config.Get().CertificateSSLName,
+		Key: config.Get().CertificateSSLName,
+	}
+
+	onceTransport.Do(func() {
+		transportTLS, err = util.BuildTLSTransport(certificates)
+	})
+	b.transport = transportTLS
+
+	if err != nil || (b.transport == nil && !config.Get().MockMode) {
+		return bankSantander{}, fmt.Errorf("fail on load TLSTransport: %v", err)
 	}
 
 	b.validate.Push(validations.ValidateAmount)
@@ -148,7 +163,7 @@ func (b bankSantander) GetBankNameIntegration() string {
 }
 
 func santanderBoletoTypes() map[string]string {
-	o.Do(func() {
+	onceMap.Do(func() {
 		m = make(map[string]string)
 
 		m["DM"] = "02"  //Duplicata Mercantil
