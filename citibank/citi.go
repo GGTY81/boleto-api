@@ -146,6 +146,10 @@ func (b bankCiti) GetBankNameIntegration() string {
 	return "Citibank"
 }
 
+func (b bankCiti) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func getBoletoType() (bt string, btc string) {
 	return "DMI", "03"
 }

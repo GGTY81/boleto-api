@@ -152,6 +152,10 @@ func (b bankSantander) GetBankNumber() models.BankNumber {
 	return models.Santander
 }
 
+func (b bankSantander) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func calculateOurNumber(boleto *models.BoletoRequest) uint {
 	ourNumberWithDigit := strconv.Itoa(int(boleto.Title.OurNumber)) + util.OurNumberDv(strconv.Itoa(int(boleto.Title.OurNumber)), util.MOD11)
 	value, _ := strconv.Atoi(ourNumberWithDigit)

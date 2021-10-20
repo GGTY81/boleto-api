@@ -129,7 +129,7 @@ type BankNumber int
 // IsBankNumberValid verifica se o banco enviado existe
 func (b BankNumber) IsBankNumberValid() bool {
 	switch b {
-	case BancoDoBrasil, Itau, Santander, Caixa, Bradesco, Citibank, Pefisa, Stone:
+	case BancoDoBrasil, Itau, Santander, Caixa, Bradesco, Citibank, Pefisa, Stone, JPMorgan:
 		return true
 	default:
 		return false
@@ -155,6 +155,8 @@ func (b BankNumber) GetBoletoBankNumberAndDigit() string {
 		return "174"
 	case Stone:
 		return "197-1"
+	case JPMorgan:
+		return "376"
 	default:
 		return ""
 	}
@@ -186,6 +188,8 @@ const (
 
 	// Stone constante do Stone
 	Stone = 197
+
+	JPMorgan = 376
 )
 
 // BoletoErrorConector é um connector flow para criar um objeto de erro

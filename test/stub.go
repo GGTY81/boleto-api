@@ -64,6 +64,11 @@ func (s *StubBoletoRequest) WithExpirationDate(expiredAt time.Time) *StubBoletoR
 	return s
 }
 
+func (s *StubBoletoRequest) WithDocumentNumber(documentNumber string) *StubBoletoRequest {
+	s.Title.DocumentNumber = documentNumber
+	return s
+}
+
 func (s *StubBoletoRequest) WithInstructions(instructions string) *StubBoletoRequest {
 	s.Title.Instructions = instructions
 	return s

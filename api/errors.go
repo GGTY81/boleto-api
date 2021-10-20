@@ -20,16 +20,6 @@ var validate = map[string]int{
 	"MPOurNumberFail":         http.StatusBadGateway,
 }
 
-//Esse mapper poderá ser movido para interface IBank posteriomente
-var stone = map[string]int{
-	"srn:error:validation":          http.StatusBadRequest,
-	"srn:error:unauthenticated":     http.StatusInternalServerError,
-	"srn:error:unauthorized":        http.StatusBadGateway,
-	"srn:error:not_found":           http.StatusBadGateway,
-	"srn:error:conflict":            http.StatusBadGateway,
-	"srn:error:product_not_enabled": http.StatusBadRequest,
-}
-
 func handleErrors(c *gin.Context) {
 	c.Next()
 
@@ -42,11 +32,9 @@ func handleErrors(c *gin.Context) {
 		return
 	}
 
-	bank := getBankFromContext(c).GetBankNumber()
 	bankcode := response.Errors[0].Code
-
 	if status, exist = validate[bankcode]; !exist {
-		status = getMapper(bank)[bankcode]
+		status = getBankFromContext(c).GetErrorsMap()[bankcode]
 	}
 
 	switch status {
@@ -68,18 +56,8 @@ func handleErrors(c *gin.Context) {
 	c.Set(responseKey, response)
 }
 
-func getMapper(bank models.BankNumber) map[string]int {
-	switch bank {
-	case models.Stone:
-		return stone
-	default:
-		return make(map[string]int)
-	}
-}
-
 func qualifiedForNewErrorHandling(c *gin.Context, response models.BoletoResponse) bool {
-	bankNumber := getBankFromContext(c).GetBankNumber()
-	if (bankNumber == models.Stone && response.HasErrors()) || hasPanic(c) {
+	if (getBankFromContext(c).GetErrorsMap() != nil && response.HasErrors()) || hasPanic(c) {
 		return true
 	}
 	return false

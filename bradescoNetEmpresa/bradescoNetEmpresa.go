@@ -1,11 +1,11 @@
 package bradescoNetEmpresa
 
 import (
-	"sync"
 	"errors"
 	"fmt"
 	"html"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mundipagg/boleto-api/metrics"
@@ -136,6 +136,10 @@ func (b bankBradescoNetEmpresa) GetBankNumber() models.BankNumber {
 
 func (b bankBradescoNetEmpresa) GetBankNameIntegration() string {
 	return "BradescoNetEmpresa"
+}
+
+func (b bankBradescoNetEmpresa) GetErrorsMap() map[string]int {
+	return nil
 }
 
 func signRequest(bod *flow.Flow) error {

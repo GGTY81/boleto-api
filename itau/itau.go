@@ -158,6 +158,10 @@ func (b bankItau) GetBankNameIntegration() string {
 	return "Itau"
 }
 
+func (b bankItau) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func itauBoletoTypes() map[string]string {
 	o.Do(func() {
 		m = make(map[string]string)

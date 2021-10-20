@@ -34,16 +34,6 @@ var handleInternalErrorsParameters = []test.Parameter{
 	{Input: models.GetBoletoResponseError("MPOurNumberFail", "resposta sem nosso numero"), Expected: http.StatusBadGateway},
 }
 
-func Test_GetMapper_WhenBankStone_ReturnStoneErrorsCode(t *testing.T) {
-	result := getMapper(models.Stone)
-	assert.Equal(t, result, stone)
-}
-
-func Test_GetMapper_WhenBankNotStone_ReturnEmptyMap(t *testing.T) {
-	result := getMapper(models.BancoDoBrasil)
-	assert.Equal(t, len(result), 0)
-}
-
 func Test_GetErrorCodeToLog_WhenHasError_ReturnErrorCode(t *testing.T) {
 	expectedErrorCode := "CODE"
 	c, _ := gin.CreateTestContext(httptest.NewRecorder())
@@ -116,4 +106,60 @@ func Test_RotaRegisterV2_WhenPanicOccurred_RunsPanicRecovery(t *testing.T) {
 
 	assert.Equal(t, 500, w.Code)
 	assert.Equal(t, mockPanicRegistrationResponseJSON, w.Body.String())
+}
+
+func Test_QualifiedForNewErrorHandling_WhenBankStoneWithError_ReturnTrue(t *testing.T) {
+	request := models.BoletoRequest{BankNumber: models.Stone}
+	response := models.GetBoletoResponseError("MP000", "error")
+	bank, _ := bank.Get(request)
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c.Set(boletoKey, request)
+	c.Set(bankKey, bank)
+
+	result := qualifiedForNewErrorHandling(c, response)
+
+	assert.True(t, result)
+}
+
+func Test_QualifiedForNewErrorHandling_WhenBankStoneWithoutError_ReturnFalse(t *testing.T) {
+	request := models.BoletoRequest{BankNumber: models.Stone}
+	response := models.BoletoResponse{}
+	bank, _ := bank.Get(request)
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c.Set(boletoKey, request)
+	c.Set(bankKey, bank)
+
+	result := qualifiedForNewErrorHandling(c, response)
+
+	assert.False(t, result)
+}
+
+func Test_QualifiedForNewErrorHandling_WhenAnotherBankWithError_ReturnFalse(t *testing.T) {
+	request := models.BoletoRequest{BankNumber: models.Caixa}
+	response := models.GetBoletoResponseError("MP000", "error")
+	bank, _ := bank.Get(request)
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c.Set(boletoKey, request)
+	c.Set(bankKey, bank)
+
+	result := qualifiedForNewErrorHandling(c, response)
+
+	assert.False(t, result)
+}
+
+func Test_QualifiedForNewErrorHandling_WhenAnotherBankWithoutError_ReturnFalse(t *testing.T) {
+	request := models.BoletoRequest{BankNumber: models.Caixa}
+	response := models.BoletoResponse{}
+	bank, _ := bank.Get(request)
+
+	c, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c.Set(boletoKey, request)
+	c.Set(bankKey, bank)
+
+	result := qualifiedForNewErrorHandling(c, response)
+
+	assert.False(t, result)
 }

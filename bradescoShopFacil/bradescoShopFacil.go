@@ -113,6 +113,10 @@ func (b bankBradescoShopFacil) GetBankNumber() models.BankNumber {
 	return models.Bradesco
 }
 
+func (b bankBradescoShopFacil) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func getBarcode(boleto models.BoletoRequest) (bc barcode) {
 	bc.bankCode = fmt.Sprintf("%d", models.Bradesco)
 	bc.currencyCode = fmt.Sprintf("%d", models.Real)
