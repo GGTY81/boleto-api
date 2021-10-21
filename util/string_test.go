@@ -5,16 +5,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
 type UtilTestParameter struct {
 	Input    interface{}
 	Expected interface{}
-}
-
-var removeDiacriticsParameters = []UtilTestParameter{
-	{Input: "maçã", Expected: "maca"},
-	{Input: "áÉçãẽś", Expected: "aEcaes"},
-	{Input: "Týr", Expected: "Tyr"},
-	{Input: "párãlèlëpípêdö", Expected: "paralelepipedo"},
 }
 
 var padLeftParameters = []UtilTestParameter{
@@ -35,13 +29,6 @@ var basicCharacter = []UtilTestParameter{
 var caixaSpecialCharacter = []UtilTestParameter{
 	{Input: " ,/()*=-+!:?.;_'", Expected: true},
 	{Input: "01223456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%¨{}[]^~Çç\"&<>\\", Expected: false},
-}
-
-func TestRemoveDiacritics(t *testing.T) {
-	for _, fact := range removeDiacriticsParameters {
-		result := RemoveDiacritics(fact.Input.(string))
-		assert.Equal(t, fact.Expected, result, "Deve receber um texto com acentos e retornar o texto sem acentos")
-	}
 }
 
 func TestPadLeft(t *testing.T) {
