@@ -62,7 +62,7 @@ func TestNewIssuer(t *testing.T) {
 	issuer := NewIssuer(expectedBarCode, expectedDigitableLine)
 
 	assert.Equal(t, expectedBarCode, issuer.barCode, "O barcode não foi atribuído corretamente")
-	assert.Equal(t, expectedDigitableLine, issuer.digitableLine, "A digitableline não foi atribuído corretamnte")
+	assert.Equal(t, expectedDigitableLine, issuer.digitableLine, "A digitableline não foi atribuída corretamente")
 }
 
 func TestIsValidBarCode(t *testing.T) {
@@ -88,6 +88,6 @@ func TestIsValidDigitableLineAndBarCode(t *testing.T) {
 		issuer := fact.Input.(Issuer)
 		result := issuer.IsValidBarCode() && issuer.IsValidDigitableLine()
 
-		assert.Equal(t, fact.Expected, result, fmt.Sprintf("A linha digitávl ou o código de barras não são válidos %v", fact.Input))
+		assert.Equal(t, fact.Expected, result, fmt.Sprintf("A linha digitável ou o código de barras não são válidos %v", fact.Input))
 	}
 }
