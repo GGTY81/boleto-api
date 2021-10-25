@@ -50,8 +50,8 @@ const templateAPI = `
         }
     ]
     {{else}}
-        "DigitableLine": "{{fmtDigitableLine .digitableLine}}",
-        "BarCodeNumber": "{{.barCodeNumber}}",
+    "DigitableLine": "{{fmtDigitableLine (trim .digitableLine)}}",
+    "BarCodeNumber": "{{trim .barCodeNumber}}",
         "OurNumber": "{{.ourNumber}}"
     {{end}}
 }
