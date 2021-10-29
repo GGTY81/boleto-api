@@ -75,6 +75,10 @@ services:
           - "8888:8888"
         links:
           - influxdb
-
     
-        
+    contract-test:
+      build:
+        context: ..
+        dockerfile: ./devops/Dockerfile.contract-test
+      command: go test -v test/boleto_pact_provider_test.go
+          

@@ -144,8 +144,7 @@ func TestMessageProvider_Success(t *testing.T) {
 // Configuration / Test Data
 var dir, _ = os.Getwd()
 
-// var pactDir = fmt.Sprintf("%s/../../pacts", dir)
-var logDir = fmt.Sprintf("%s/log", dir)
+var logDir = fmt.Sprintf("%s/../log", dir)
 
 // Setup the Pact client.
 func createPact() dsl.Pact {
