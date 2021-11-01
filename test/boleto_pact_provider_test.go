@@ -130,10 +130,11 @@ func TestMessageProvider_Success(t *testing.T) {
 		},
 	}
 
-	// Verify the Provider with local Pact Files
+	// Verify the Provider with Pactflow publish contracts
+	//nolint
 	pact.VerifyMessageProvider(t, dsl.VerifyMessageRequest{
 		PactURLs:                   []string{os.Getenv("PACT_URL")},
-		BrokerURL:                  "https://pagarme.pactflow.io/pacts/provider/boleto-api/consumer/boleto-recovery-consumer/latest",
+		BrokerURL:                  os.Getenv("PACT_BROKER_URL"),
 		BrokerToken:                os.Getenv("PACT_BROKER_TOKEN"),
 		PublishVerificationResults: true,
 		ProviderVersion:            os.Getenv("GITHUB_COMMIT"),

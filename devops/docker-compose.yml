@@ -2,9 +2,9 @@ version: '2'
 
 services:
     boleto-api:
-        build: 
+        build:
           context: ..
-          dockerfile: ./devops/Dockerfile      
+          dockerfile: ./devops/Dockerfile
         volumes:
           - $gopath/src/github.com/mundipagg/volumes-boletoapi/boleto_json_store/:/home/mundipagg/upmongo
           - $gopath/src/github.com/mundipagg/volumes-boletoapi/cert_boleto_api/:/home/mundipagg/boleto_cert/
@@ -15,7 +15,7 @@ services:
           - mongodb
           - seq
           - influxdb
-  
+
     pdfapi:
         image: "pmoneda/pdfapi"
         ports:
@@ -25,7 +25,7 @@ services:
         image: "bitnami/mongodb"
         volumes:
           - $GOPATH/src/github.com/mundipagg/volumes-boletoapi/mongodb-boleto:/bitnami
-        ports: 
+        ports:
           - "27017:27017"
 
     seq:
@@ -75,10 +75,9 @@ services:
           - "8888:8888"
         links:
           - influxdb
-    
+
     contract-test:
       build:
         context: ..
         dockerfile: ./devops/Dockerfile.contract-test
       command: go test -v test/boleto_pact_provider_test.go
-          
