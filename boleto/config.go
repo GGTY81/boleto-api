@@ -35,6 +35,8 @@ func GetConfig(boleto models.BoletoRequest) ConfigBank {
 		return configPefisa(boleto)
 	case models.Stone:
 		return configStone(boleto)
+	case models.JPMorgan:
+		return configJPMorgan(boleto)
 	default:
 		return configBB(boleto)
 	}
@@ -66,6 +68,10 @@ func configPefisa(boleto models.BoletoRequest) ConfigBank {
 
 func configStone(boleto models.BoletoRequest) ConfigBank {
 	return ConfigBank{Logo: template.HTML(LogoStone), EspecieDoc: boleto.Title.BoletoType, Aceite: "N", Quantidade: "", ValorCotacao: "", Moeda: "R$"}
+}
+
+func configJPMorgan(boleto models.BoletoRequest) ConfigBank {
+	return ConfigBank{Logo: template.HTML(LogoJPMorgan), EspecieDoc: boleto.Title.BoletoType, Aceite: "N", Quantidade: "", ValorCotacao: "", Moeda: "R$"}
 }
 
 func configBradesco(boleto models.BoletoRequest) ConfigBank {
