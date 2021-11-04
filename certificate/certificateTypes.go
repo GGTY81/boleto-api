@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+
 	pkcs122 "software.sslmate.com/src/go-pkcs12"
 )
 
@@ -12,6 +13,11 @@ const (
 	icp = "ICP"
 	ssl = "SSL"
 )
+
+type TLSCertificate struct {
+	Crt string
+	Key string
+}
 
 type ICPCertificate struct {
 	Name          string

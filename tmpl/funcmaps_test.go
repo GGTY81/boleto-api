@@ -38,6 +38,12 @@ var toFloatStrParameters = []test.UInt64TestParameter{
 	{Input: 50332, Expected: "503.32"},
 	{Input: 55, Expected: "0.55"},
 	{Input: 0, Expected: "0.00"},
+	{Input: 200, Expected: "2.00"},
+}
+
+var StrtoFloatParameters = []test.Parameter{
+	{Input: "2.00", Expected: 2.00},
+	{Input: "2.01", Expected: 2.01},
 }
 
 var formatDocParameters = []test.Parameter{
@@ -179,6 +185,13 @@ func TestMod11OurNumber(t *testing.T) {
 func TestToFloatStr(t *testing.T) {
 	for _, fact := range toFloatStrParameters {
 		result := toFloatStr(fact.Input)
+		assert.Equal(t, fact.Expected, result, "O valor em inteiro deve ser convertido para uma string com duas casas decimais separado por ponto (0.00)")
+	}
+}
+
+func TestStrToFloat(t *testing.T) {
+	for _, fact := range StrtoFloatParameters {
+		result := strToFloat(fact.Input.(string))
 		assert.Equal(t, fact.Expected, result, "O valor em inteiro deve ser convertido para uma string com duas casas decimais separado por ponto (0.00)")
 	}
 }

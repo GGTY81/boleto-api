@@ -128,6 +128,10 @@ func (b bankCaixa) GetBankNameIntegration() string {
 	return "Caixa"
 }
 
+func (b bankCaixa) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func caixaBoletoTypes() map[string]string {
 	o.Do(func() {
 		m = make(map[string]string)

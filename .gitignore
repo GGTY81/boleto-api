@@ -8,6 +8,7 @@ boleto-api
 .pid
 .exe
 debug
+.pid
 
 
 # Test binary, build with `go test -c`

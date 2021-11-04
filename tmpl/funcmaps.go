@@ -70,6 +70,8 @@ var funcMap = template.FuncMap{
 	"sanitizeCitibankSpecialCharacteres": sanitizeCitibankSpecialCharacteres,
 	"clearStringCaixa":                   clearStringCaixa,
 	"truncateOnly":                       truncateOnly,
+	"toUint":                             toUint,
+	"strToFloat":                         strToFloat,
 }
 
 func GetFuncMaps() template.FuncMap {
@@ -173,6 +175,11 @@ func toFloatStr(n uint64) string {
 	return fmt.Sprintf("%d.%02d", real, cents)
 }
 
+func strToFloat(n string) float64 {
+	s, _ := strconv.ParseFloat(n, 64)
+	return s
+}
+
 func fmtDoc(doc models.Document) string {
 	if e := doc.ValidateCPF(); e == nil {
 		return fmtCPF(doc.Number)
@@ -182,6 +189,11 @@ func fmtDoc(doc models.Document) string {
 
 func toString(number uint) string {
 	return strconv.FormatInt(int64(number), 10)
+}
+
+func toUint(number string) uint {
+	value, _ := strconv.Atoi(number)
+	return uint(value)
 }
 
 func toString16(number uint16) string {

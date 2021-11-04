@@ -3,6 +3,7 @@ package bank
 import (
 	"fmt"
 
+	"github.com/mundipagg/boleto-api/bank/services/jpmorgan"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/models"
 )
@@ -14,6 +15,7 @@ type Bank interface {
 	ValidateBoleto(*models.BoletoRequest) models.Errors
 	GetBankNumber() models.BankNumber
 	GetBankNameIntegration() string
+	GetErrorsMap() map[string]int
 	Log() *log.Log
 }
 
@@ -36,6 +38,8 @@ func Get(boleto models.BoletoRequest) (Bank, error) {
 		return getIntegrationPefisa(boleto)
 	case models.Stone:
 		return getIntegrationStone(boleto)
+	case models.JPMorgan:
+		return jpmorgan.New()
 	default:
 		return nil, models.NewErrorResponse("MPBankNumber", fmt.Sprintf("Banco %d não existe", boleto.BankNumber))
 	}

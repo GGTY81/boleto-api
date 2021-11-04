@@ -3,11 +3,13 @@ package bank
 import (
 	"testing"
 
+	"github.com/mundipagg/boleto-api/bank/services/jpmorgan"
 	"github.com/mundipagg/boleto-api/bb"
 	"github.com/mundipagg/boleto-api/bradescoNetEmpresa"
 	"github.com/mundipagg/boleto-api/bradescoShopFacil"
 	"github.com/mundipagg/boleto-api/caixa"
 	"github.com/mundipagg/boleto-api/citibank"
+	"github.com/mundipagg/boleto-api/env"
 	"github.com/mundipagg/boleto-api/itau"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/pefisa"
@@ -32,6 +34,7 @@ var itauInstance = itau.New()
 var caixaInstance = caixa.New()
 var pefisaInstance = pefisa.New()
 var stoneInstance = stone.New()
+var jpInstanceInstance, _ = jpmorgan.New()
 
 var getBankTestData = []dataTest{
 	{models.BoletoRequest{BankNumber: models.Bradesco, Agreement: models.Agreement{Wallet: 9}}, models.Bradesco, bradescoNetEmpresaInstance},
@@ -43,13 +46,14 @@ var getBankTestData = []dataTest{
 	{models.BoletoRequest{BankNumber: models.Caixa}, models.Caixa, caixaInstance},
 	{models.BoletoRequest{BankNumber: models.Pefisa}, models.Pefisa, pefisaInstance},
 	{models.BoletoRequest{BankNumber: models.Stone}, models.Stone, stoneInstance},
+	{models.BoletoRequest{BankNumber: models.JPMorgan}, models.JPMorgan, jpInstanceInstance},
 }
 
 func TestShouldExecuteBankStrategy(t *testing.T) {
+	env.Config(true, true, true)
 	for _, fact := range getBankTestData {
 		bank, err := Get(fact.request)
 		number := bank.GetBankNumber()
-
 		assert.Nil(t, err, "Não deve haver erro")
 		assert.True(t, number.IsBankNumberValid(), "Deve ser um banco válido")
 		assert.Equal(t, fact.bankNumber, number, "Deve conter o bankNumber correto")

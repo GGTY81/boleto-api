@@ -76,7 +76,7 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 
 	output, _ := bank.ProcessBoleto(input)
 
-	assert.Nil(t, err)
+	assert.Nil(t, err, "Não deve haver um erro")
 	test.AssertProcessBoletoFailed(t, output)
 }
 
