@@ -11,7 +11,6 @@ import (
 	"github.com/mundipagg/boleto-api/metrics"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/usermanagement"
-	"github.com/mundipagg/boleto-api/util"
 )
 
 const (
@@ -66,31 +65,6 @@ func authentication(c *gin.Context) {
 	}
 
 	c.Set(serviceUserKey, cred.Username)
-}
-
-//logger Middleware de log do request e response da BoletoAPI
-func logger(c *gin.Context) {
-	boleto := getBoletoFromContext(c)
-	bank := getBankFromContext(c)
-
-	l := loadBankLog(c)
-
-	l.RequestApplication(boleto, c.Request.URL.RequestURI(), util.HeaderToMap(c.Request.Header))
-
-	c.Next()
-
-	l = loadBankLog(c)
-
-	resp, _ := c.Get(responseKey)
-
-	if hasPanic(c) {
-		l.ResponseApplicationFatal(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
-	} else {
-		l.ResponseApplication(resp, c.Request.URL.RequestURI(), getErrorCodeToLog(c))
-	}
-
-	tag := bank.GetBankNameIntegration() + "-status"
-	metrics.PushBusinessMetric(tag, c.Writer.Status())
 }
 
 //checkError Middleware de verificação de erros
@@ -194,20 +168,6 @@ func parseExpirationDate(c *gin.Context, boleto *models.BoletoRequest, bank bank
 		return false
 	}
 	return true
-}
-
-func loadBankLog(c *gin.Context) *log.Log {
-	boleto := getBoletoFromContext(c)
-	bank := getBankFromContext(c)
-	l := bank.Log()
-	l.Operation = "RegisterBoleto"
-	l.NossoNumero = getNossoNumeroFromContext(c)
-	l.Recipient = boleto.Recipient.Name
-	l.RequestKey = boleto.RequestKey
-	l.BankName = bank.GetBankNameIntegration()
-	l.IPAddress = c.ClientIP()
-	l.ServiceUser = getUserFromContext(c)
-	return l
 }
 
 func getBoletoFromContext(c *gin.Context) models.BoletoRequest {
