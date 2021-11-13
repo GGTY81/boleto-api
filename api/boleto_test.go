@@ -64,6 +64,20 @@ func Test_GetBoletoConfirmation_ReturnOkSuccessful(t *testing.T) {
 	assert.Equal(t, "OK", w.Body.String())
 }
 
+func Test_setupGetBoletoSuccessResponse(t *testing.T) {
+	c, _, _ := arrangeGetBoleto()
+	url := "http://localhost:3000/boleto?fmt=html&id=1234567890&pk=1234567890"
+	c.Request, _ = http.NewRequest(http.MethodGet, url, nil)
+
+	expectedResult := models.NewGetBoletoResult(c)
+
+	setupGetBoletoSuccessResponse(c, expectedResult)
+
+	assert.Equal(t, http.StatusOK, c.Writer.Status(), "O status deve ser 200 - OK")
+	assert.Equal(t, "Information", expectedResult.LogSeverity, "O severity log deve ser Information")
+	assert.Equal(t, expectedResult, getResultFromContext(c), "O objeto result deverá estar no contexto")
+}
+
 func Test_PostBoletoConfirmation_ReturnOkSuccessful(t *testing.T) {
 	router := mockInstallApi()
 
