@@ -394,7 +394,11 @@ func PostTLSWithHeader(url, body, timeout string, header map[string]string, tran
 func HeaderToMap(h http.Header) map[string]string {
 	m := make(map[string]string)
 	for k, v := range h {
-		m[k] = v[0]
+		if k == "Authorization" {
+			m[k] = "***"
+		} else {
+			m[k] = v[0]
+		}
 	}
 	return m
 }
