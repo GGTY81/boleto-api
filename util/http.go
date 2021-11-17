@@ -391,14 +391,14 @@ func PostTLSWithHeader(url, body, timeout string, header map[string]string, tran
 }
 
 //HeaderToMap converte um http Header para um dicionário string -> string
-func HeaderToMap(h http.Header) map[string]string {
-	m := make(map[string]string)
-	for k, v := range h {
-		if k == "Authorization" {
-			m[k] = "***"
+func HeaderToMap(header http.Header) map[string]string {
+	headerMap := make(map[string]string)
+	for key, value := range header {
+		if key == "Authorization" {
+			headerMap[key] = "***"
 		} else {
-			m[k] = v[0]
+			headerMap[key] = value[0]
 		}
 	}
-	return m
+	return headerMap
 }
