@@ -237,5 +237,5 @@ func timeoutMessage(err error) string {
 }
 
 func hasOurNumberFail(response *models.BoletoResponse) bool {
-	return !response.HasErrors() && response.OurNumber == ""
+	return !response.HasErrors() && (response.OurNumber == "" || response.OurNumber == "000000000000")
 }
