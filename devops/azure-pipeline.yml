@@ -1,0 +1,186 @@
+name: $(date:yyyyMMdd)$(rev:.r)
+pool:
+  name: Default
+  demands:
+  - agent.OS -equals Linux
+variables:
+  BuildConfiguration: 'release'
+  BuildPlatform: 'any cpu'
+  LintExecute: 'true'
+  ContractTestExecute: 'false'
+  Organization: mundipagg
+  SonarcloudAccount: Sonarqube
+  ProjectKey: mundipagg_boleto-api
+  ProjectName: boleto-api
+  ImageVersion: $(Build.BuildNumber)
+trigger:
+  branches:
+    include:
+    - feature/*
+    - fix/*
+  tags:
+    include:
+    - '*'
+pr:
+  branches:
+    include:
+    - 'master'
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: master
+stages:
+  - stage: QA
+    jobs:
+      - job: TestAndQuality
+        workspace:
+          clean: all
+        steps:
+          - task: GoTool@0
+            displayName: Use Go 1.13.14
+            inputs:
+              version: 1.13.14
+          - task: Go@0
+            displayName: go mod download
+            inputs:
+              command: custom
+              customCommand: mod
+              arguments: download
+              workingDirectory: $(System.DefaultWorkingDirectory)
+          - task: PowerShell@2
+            condition: eq(variables['LintExecute'], 'true')
+            displayName: Install Go lint
+            inputs:
+              targetType: inline
+              script: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(System.DefaultWorkingDirectory) v1.42.1
+          - task: PowerShell@2
+            condition: eq(variables['LintExecute'], 'true')
+            displayName: Run linter
+            inputs:
+              targetType: inline
+              script: $(System.DefaultWorkingDirectory)/golangci-lint run --new-from-rev=origin/master --timeout 2m0s
+          - task: Go@0
+            displayName: go test
+            inputs:
+              command: test
+              arguments: ./... -short -coverprofile=coverage.file -tags=unit
+              workingDirectory: $(System.DefaultWorkingDirectory)/src/github.com/mundipagg/boleto-api
+          - task: SonarCloudPrepare@1
+            displayName: Prepare analysis on SonarCloud
+            inputs:
+              SonarCloud: $(SonarcloudAccount)
+              organization: $(Organization)
+              projectKey: $(ProjectKey)
+              projectName: $(ProjectName)
+              scannerMode: CLI
+              configFile: $(System.DefaultWorkingDirectory)/sonar-project.properties
+          - task: SonarCloudAnalyze@1
+            displayName: Run Code Analysis
+          - task: SonarCloudPublish@1
+            displayName: Publish Quality Gate Result
+          - task: Bash@3
+            condition: eq(variables['ContractTestExecute'], 'true')
+            displayName: docker-compose build contract-test
+            inputs:
+              targetType: inline
+              script: >
+                cd devops
+
+
+                docker-compose build contract-test
+          - task: Bash@3
+            condition: eq(variables['ContractTestExecute'], 'true')
+            displayName: Run contract test
+            inputs:
+              targetType: inline
+              script: >-
+                cd devops
+
+
+                docker-compose run --rm -e PACT_BROKER_TOKEN=$(PACT_BROKER_TOKEN) -e PACT_URL=$(PACT_URL) -e GITHUB_COMMIT=$(Build.SourceVersion) -e GITHUB_BRANCH=$(Build.SourceBranchName) -e PACT_BROKER_URL=https://pagarme.pactflow.io/ contract-test
+          - task: Bash@3
+            condition: eq(variables['ContractTestExecute'], 'true')
+            displayName: Can I deploy
+            inputs:
+              targetType: inline
+              script: >
+                docker run --rm \
+                          -e PACT_BROKER_TOKEN=$(PACT_BROKER_TOKEN)  \
+                          pactfoundation/pact-cli:0.47.1.0 \
+                          broker can-i-deploy \
+                          --broker-base-url 'https://pagarme.pactflow.io' \
+                          --pacticipant 'boleto-api' \
+                          --version $(Build.SourceVersion)
+  - stage: Build
+    dependsOn:
+      - QA
+    condition: succeeded()
+    jobs:
+      - job: Build
+        cancelTimeoutInMinutes: 1
+        workspace:
+          clean: all
+        steps:
+        - task: Bash@3
+          displayName: Moves files to src/github.com/mundipagg/boleto-api
+          inputs:
+            targetType: inline
+            script: >-
+              mkdir -p src/github.com/mundipagg/boleto-api;
+
+              mv $(ls | grep -vwE "(src)") src/github.com/mundipagg/boleto-api/;
+        - task: GoTool@0
+          displayName: Use Go 1.13.14
+          inputs:
+            version: 1.13.14
+            goPath: $(System.DefaultWorkingDirectory)
+        - task: Go@0
+          displayName: go mod download
+          inputs:
+            command: custom
+            customCommand: mod
+            arguments: download
+            workingDirectory: $(System.DefaultWorkingDirectory)/src/github.com/mundipagg/boleto-api
+        - task: Go@0
+          displayName: go build - com GoMod
+          inputs:
+            command: build
+            arguments: -o "$(Build.Repository.LocalPath)/build-output/api/boleto-api"
+            workingDirectory: $(System.DefaultWorkingDirectory)/src/github.com/mundipagg/boleto-api
+        - task: Bash@3
+          displayName: go build - sem GoMod
+          enabled: False
+          inputs:
+            targetType: inline
+            script: GO111MODULE=off go build -o "$(Build.Repository.LocalPath)/build-output/api/boleto-api" .
+            workingDirectory: $(System.DefaultWorkingDirectory)/src/github.com/mundipagg/boleto-api
+        - task: CopyFiles@2
+          displayName: Copy Files "Time"
+          inputs:
+            SourceFolder: ./src/github.com/mundipagg/boleto-api/devops/time
+            TargetFolder: $(Build.Repository.LocalPath)/build-output/api/lib/time
+            CleanTargetFolder: true
+        - task: CopyFiles@2
+          displayName: Copy Files "Boleto"
+          inputs:
+            SourceFolder: ./src/github.com/mundipagg/boleto-api/boleto
+            Contents: >-
+              Arial.ttf
+
+              favicon.ico
+            TargetFolder: $(Build.Repository.LocalPath)/build-output/api/boleto
+            CleanTargetFolder: true
+        - task: ArchiveFiles@2
+          displayName: Archive Files
+          inputs:
+            rootFolderOrFile: $(Build.Repository.LocalPath)/build-output
+            includeRootFolder: False
+            archiveType: tar
+            sevenZipCompression: 5
+            tarCompression: none
+            archiveFile: $(Build.ArtifactStagingDirectory)/boleto-api-$(Build.BuildId).tar
+        - task: PublishBuildArtifacts@1
+          displayName: Publish Artifact
+          inputs:
+            TargetPath: '\\my\share\$(Build.DefinitionName)\$(Build.BuildNumber)'
