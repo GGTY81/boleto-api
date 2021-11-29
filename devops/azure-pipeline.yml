@@ -8,6 +8,7 @@ variables:
   BuildPlatform: 'any cpu'
   LintExecute: 'true'
   ContractTestExecute: 'false'
+  RunscopeExecute: 'true' 
   Organization: mundipagg
   SonarcloudAccount: Sonarqube
   ProjectKey: mundipagg_boleto-api
@@ -33,7 +34,8 @@ resources:
 stages:
   - stage: QA
     jobs:
-      - job: TestAndQuality
+      - job: QualityAnalysis
+        displayName: Quality Analysis
         workspace:
           clean: all
         steps:
@@ -65,7 +67,8 @@ stages:
             inputs:
               command: test
               arguments: ./... -short -coverprofile=coverage.file -tags=unit
-              workingDirectory: $(System.DefaultWorkingDirectory)/src/github.com/mundipagg/boleto-api
+              workingDirectory: $(System.DefaultWorkingDirectory)
+          
           - task: SonarCloudPrepare@1
             displayName: Prepare analysis on SonarCloud
             inputs:
@@ -79,28 +82,33 @@ stages:
             displayName: Run Code Analysis
           - task: SonarCloudPublish@1
             displayName: Publish Quality Gate Result
+      - job: ContractTest
+        displayName: Contract Test
+        dependsOn: QualityAnalysis
+        condition: |
+          and
+          (
+            eq(variables['ContractTestExecute'], 'true'),
+            eq(dependencies.QualityAnalysis.result, 'Succeeded')
+          )
+        steps:
           - task: Bash@3
-            condition: eq(variables['ContractTestExecute'], 'true')
             displayName: docker-compose build contract-test
             inputs:
               targetType: inline
               script: >
                 cd devops
 
-
                 docker-compose build contract-test
           - task: Bash@3
-            condition: eq(variables['ContractTestExecute'], 'true')
             displayName: Run contract test
             inputs:
               targetType: inline
               script: >-
                 cd devops
 
-
                 docker-compose run --rm -e PACT_BROKER_TOKEN=$(PACT_BROKER_TOKEN) -e PACT_URL=$(PACT_URL) -e GITHUB_COMMIT=$(Build.SourceVersion) -e GITHUB_BRANCH=$(Build.SourceBranchName) -e PACT_BROKER_URL=https://pagarme.pactflow.io/ contract-test
           - task: Bash@3
-            condition: eq(variables['ContractTestExecute'], 'true')
             displayName: Can I deploy
             inputs:
               targetType: inline
@@ -112,6 +120,23 @@ stages:
                           --broker-base-url 'https://pagarme.pactflow.io' \
                           --pacticipant 'boleto-api' \
                           --version $(Build.SourceVersion)
+      - job: RunscopeTests
+        displayName: Runscope tests
+        dependsOn: ContractTest
+        condition: |
+          and
+          (
+            eq(variables['RunscopeExecute'], 'true'),
+            eq(dependencies.QualityAnalysis.result, 'Succeeded'),
+            in(dependencies.ContractTest.result, 'Succeeded', 'Skipped')
+          )
+        continueOnError: 'true'
+        steps:
+          - task: ThiagoBarradas.runscopetest.runscopetest-task.runscopetest@1
+            displayName: 'Runscope Integration Test'
+            inputs:
+              triggerUrl: '$(RunscopeUrl)'
+              accessToken: '$(RunscopeToken)'
   - stage: Build
     dependsOn:
       - QA
