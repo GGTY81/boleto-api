@@ -34,6 +34,22 @@ func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBolet
 	output, err := bank.ProcessBoleto(input)
 
 	assert.Nil(t, err, "Não deve haver um erro")
+	assert.Equal(t, 12, len(output.OurNumber))
+	assert.Equal(t, "123456789012", output.OurNumber)
+	test.AssertProcessBoletoWithSuccess(t, output)
+}
+
+func Test_ProcessBoleto_WhenServiceRespondsWithShortOurNUmber_ShouldHasPadZerosAndSuccessfulBoletoResponse(t *testing.T) {
+	mock.StartMockService("9102")
+	certificate.LoadMockCertificates()
+	input := newStubBoletoRequestJPMorgan().WithAmountInCents(211).Build()
+	bank, _ := New()
+
+	output, err := bank.ProcessBoleto(input)
+
+	assert.Nil(t, err, "Não deve haver um erro")
+	assert.Equal(t, 12, len(output.OurNumber))
+	assert.Equal(t, "000000123456", output.OurNumber)
 	test.AssertProcessBoletoWithSuccess(t, output)
 }
 
@@ -45,7 +61,7 @@ func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t
 	for _, fact := range boletoResponseFailParameters {
 		request := fact.Input.(*models.BoletoRequest)
 		response, err := bank.ProcessBoleto(request)
-		assert.Nil(t, err, "Não deve haver um erro")
+		assert.Nil(t, err, "Não deve haver um erro fora do objeto de response")
 
 		test.AssertProcessBoletoFailed(t, response)
 		assert.Equal(t, fact.Expected.(models.ErrorResponse).Code, response.Errors[0].Code)
