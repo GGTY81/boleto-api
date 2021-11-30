@@ -161,6 +161,10 @@ func (b bankPefisa) GetBankNameIntegration() string {
 	return "Pefisa"
 }
 
+func (b bankPefisa) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func (b bankPefisa) sendRequest(body string, token string) (string, int, error) {
 	serviceURL := config.Get().URLPefisaRegister
 

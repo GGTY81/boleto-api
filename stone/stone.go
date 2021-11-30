@@ -2,6 +2,7 @@ package stone
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/PMoneda/flow"
 	"github.com/mundipagg/boleto-api/config"
@@ -126,6 +127,18 @@ func (b bankStone) GetBankNumber() models.BankNumber {
 
 func (b bankStone) GetBankNameIntegration() string {
 	return "Stone"
+}
+
+func (b bankStone) GetErrorsMap() map[string]int {
+	var erros = map[string]int{
+		"srn:error:validation":          http.StatusBadRequest,
+		"srn:error:unauthenticated":     http.StatusInternalServerError,
+		"srn:error:unauthorized":        http.StatusBadGateway,
+		"srn:error:not_found":           http.StatusBadGateway,
+		"srn:error:conflict":            http.StatusBadGateway,
+		"srn:error:product_not_enabled": http.StatusBadRequest,
+	}
+	return erros
 }
 
 func (b bankStone) Log() *log.Log {

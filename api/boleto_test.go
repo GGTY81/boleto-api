@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -22,8 +23,9 @@ func TestGetBoleto_WhenInvalidKeys_ShouldReturnNotFound(t *testing.T) {
 	r.ServeHTTP(w, c.Request)
 
 	var response models.BoletoResponse
-	json.Unmarshal(w.Body.Bytes(), &response)
+	err := json.Unmarshal(w.Body.Bytes(), &response)
 
+	assert.Nil(t, err)
 	assert.Equal(t, 404, w.Code)
 	assert.Equal(t, 1, len(response.Errors))
 	assert.Equal(t, expected.Code, response.Errors[0].Code, "O erro code deverá ser mapeado corretamente")
@@ -41,8 +43,9 @@ func TestGetBoleto_WhenFail_ShouldReturnInternalError(t *testing.T) {
 	r.ServeHTTP(w, c.Request)
 
 	var response models.BoletoResponse
-	json.Unmarshal(w.Body.Bytes(), &response)
+	err := json.Unmarshal(w.Body.Bytes(), &response)
 
+	assert.Nil(t, err)
 	assert.Equal(t, 500, w.Code)
 	assert.Equal(t, 1, len(response.Errors))
 	assert.Equal(t, expected.Code, response.Errors[0].Code, "O erro code deverá ser mapeado corretamente")
@@ -61,6 +64,20 @@ func Test_GetBoletoConfirmation_ReturnOkSuccessful(t *testing.T) {
 	assert.Equal(t, "OK", w.Body.String())
 }
 
+func Test_setupGetBoletoSuccessResponse(t *testing.T) {
+	c, _, _ := arrangeGetBoleto()
+	url := "http://localhost:3000/boleto?fmt=html&id=1234567890&pk=1234567890"
+	c.Request, _ = http.NewRequest(http.MethodGet, url, nil)
+
+	expectedResult := models.NewGetBoletoResult(c)
+
+	setupGetBoletoSuccessResponse(c, expectedResult)
+
+	assert.Equal(t, http.StatusOK, c.Writer.Status(), "O status deve ser 200 - OK")
+	assert.Equal(t, "Information", expectedResult.LogSeverity, "O severity log deve ser Information")
+	assert.Equal(t, expectedResult, getResultFromContext(c), "O objeto result deverá estar no contexto")
+}
+
 func Test_PostBoletoConfirmation_ReturnOkSuccessful(t *testing.T) {
 	router := mockInstallApi()
 
@@ -74,6 +91,7 @@ func Test_PostBoletoConfirmation_ReturnOkSuccessful(t *testing.T) {
 }
 
 func arrangeGetBoleto() (*gin.Context, *gin.Engine, *httptest.ResponseRecorder) {
+	os.Clearenv()
 	gin.SetMode(gin.TestMode)
 	config.Install(true, false, true)
 	w := httptest.NewRecorder()

@@ -2,12 +2,12 @@ package itau
 
 import (
 	"errors"
-	"regexp"
 	"strings"
 	"sync"
 
 	. "github.com/PMoneda/flow"
 	"github.com/mundipagg/boleto-api/config"
+	"github.com/mundipagg/boleto-api/issuer"
 	"github.com/mundipagg/boleto-api/log"
 	"github.com/mundipagg/boleto-api/metrics"
 	"github.com/mundipagg/boleto-api/models"
@@ -115,7 +115,8 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 
 	switch t := exec.GetBody().(type) {
 	case *models.BoletoResponse:
-		if !hasValidResponse(t) {
+		issuer := issuer.NewIssuer(t.BarCodeNumber, t.DigitableLine)
+		if !((issuer.IsValidBarCode() && issuer.IsValidDigitableLine()) || t.HasErrors()) {
 			return models.BoletoResponse{}, models.NewBadGatewayError("BadGateway")
 		}
 		return *t, nil
@@ -123,25 +124,6 @@ func (b bankItau) RegisterBoleto(input *models.BoletoRequest) (models.BoletoResp
 		return models.BoletoResponse{}, t
 	}
 	return models.BoletoResponse{}, models.NewInternalServerError("MP500", "Internal error")
-}
-
-func hasValidResponse(boletoResponse *models.BoletoResponse) bool {
-	validError := len(boletoResponse.Errors) > 0
-	return (hasValidBarCode(boletoResponse.BarCodeNumber) && hasValidDigitableLine(boletoResponse.DigitableLine)) || validError
-}
-
-func hasValidBarCode(barCode string) bool {
-	if valid, err := regexp.Match(`[^\{\}]\S`, []byte(barCode)); err == nil {
-		return valid
-	}
-	return false
-}
-
-func hasValidDigitableLine(digitableLine string) bool {
-	if valid, err := regexp.Match(`[^\{\}]\S`, []byte(digitableLine)); err == nil {
-		return valid
-	}
-	return false
 }
 
 func convertHeadertoLogEntry(header HeaderMap) log.LogEntry {
@@ -174,6 +156,10 @@ func (b bankItau) GetBankNumber() models.BankNumber {
 
 func (b bankItau) GetBankNameIntegration() string {
 	return "Itau"
+}
+
+func (b bankItau) GetErrorsMap() map[string]int {
+	return nil
 }
 
 func itauBoletoTypes() map[string]string {

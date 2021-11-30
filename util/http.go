@@ -120,6 +120,12 @@ func Post(url, body, timeout string, header map[string]string) (string, int, err
 	return resp, st, err
 }
 
+//PostWithHeader faz um requisição POST para uma URL e retorna o response, status e erro
+func PostWithHeader(url, body, timeout string, header map[string]string) (string, map[string]interface{}, int, error) {
+	resp, respHeader, st, err := doRequestWithHeaderObject("POST", url, body, timeout, header)
+	return resp, respHeader, st, err
+}
+
 func doRequest(method, url, body, timeout string, header map[string]string) (string, string, int, error) {
 	t := GetDurationTimeoutRequest(timeout) * time.Second
 
@@ -154,39 +160,91 @@ func doRequest(method, url, body, timeout string, header map[string]string) (str
 	return sData, respHeader, resp.StatusCode, nil
 }
 
+func doRequestWithHeaderObject(method, url, body, timeout string, header map[string]string) (string, map[string]interface{}, int, error) {
+	t := GetDurationTimeoutRequest(timeout) * time.Second
+
+	ctx, cls := context.WithTimeout(context.Background(), t)
+	defer cls()
+
+	client := DefaultHTTPClient()
+
+	message := strings.NewReader(body)
+
+	req, err := http.NewRequestWithContext(ctx, method, url, message)
+	if err != nil {
+		return "", nil, http.StatusInternalServerError, err
+	}
+
+	for k, v := range header {
+		req.Header.Add(k, v)
+	}
+
+	resp, errResp := client.Do(req)
+	if errResp != nil {
+		return "", nil, 0, errResp
+	}
+	defer resp.Body.Close()
+
+	respHeader := convertHeader(resp.Header)
+
+	data, errResponse := ioutil.ReadAll(resp.Body)
+	if errResponse != nil {
+		return "", respHeader, resp.StatusCode, errResponse
+	}
+	sData := string(data)
+	return sData, respHeader, resp.StatusCode, nil
+}
+
+func convertHeader(respHeader map[string][]string) map[string]interface{} {
+	m2 := make(map[string]interface{}, len(respHeader))
+	for k, v := range respHeader {
+		m2[k] = v[0]
+	}
+	return m2
+}
+
 // BuildTLSTransport creates a TLS Client Transport from crt, ca and key files
-func BuildTLSTransport() (*http.Transport, error) {
+func BuildTLSTransport(con certificate.TLSCertificate) (*http.Transport, error) {
 
 	if config.Get().MockMode {
 		return nil, nil
 	}
 
-	var errF error
-	onceTransport.Do(func() {
+	key, err := certificate.GetCertificateFromStore(con.Key)
+	if err != nil {
+		return nil, err
+	}
 
-		ssl, err := certificate.GetCertificateFromStore(config.Get().CertificateSSLName)
-		if err != nil {
-			errF = err
-			return
-		}
+	crt, err := certificate.GetCertificateFromStore(con.Crt)
+	if err != nil {
+		return nil, err
+	}
 
-		cert, err := tls.X509KeyPair(ssl.(certificate.SSLCertificate).PemData, ssl.(certificate.SSLCertificate).PemData)
-		if err != nil {
-			errF = err
-			return
-		}
+	cert, err := tls.X509KeyPair(getCertificateByType(crt), getCertificateByType(key))
 
-		transport = &http.Transport{
-			Dial:                defaultDialer.Dial,
-			TLSHandshakeTimeout: 16 * time.Second,
-			TLSClientConfig: &tls.Config{
-				Certificates:       []tls.Certificate{cert},
-				InsecureSkipVerify: true,
-			},
-		}
-		return
-	})
-	return transport, errF
+	if err != nil {
+		return nil, err
+	}
+
+	transport = &http.Transport{
+		Dial:                defaultDialer.Dial,
+		TLSHandshakeTimeout: 16 * time.Second,
+		TLSClientConfig: &tls.Config{
+			Certificates:       []tls.Certificate{cert},
+			InsecureSkipVerify: true,
+		},
+	}
+
+	return transport, nil
+}
+
+func getCertificateByType(key interface{}) []byte {
+	switch v := key.(type) {
+	case certificate.SSLCertificate:
+		return v.PemData
+	default:
+		return v.([]byte)
+	}
 }
 
 //Sign request
@@ -295,15 +353,52 @@ func doRequestTLS(method, url, body, timeout string, header map[string]string, t
 	return sData, resp.StatusCode, nil
 }
 
+func doRequestTLSWithHeader(method, url, body, timeout string, header map[string]string, transport *http.Transport) (string, map[string]interface{}, int, error) {
+	tlsClient := &http.Client{}
+	tlsClient.Transport = transport
+	tlsClient.Timeout = GetDurationTimeoutRequest(timeout) * time.Second
+	b := strings.NewReader(body)
+	req, err := http.NewRequest(method, url, b)
+	if err != nil {
+		return "", nil, 0, err
+	}
+
+	for k, v := range header {
+		req.Header.Add(k, v)
+	}
+
+	resp, err := tlsClient.Do(req)
+	if err != nil {
+		return "", nil, 0, err
+	}
+	respHeader := convertHeader(resp.Header)
+	defer resp.Body.Close()
+	// Dump response
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", nil, 0, err
+	}
+	sData := string(data)
+	return sData, respHeader, resp.StatusCode, nil
+}
+
 func PostTLS(url, body, timeout string, header map[string]string, transport *http.Transport) (string, int, error) {
 	return doRequestTLS("POST", url, body, timeout, header, transport)
 }
 
+func PostTLSWithHeader(url, body, timeout string, header map[string]string, transport *http.Transport) (string, map[string]interface{}, int, error) {
+	return doRequestTLSWithHeader("POST", url, body, timeout, header, transport)
+}
+
 //HeaderToMap converte um http Header para um dicionário string -> string
-func HeaderToMap(h http.Header) map[string]string {
-	m := make(map[string]string)
-	for k, v := range h {
-		m[k] = v[0]
+func HeaderToMap(header http.Header) map[string]string {
+	headerMap := make(map[string]string)
+	for key, value := range header {
+		if key == "Authorization" {
+			headerMap[key] = "***"
+		} else {
+			headerMap[key] = value[0]
+		}
 	}
-	return m
+	return headerMap
 }

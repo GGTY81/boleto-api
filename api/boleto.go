@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mundipagg/boleto-api/boleto"
@@ -18,7 +17,7 @@ import (
 
 var fallback = new(Fallback)
 
-//Regista um boleto em um determinado banco
+//registerBoleto Realiza o registro online do Boleto
 func registerBoleto(c *gin.Context) {
 
 	if _, hasErr := c.Get("error"); hasErr {
@@ -66,22 +65,14 @@ func registerBoleto(c *gin.Context) {
 	c.Set("boletoResponse", resp)
 }
 
+//getBoleto Recupera um boleto devidamente registrado
 func getBoleto(c *gin.Context) {
-	start := time.Now()
 	var boletoHtml string
-
-	c.Status(200)
-	log := log.CreateLog()
-	log.Operation = "GetBoleto"
-	log.IPAddress = c.ClientIP()
 
 	var result = models.NewGetBoletoResult(c)
 
-	defer logResult(result, log, start)
-
 	if !result.HasValidKeys() {
-		result.SetErrorResponse(c, models.NewErrorResponse("MP404", "Not Found"), http.StatusNotFound)
-		result.LogSeverity = "Warning"
+		setupGetBoletoResultFailResponse(c, result, "Warning", "Not Found")
 		return
 	}
 
@@ -91,12 +82,10 @@ func getBoleto(c *gin.Context) {
 	boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PrivateKey)
 
 	if err != nil && (err.Error() == db.NotFoundDoc || err.Error() == db.InvalidPK) {
-		result.SetErrorResponse(c, models.NewErrorResponse("MP404", "Not Found"), http.StatusNotFound)
-		result.LogSeverity = "Warning"
+		setupGetBoletoResultFailResponse(c, result, "Warning", "Not Found")
 		return
 	} else if err != nil {
-		result.SetErrorResponse(c, models.NewErrorResponse("MP500", err.Error()), http.StatusInternalServerError)
-		result.LogSeverity = "Error"
+		setupGetBoletoResultFailResponse(c, result, "Error", err.Error())
 		return
 	}
 
@@ -112,13 +101,30 @@ func getBoleto(c *gin.Context) {
 			c.Writer.Write(boletoPdf)
 		} else {
 			c.Header("Content-Type", "application/json")
-			result.SetErrorResponse(c, models.NewErrorResponse("MP500", err.Error()), http.StatusInternalServerError)
-			result.LogSeverity = "Error"
+			setupGetBoletoResultFailResponse(c, result, "Error", err.Error())
 			return
 		}
 	}
 
+	setupGetBoletoSuccessResponse(c, result)
+}
+
+func setupGetBoletoResultFailResponse(c *gin.Context, result *models.GetBoletoResult, severity, errorMessage string) {
+	result.LogSeverity = severity
+
+	switch severity {
+	case "Warning":
+		result.SetErrorResponse(c, models.NewErrorResponse("MP404", errorMessage), http.StatusNotFound)
+	default:
+		result.SetErrorResponse(c, models.NewErrorResponse("MP500", errorMessage), http.StatusInternalServerError)
+	}
+	c.Set(resultGetBoletoKey, result)
+}
+
+func setupGetBoletoSuccessResponse(c *gin.Context, result *models.GetBoletoResult) {
+	c.Status(http.StatusOK)
 	result.LogSeverity = "Information"
+	c.Set(resultGetBoletoKey, result)
 }
 
 func getResponseStatusCode(response models.BoletoResponse) int {
@@ -131,11 +137,6 @@ func getResponseStatusCode(response models.BoletoResponse) int {
 	}
 
 	return response.StatusCode
-}
-
-func logResult(result *models.GetBoletoResult, log *log.Log, start time.Time) {
-	result.TotalElapsedTimeInMilliseconds = time.Since(start).Milliseconds()
-	log.GetBoleto(result, result.LogSeverity)
 }
 
 func toPdf(page string) ([]byte, error) {

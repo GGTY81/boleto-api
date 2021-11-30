@@ -70,6 +70,8 @@ func getTemplateBank(bv models.BoletoView) (string, string) {
 		return getTemplatePefisa()
 	case models.Stone:
 		return getTemplateStone()
+	case models.JPMorgan:
+		return getTemplateJPMorgan()
 	default:
 		return getTemplateDefault(bv.Boleto.Title.BoletoType)
 	}

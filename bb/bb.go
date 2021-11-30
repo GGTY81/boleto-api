@@ -139,6 +139,10 @@ func (b bankBB) GetBankNameIntegration() string {
 	return "BancoDoBrasil"
 }
 
+func (b bankBB) GetErrorsMap() map[string]int {
+	return nil
+}
+
 func bbBoletoTypes() map[string]string {
 
 	o.Do(func() {
