@@ -137,7 +137,6 @@ func configFlags(devMode, mockMode, disableLog bool) {
 		os.Setenv("MONGODB_URL", "mongodb://localhost:27017")
 		os.Setenv("APP_URL", "http://localhost:3000/boleto")
 		os.Setenv("ELASTIC_URL", "http://localhost:9200")
-		os.Setenv("MONGODB_URL", "localhost:27017")
 		os.Setenv("MONGODB_USER", "test")
 		os.Setenv("MONGODB_PASSWORD", "test")
 		os.Setenv("MONGODB_DATABASE", "STG_Boleto")

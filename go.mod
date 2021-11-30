@@ -25,13 +25,15 @@ require (
 	github.com/gomodule/redigo v2.0.1-0.20180627144507-2cd21d9966bf+incompatible
 	github.com/google/uuid v1.2.0
 	github.com/gopherjs/gopherjs v0.0.0-20210901121439-eee08aaf2717 // indirect
+	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/influxdata/influxdb v1.2.3-0.20170831151503-0ef033f5dd9b // indirect
+	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kennygrant/sanitize v1.2.4
 	github.com/klauspost/compress v1.13.2-0.20210614094421-d1ca57f19428 // indirect
 	github.com/mralves/tracer v1.8.0
 	github.com/mundipagg/healthcheck-go v0.0.0-20210906144607-e91a033227a1
-	github.com/mundipagg/tracer-seq-writer v1.1.10
-	github.com/mundipagg/tracer-splunk-writer v1.0.3
+	github.com/mundipagg/tracer-seq-writer v1.1.17
+	github.com/mundipagg/tracer-splunk-writer v1.0.6
 	github.com/newrelic/go-agent/v3 v3.15.0
 	github.com/newrelic/go-agent/v3/integrations/nrgin v1.1.2
 	github.com/pkg/errors v0.9.2-0.20201214064552-5dd12d0cfe7f // indirect
@@ -42,8 +44,9 @@ require (
 	github.com/tdewolff/minify v2.3.6-0.20180814081815-948b6490cf3c+incompatible
 	github.com/tdewolff/parse v2.3.4-0.20180811063147-dd9676af8dd9+incompatible // indirect
 	github.com/tdewolff/test v1.0.6 // indirect
+	github.com/v2pro/plz v0.0.0-20200805122259-422184e41b6e // indirect
 	go.mongodb.org/mongo-driver v1.7.1
 	golang.org/x/image v0.0.0-20190802002840-cff245a6509b
-	golang.org/x/text v0.3.5
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 	software.sslmate.com/src/go-pkcs12 v0.0.0-20190322163127-6e380ad96778
 )

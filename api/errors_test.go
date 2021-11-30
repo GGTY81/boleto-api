@@ -89,7 +89,7 @@ func arrangeContextWithBankAndResponse(bankNumber int, response models.BoletoRes
 }
 
 func Test_RotaRegisterV1_WhenPanicOccurred_RunsPanicRecovery(t *testing.T) {
-	router, w := arrangeMiddlewareRoute("/boleto/register", parseBoleto, logger, errorResponseToClient, panicRecoveryHandler, mockPanicRegistration)
+	router, w := arrangeMiddlewareRoute("/boleto/register", parseBoleto, registerBoletoLogger, errorResponseToClient, panicRecoveryHandler, mockPanicRegistration)
 	req, _ := http.NewRequest("POST", "/boleto/register", bytes.NewBuffer([]byte(mockPanicRegistrationRequestJSON)))
 
 	router.ServeHTTP(w, req)
@@ -99,7 +99,7 @@ func Test_RotaRegisterV1_WhenPanicOccurred_RunsPanicRecovery(t *testing.T) {
 }
 
 func Test_RotaRegisterV2_WhenPanicOccurred_RunsPanicRecovery(t *testing.T) {
-	router, w := arrangeMiddlewareRoute("/boleto/register", parseBoleto, logger, handleErrors, panicRecoveryHandler, mockPanicRegistration)
+	router, w := arrangeMiddlewareRoute("/boleto/register", parseBoleto, registerBoletoLogger, handleErrors, panicRecoveryHandler, mockPanicRegistration)
 	req, _ := http.NewRequest("POST", "/boleto/register", bytes.NewBuffer([]byte(mockPanicRegistrationRequestJSON)))
 
 	router.ServeHTTP(w, req)

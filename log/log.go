@@ -307,8 +307,7 @@ func (l *Log) GetBoleto(content interface{}, msgType string) {
 		return
 	}
 	go (func() {
-		props := l.basicProperties(msgType)
-		props["Content"] = content
+		props := l.getBoletoProperties(msgType, content)
 
 		switch msgType {
 		case "Warning":
@@ -330,6 +329,20 @@ func (l *Log) basicProperties(messageType string) LogEntry {
 		"Operation":     l.Operation,
 		"ExecutionDate": now,
 	}
+	return props
+}
+
+func (l *Log) getBoletoProperties(messageType string, content interface{}) LogEntry {
+	props := LogEntry{
+		"RequestKey": l.RequestKey,
+		"IPAddress":  l.IPAddress,
+		"Content":    content,
+	}
+
+	for k, v := range l.basicProperties(messageType) {
+		props[k] = v
+	}
+
 	return props
 }
 
