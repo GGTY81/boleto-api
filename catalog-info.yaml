@@ -15,4 +15,4 @@ spec:
   monitoring:
     platform: newrelic
     owner: processing.banks@pagar.me
-    alert_name: processing_banks
+    alert_name: synthetic_mundipagg_boletoapi
