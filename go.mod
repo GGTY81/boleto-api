@@ -36,6 +36,7 @@ require (
 	github.com/mundipagg/tracer-splunk-writer v1.0.6
 	github.com/newrelic/go-agent/v3 v3.15.0
 	github.com/newrelic/go-agent/v3/integrations/nrgin v1.1.2
+	github.com/pact-foundation/pact-go v1.6.4
 	github.com/pkg/errors v0.9.2-0.20201214064552-5dd12d0cfe7f // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/streadway/amqp v1.0.1-0.20200716223359-e6b33f460591
