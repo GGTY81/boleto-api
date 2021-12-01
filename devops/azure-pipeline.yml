@@ -7,7 +7,7 @@ variables:
   BuildConfiguration: 'release'
   BuildPlatform: 'any cpu'
   LintExecute: 'true'
-  ContractTestExecute: 'false'
+  ContractTestExecute: 'true'
   RunscopeExecute: 'true' 
   Organization: mundipagg
   SonarcloudAccount: Sonarqube
@@ -61,7 +61,7 @@ stages:
             displayName: Run linter
             inputs:
               targetType: inline
-              script: $(System.DefaultWorkingDirectory)/golangci-lint run --new-from-rev=origin/master --timeout 2m0s
+              script: $(System.DefaultWorkingDirectory)/golangci-lint run --new-from-rev=origin/master --timeout 2m0s --allow-parallel-runners
           - task: Go@0
             displayName: go test
             inputs:
