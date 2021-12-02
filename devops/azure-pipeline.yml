@@ -8,7 +8,7 @@ variables:
   BuildPlatform: 'any cpu'
   LintExecute: 'true'
   ContractTestExecute: 'true'
-  RunscopeExecute: 'true' 
+  RunscopeExecute: 'false' 
   Organization: mundipagg
   SonarcloudAccount: Sonarqube
   ProjectKey: mundipagg_boleto-api
@@ -68,7 +68,7 @@ stages:
               command: test
               arguments: ./... -short -coverprofile=coverage.file -tags=unit
               workingDirectory: $(System.DefaultWorkingDirectory)
-          
+
           - task: SonarCloudPrepare@1
             displayName: Prepare analysis on SonarCloud
             inputs:
