@@ -8,7 +8,7 @@ variables:
   BuildPlatform: 'any cpu'
   LintExecute: 'true'
   ContractTestExecute: 'true'
-  RunscopeExecute: 'false' 
+  RunscopeExecute: 'false'
   Organization: mundipagg
   SonarcloudAccount: Sonarqube
   ProjectKey: mundipagg_boleto-api
@@ -107,7 +107,13 @@ stages:
               script: >-
                 cd devops
 
-                docker-compose run --rm -e PACT_BROKER_TOKEN=$(PACT_BROKER_TOKEN) -e PACT_URL=$(PACT_URL) -e GITHUB_COMMIT=$(Build.SourceVersion) -e GITHUB_BRANCH=$(Build.SourceBranchName) -e PACT_BROKER_URL=https://pagarme.pactflow.io/ contract-test
+                docker-compose run --rm \
+                          -e PACT_BROKER_TOKEN=$(PACT_BROKER_TOKEN) \
+                          -e PACT_URL=$(PACT_URL) \
+                          -e GITHUB_COMMIT=$(Build.SourceVersion) \
+                          -e GITHUB_BRANCH=$(Build.SourceBranchName) \
+                          -e PACT_BROKER_URL=https://pagarme.pactflow.io/ \
+                          contract-test
           - task: Bash@3
             displayName: Can I deploy
             inputs:
