@@ -15,6 +15,10 @@ var keysParameters = []ModelTestParameter{
 	{Input: GetBoletoResult{Id: "123", PrivateKey: ""}, Expected: false},
 	{Input: GetBoletoResult{Id: "", PrivateKey: "123"}, Expected: false},
 	{Input: GetBoletoResult{Id: "111", PrivateKey: "111"}, Expected: true},
+	{Input: GetBoletoResult{Id: "94b29fa5433a26d5d2=3e903", PrivateKey: "ad29db446917b1453b1fcac6397fd1af87dcbfcda22095317c0531cfee9d0=d5"}, Expected: false},
+	{Input: GetBoletoResult{Id: "94b29fa5433a26d5d213e903", PrivateKey: "ad29db446917b1453b1fcac6397fd1af87dcbfcda22095317c0531cfee9d0=d5"}, Expected: false},
+	{Input: GetBoletoResult{Id: "94b29fa5433a26d5d2=3e903", PrivateKey: "ad29db446917b1453b1fcac6397fd1af87dcbfcda22095317c0531cfee9d01d5"}, Expected: false},
+	{Input: GetBoletoResult{Id: "94b29fa5433a26d5d213e903", PrivateKey: "ad29db446917b1453b1fcac6397fd1af87dcbfcda22095317c0531cfee9d01d5"}, Expected: true},
 }
 
 func TestNewGetBoletoResult_WhenCalled_CreateNewGetBoletoResultSuccessful(t *testing.T) {
@@ -42,8 +46,8 @@ func TestNewGetBoletoResult_WhenCalled_CreateNewGetBoletoResultSuccessful(t *tes
 func TestHasValidKey_WhenCalled_CheckQueryParametersSuccessful(t *testing.T) {
 	for _, fact := range keysParameters {
 		input := fact.Input.(GetBoletoResult)
-		result := input.HasValidKeys()
-		assert.Equal(t, fact.Expected.(bool), result, fmt.Sprintf("Os parametros não foram validados corretamente: %v", result))
+		result := input.HasValidParameters()
+		assert.Equal(t, fact.Expected.(bool), result, fmt.Sprintf("Os parametros não foram validados corretamente: %v", input))
 	}
 }
 

@@ -71,7 +71,7 @@ func getBoleto(c *gin.Context) {
 
 	var result = models.NewGetBoletoResult(c)
 
-	if !result.HasValidKeys() {
+	if !result.HasValidParameters() {
 		setupGetBoletoResultFailResponse(c, result, "Warning", "Not Found")
 		return
 	}
