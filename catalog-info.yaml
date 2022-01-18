@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+manifestVersion: 0.1.1
+kind: Component
+metadata:
+  name: boleto-api
+  description: Gateway de registro online de transações do meio de pagamento de boleto
+  compliance:
+    gui: false
+    sox: sox
+    pci: none
+spec:
+  lifecycle: production
+  type: service
+  owner: processing.banks@pagar.me
+  monitoring:
+    platform: newrelic
+    owner: processing.banks@pagar.me
+    alert_name: synthetic_mundipagg_boletoapi
