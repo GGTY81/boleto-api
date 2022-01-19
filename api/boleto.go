@@ -79,7 +79,7 @@ func getBoleto(c *gin.Context) {
 	var err error
 	var boView models.BoletoView
 
-	boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PrivateKey)
+	boView, result.DatabaseElapsedTimeInMilliseconds, err = db.GetBoletoByID(result.Id, result.PublicKey)
 
 	if err != nil && (err.Error() == db.NotFoundDoc || err.Error() == db.InvalidPK) {
 		setupGetBoletoResultFailResponse(c, result, "Warning", "Not Found")
