@@ -91,7 +91,7 @@ func (b bankBradescoNetEmpresa) RegisterBoleto(boleto *models.BoletoRequest) (mo
 	bod.To("transform://?format=xml", xmlResponse, jsonReponse)
 	bodyTransform := fmt.Sprintf("%v", bod.GetBody())
 	bodyJson := html.UnescapeString(bodyTransform)
-	bod.To("set://?prop=body", bodyJson)
+	bod.To("set://?prop=body", strings.Replace(bodyJson, "\t", "", -1))
 
 	ch := bod.Choice()
 

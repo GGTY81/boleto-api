@@ -6,64 +6,8 @@ import (
 	"github.com/mundipagg/boleto-api/mock"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/test"
-	"github.com/mundipagg/boleto-api/util"
 	"github.com/stretchr/testify/assert"
 )
-
-const baseMockJSON = `
-{
-    "bankNumber": 237,
-   "authentication": {
-            "Username": "",
-            "Password": ""
-        },
-        "agreement": {
-            "agreementNumber": 5822351,
-            "wallet": 9,
-            "agency": "1111",
-            "account": "0062145"
-        },
-        "title": {
-           
-            "expireDate": "2050-12-30",
-            "amountInCents": 200,
-            "ourNumber": 12345678901,
-            "instructions": "Não receber após a data de vencimento.",
-            "documentNumber": "1234567890"
-        },
-        "recipient": {
-            "name": "Empresa - Boletos",
-            "document": {
-                "type": "CNPJ",
-                "number": "29799428000128"
-            },
-            "address": {
-                "street": "Avenida Miguel Estefno, 2394",
-                "complement": "Água Funda",
-                "zipCode": "04301-002",
-                "city": "São Paulo",
-                "stateCode": "SP"
-            }
-        },
-        "buyer": {
-            "name": "Usuario Teste",
-            "email": "p@p.com",
-            "document": {
-                "type": "CNPJ",
-                "number": "29.799.428/0001-28"
-            },
-            "address": {
-                "street": "Rua Teste",
-                "number": "2",
-                "complement": "SALA 1",
-                "zipCode": "20931-001",
-                "district": "Centro",
-                "city": "Rio de Janeiro",
-                "stateCode": "RJ"
-            }
-        }
-}
-`
 
 var boletoTypeParameters = []test.Parameter{
 	{Input: models.Title{BoletoType: ""}, Expected: "02"},
@@ -79,8 +23,7 @@ var boletoTypeParameters = []test.Parameter{
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
 	mock.StartMockService("9092")
-	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
+	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(200).Build()
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
@@ -90,9 +33,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9092")
-	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
-	input.Title.AmountInCents = 201
+	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(201).Build()
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
@@ -102,9 +43,7 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 
 func TestProcessBoleto_WhenServiceRespondsCertificateFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9092")
-	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
-	input.Title.AmountInCents = 202
+	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(202).Build()
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
@@ -113,10 +52,20 @@ func TestProcessBoleto_WhenServiceRespondsCertificateFailed_ShouldHasFailedBolet
 }
 
 func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
-	request := new(models.BoletoRequest)
+	BradescoNetEmpresaRequestStub := newStubBoletoRequestBradescoNetEmpresa().Build()
 	for _, fact := range boletoTypeParameters {
-		request.Title = fact.Input.(models.Title)
-		_, result := getBoletoType(request)
+		BradescoNetEmpresaRequestStub.Title = fact.Input.(models.Title)
+		_, result := getBoletoType(BradescoNetEmpresaRequestStub)
 		assert.Equal(t, fact.Expected, result, "Deve mapear o boleto type corretamente")
 	}
+}
+
+func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
+	mock.StartMockService("9092")
+	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(204).WithBuyerName("Usuario 	Teste").Build()
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoWithSuccess(t, output)
 }
