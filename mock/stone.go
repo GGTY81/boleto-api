@@ -132,6 +132,8 @@ const tkStone = `{
 	"scope": "paymentaccount:paymentlinks:write paymentaccount:contact:write pix:payment_invoice pix:payment pix:entry_claim paymentaccount:read pix:entry paymentaccount:transfers:internal paymentaccount:fees:read paymentaccount:payments stone_subject_id paymentaccount:contact:read signup:paymentaccount paymentaccount:boletoissuance paymentaccount:paymentlinks:read paymentaccount:transfers:external"
 }`
 
+const specialCaractereError = `{"type":"srn:error:bad_request"}`
+
 func authStone(c *gin.Context) {
 	c.Data(200, "text/json", []byte(tkStone))
 }
@@ -165,6 +167,8 @@ func registerStone(c *gin.Context) {
 	} else if strings.Contains(json, `amount": 504,`) {
 		time.Sleep(35 * time.Second)
 		c.Data(504, contentApplication, []byte("timeout"))
+	} else if strings.Contains(json, `amount": 505,`) {
+		c.Data(500, contentApplication, []byte(specialCaractereError))
 	} else {
 		c.Data(401, contentApplication, []byte(unauthenticated))
 	}

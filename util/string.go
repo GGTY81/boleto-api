@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"encoding/json"
 
@@ -67,6 +68,10 @@ func IsCaixaSpecialCharacter(r rune) bool {
 		}
 	}
 	return false
+}
+
+func SanitizeBody(body string) string {
+	return strings.Replace(body, "\t", "", -1)
 }
 
 //MinifyString Minifica uma string de acordo com um determinado formato

@@ -147,15 +147,11 @@ func (b bankJPMorgan) encriptedBody(body string) (string, *models.BoletoResponse
 	if err != nil {
 		return "", &errorResponse
 	}
-	bodyEncripted, err := b.jwtSigner.Sign(SanitizeBody(body), sk.([]byte))
+	bodyEncripted, err := b.jwtSigner.Sign(util.SanitizeBody(body), sk.([]byte))
 	if err != nil {
 		return "", &errorResponse
 	}
 	return bodyEncripted, nil
-}
-
-func SanitizeBody(body string) string {
-	return strings.Replace(body, "\t", "", -1)
 }
 
 func getContentType(respHeader map[string]interface{}) string {

@@ -183,3 +183,13 @@ func BenchmarkBankStoneProcessBoleto(b *testing.B) {
 
 	bank.ProcessBoleto(input)
 }
+
+func Test_ProcessBoleto_WhenResquestHasTabCaractere_ShouldHasRequestWithoutTabCaractere(t *testing.T) {
+	mock.StartMockService("9092")
+	input := newStubBoletoRequestStone().WithAmountInCents(201).WithBuyerName("Nome do \tComprador (Cliente)").Build()
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoWithSuccess(t, output)
+}
