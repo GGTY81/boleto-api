@@ -47,7 +47,7 @@ const templateRequest = `
         "codMoedaCnab": 9
 	},
     "juros": {
-        "codJurosTit": 0
+        "codJurosTit": 3
     },
     "descontos": {
         "codDesctTit": 0
