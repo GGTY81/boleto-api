@@ -62,8 +62,18 @@ func registerPefisa(c *gin.Context) {
 		]
 	}`
 
+	const respErrorSpecialCaractere = `{
+		"error" : [ {
+			"code" : "MTR-002",
+			"message" : "O campo pagador.nome do JSON enviado tem um formato inválido. ",
+			"field" : "pagador.nome"
+		} ]
+	}`
+
 	if strings.Contains(string(b), `"valorTitulo": "2.00"`) {
 		c.Data(200, "application/json", []byte(resp))
+	} else if strings.Contains(string(b), `"valorTitulo": "2.01"`) {
+		c.Data(400, "application/json", []byte(respErrorSpecialCaractere))
 	} else if strings.Contains(string(b), `"valorTitulo": "3.00"`) {
 		c.Data(400, "application/json", []byte(respErrorTitleExist))
 	} else if strings.Contains(string(b), `"valorTitulo": "1.00"`) {

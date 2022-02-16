@@ -89,7 +89,7 @@ func (b bankPefisa) RegisterBoleto(boleto *models.BoletoRequest) (models.BoletoR
 	var status int
 	var err error
 	duration := util.Duration(func() {
-		response, status, err = b.sendRequest(exec.GetBody().(string), boleto.Authentication.AuthorizationToken)
+		response, status, err = b.sendRequest(util.SanitizeBody(exec.GetBody().(string)), boleto.Authentication.AuthorizationToken)
 	})
 	if err != nil {
 		return models.BoletoResponse{}, err
