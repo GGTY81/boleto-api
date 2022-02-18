@@ -51,7 +51,7 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 	}
 }
 
-func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
+func TestTemplateResponse_WhenRequestHasTabCharacter_ShouldBeParsedSuccessful(t *testing.T) {
 	mock.StartMockService("9092")
 	input := newStubBoletoRequestPefisa().WithBuyerName("Usuario \tTeste").Build()
 	bank := New()

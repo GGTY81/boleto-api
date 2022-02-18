@@ -152,14 +152,14 @@ func TestSanitizeBody(t *testing.T) {
 		}
 	},
 	"buyer": {
-		"name": "Usuario Teste",
+		"name": "Usuario \t		Teste",
 		"email": "p@p.com",
 		"document": {
 			"type": "CNPJ",
 			"number": "29.799.428/0001-28"
 		},
 		"address": {
-			"street": "Rua Teste",
+			"street": "Rua \t Teste",
 			"number": "2",
 			"complement": "SALA 1",
 			"zipCode": "20931-001",

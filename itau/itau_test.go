@@ -9,41 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const baseMockJSON = `
-{
-	"BankNumber": 341,
-	"Authentication": {
-		"Username": "a",
-		"Password": "b",
-		"AccessKey":"c"
-	},
-	"Agreement": {
-		"Wallet":109,
-		"Agency":"0407",
-		"Account":"55292",
-		"AccountDigit":"6"
-	},
-	"Title": {
-		"ExpireDate": "2999-12-31",
-		"AmountInCents": 200			
-	},
-	"Buyer": {
-		"Name": "TESTE",
-		"Document": {
-			"Type": "CNPJ",
-			"Number": "00001234567890"
-		}
-	},
-	"Recipient": {
-		"Name": "TESTE",
-		"Document": {
-			"Type": "CNPJ",
-			"Number": "00123456789067"
-		}
-	}
-}
-`
-
 var boletoTypeParameters = []test.Parameter{
 	{Input: models.Title{BoletoType: ""}, Expected: "01"},
 	{Input: models.Title{BoletoType: "NSA"}, Expected: "01"},
@@ -67,10 +32,8 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9096")
-	// input := new(models.BoletoRequest)
 	input := newStubBoletoRequestItau().WithAmountInCents(400).Build()
-	// err := util.FromJSON(baseMockJSON, input)
-	// input.Title.AmountInCents = 400
+
 	bank := New()
 
 	output, err := bank.ProcessBoleto(input)
@@ -82,25 +45,18 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeIs500_ShouldHasFailedBoletoResponseWithWrongContentAndStatusCodeIs500(t *testing.T) {
 	mock.StartMockService("9096")
 	input := newStubBoletoRequestItau().WithAmountInCents(500).Build()
-	// input := new(models.BoletoRequest)
-	// err := util.FromJSON(baseMockJSON, input)
 
-	// input.Title.AmountInCents = 500
 	bank := New()
 
 	_, errProcessBoleto := bank.ProcessBoleto(input)
 
-	// assert.Nil(t, err)
 	test.AssertError(t, errProcessBoleto, models.BadGatewayError{})
 }
 
 func TestProcessBoleto_WhenRequestHasInvalidAccountParameters_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9096")
 	input := newStubBoletoRequestItau().WithAmountInCents(200).WithAgreementAccount("").Build()
-	// input := new(models.BoletoRequest)
-	// util.FromJSON(baseMockJSON, input)
-	// input.Title.AmountInCents = 200
-	// input.Agreement.Account = ""
+
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
@@ -129,7 +85,7 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9092")
+	mock.StartMockService("9096")
 	input := newStubBoletoRequestItau().WithBuyerName("Usuario \tTeste").Build()
 	bank := New()
 

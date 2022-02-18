@@ -23,7 +23,7 @@ const templateRequest = `
         "codCartTit": 1,
         "codContaCorrente": {{toUint .Agreement.Account}},
         "tpPessoaBenfcrioOr": {{docType .Recipient.Document}},
-        "txtInfCliCed": "{{truncateOnly (.Recipient.Name) 80}}"
+        "txtInfCliCed": "{{truncateOnly (onlyAlphanumerics (onlyOneSpace .Recipient.Name)) 80}}"
     },
 	"sacadoOuPagador": {
         "bairroPagdr": "{{truncateOnly (onlyAlphanumerics (onlyOneSpace .Buyer.Address.District)) 15}}",

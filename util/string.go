@@ -70,6 +70,7 @@ func IsCaixaSpecialCharacter(r rune) bool {
 	return false
 }
 
+//Remove o caractete \t de uma string
 func SanitizeBody(body string) string {
 	return strings.Replace(body, "\t", "", -1)
 }

@@ -61,7 +61,7 @@ func (b bankStone) RegisterBoleto(boleto *models.BoletoRequest) (models.BoletoRe
 
 	body := flow.NewFlow().From("message://?source=inline", boleto, templateRequest, tmpl.GetFuncMaps()).GetBody().(string)
 	head := hearders(boleto.Authentication.AuthorizationToken)
-	b.log.Request(util.SanitizeBody(body), stoneURL, head)
+	b.log.Request(body, stoneURL, head)
 
 	duration := util.Duration(func() {
 		response, header, status, err = util.PostReponseWithHeader(stoneURL, util.SanitizeBody(body), config.Get().TimeoutRegister, head)

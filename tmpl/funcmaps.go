@@ -509,11 +509,11 @@ func getInterestInstruction(title models.Title) string {
 }
 
 func onlyAlphanumerics(str string) string {
-	return regexp.MustCompile("[^a-zA-zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç0-9\\s]+").ReplaceAllString(str, "")
+	return regexp.MustCompile(`[^a-zA-zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç0-9\s]+`).ReplaceAllString(str, "")
 }
 
 func onlyAlphabetics(str string) string {
-	return regexp.MustCompile("[^a-zA-zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç\\s]+").ReplaceAllString(str, "")
+	return regexp.MustCompile(`[^a-zA-zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç\s]+`).ReplaceAllString(str, "")
 }
 
 func onlyOneSpace(str string) string {

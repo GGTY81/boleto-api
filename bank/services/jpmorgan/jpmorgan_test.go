@@ -69,7 +69,7 @@ func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t
 	}
 }
 
-func Test_ProcessBoleto_WhenResquestHasTabCaractere_ShouldHasRequestWithoutTabCaractere(t *testing.T) {
+func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
 	mock.StartMockService("9092")
 	certificate.LoadMockCertificates()
 	input := newStubBoletoRequestJPMorgan().WithBuyerName("Nome do \tComprador (Cliente)").Build()

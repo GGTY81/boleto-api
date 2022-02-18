@@ -147,7 +147,7 @@ func (b bankJPMorgan) encriptedBody(body string) (string, *models.BoletoResponse
 	if err != nil {
 		return "", &errorResponse
 	}
-	bodyEncripted, err := b.jwtSigner.Sign(util.SanitizeBody(body), sk.([]byte))
+	bodyEncripted, err := b.jwtSigner.Sign(body, sk.([]byte))
 	if err != nil {
 		return "", &errorResponse
 	}
