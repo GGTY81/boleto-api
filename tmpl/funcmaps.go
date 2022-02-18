@@ -80,6 +80,10 @@ var funcMap = template.FuncMap{
 	"datePlusDaysLocalTime":              datePlusDaysLocalTime,
 	"calculateFees":                      calculateFees,
 	"calculateInterestByDay":             calculateInterestByDay,
+	"onlyAlphabetics":                    onlyAlphabetics,
+	"onlyAlphanumerics":                  onlyAlphanumerics,
+	"onlyOneSpace":                       onlyOneSpace,
+	"removeAllSpaces":                    removeAllSpaces,
 }
 
 func GetFuncMaps() template.FuncMap {
@@ -268,6 +272,7 @@ func docType(s models.Document) int {
 func trim(s string) string {
 	return strings.TrimSpace(s)
 }
+
 func fmtDigitableLine(s string) string {
 	buf := bytes.Buffer{}
 	for idx, c := range s {
@@ -501,4 +506,20 @@ func getInterestInstruction(title models.Title) string {
 	interestAmountByDayInReal := calculateInterestByDay(title.Fees.Interest.AmountPerDayInCents, title.Fees.Interest.PercentagePerMonth, title.AmountInCents)
 
 	return fmt.Sprintf("APOS %s: JUROS POR DIA DE ATRASO.........R$ %.2f", dateInterestFormatted, interestAmountByDayInReal)
+}
+
+func onlyAlphanumerics(str string) string {
+	return regexp.MustCompile("[^a-zA-zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç0-9\\s]+").ReplaceAllString(str, "")
+}
+
+func onlyAlphabetics(str string) string {
+	return regexp.MustCompile("[^a-zA-zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç\\s]+").ReplaceAllString(str, "")
+}
+
+func onlyOneSpace(str string) string {
+	return regexp.MustCompile(`\s+`).ReplaceAllString(str, " ")
+}
+
+func removeAllSpaces(str string) string {
+	return regexp.MustCompile(`\s+`).ReplaceAllString(str, "")
 }

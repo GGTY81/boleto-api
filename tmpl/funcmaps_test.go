@@ -157,6 +157,34 @@ var getInterestInstructionParameters = []test.Parameter{
 	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, PercentagePerMonth: 0.5}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.00"},
 }
 
+var alphanumericsStringsParameters = []test.Parameter{
+	{Input: "zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç", Expected: "zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç"},
+	{Input: "1234567890zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç", Expected: "1234567890zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç"},
+	{Input: "1234567890zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçabcdefABCDEFzZ", Expected: "1234567890zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçabcdefABCDEFzZ"},
+	{Input: "1@234#567890zÁÉÍÓÚÀÈ%ÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçabcdefABCDEFzZ", Expected: "1234567890zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçabcdefABCDEFzZ"},
+}
+
+var alphabeticsStringsParameters = []test.Parameter{
+	{Input: "zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç", Expected: "zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç"},
+	{Input: "zÁÉÍ1234ÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóú1234àèìòùâêîôûãõç", Expected: "zÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõç"},
+	{Input: "abcdefgzÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçABCDEFGZ", Expected: "abcdefgzÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçABCDEFGZ"},
+	{Input: "abcdef$gzÁÉÍÓÚÀ%ÈÌÒÙÂÊÎÔÛÃ1()ÕáéíóúàèìòùâêîôûãõçABCDEFGZ", Expected: "abcdefgzÁÉÍÓÚÀÈÌÒÙÂÊÎÔÛÃÕáéíóúàèìòùâêîôûãõçABCDEFGZ"},
+}
+
+var onlyOneSpaceStringsParameters = []test.Parameter{
+	{Input: "campo1 campo2", Expected: "campo1 campo2"},
+	{Input: "campo1 \tcampo2", Expected: "campo1 campo2"},
+	{Input: "campo1 \t	campo2", Expected: "campo1 campo2"},
+	{Input: "campo1 \t	campo2 campo3", Expected: "campo1 campo2 campo3"},
+}
+
+var removeAllSpacesStringsParameters = []test.Parameter{
+	{Input: "campo1 campo2", Expected: "campo1campo2"},
+	{Input: "S P", Expected: "SP"},
+	{Input: "S P ", Expected: "SP"},
+	{Input: "S 	\tP \t", Expected: "SP"},
+}
+
 func TestShouldPadLeft(t *testing.T) {
 	expected := "00005"
 
@@ -418,5 +446,33 @@ func TestGetInterestInstruction(t *testing.T) {
 		title.ExpireDateTime = expireDateTime
 		result := getInterestInstruction(title)
 		assert.Equal(t, fact.Expected, result, "Deve trazer a instrução de juros corretamente")
+	}
+}
+
+func TestOnlyAlphanumerics(t *testing.T) {
+	for _, fact := range alphanumericsStringsParameters {
+		result := onlyAlphanumerics(fact.Input.(string))
+		assert.Equal(t, fact.Expected, result, "Deve manter todos os caracteres alfanuméricos")
+	}
+}
+
+func TestOnlyAlphabetics(t *testing.T) {
+	for _, fact := range alphabeticsStringsParameters {
+		result := onlyAlphabetics(fact.Input.(string))
+		assert.Equal(t, fact.Expected, result, "Deve manter todos os caracteres alfabéticos")
+	}
+}
+
+func TestOnlyOneSpace(t *testing.T) {
+	for _, fact := range onlyOneSpaceStringsParameters {
+		result := onlyOneSpace(fact.Input.(string))
+		assert.Equal(t, fact.Expected, result, "Deve manter apenas um espaço entre strings, quando existir")
+	}
+}
+
+func TestRemoveAllSpaces(t *testing.T) {
+	for _, fact := range removeAllSpacesStringsParameters {
+		result := removeAllSpaces(fact.Input.(string))
+		assert.Equal(t, fact.Expected, result, "Deve remover qualquer espaço entre strings")
 	}
 }

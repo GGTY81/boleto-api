@@ -117,3 +117,59 @@ func TestMinifyString(t *testing.T) {
 	assert.Equal(t, expected, result)
 
 }
+
+func TestSanitizeBody(t *testing.T) {
+	input := `{
+    "bankNumber": 174,
+    "authentication": {
+            "Username": "altsa",
+            "Password": "altsa"
+	},
+	"agreement": {
+		"agreementNumber": 267,
+		"wallet": 36,
+		"agency": "00000"
+	},
+	"title": {           
+		"expireDate": "2050-12-30",
+		"amountInCents": 200,
+		"ourNumber": 1,
+		"instructions": "Não receber após a data de vencimento.",
+		"documentNumber": "1234567890"
+	},
+	"recipient": {
+		"name": "Empresa - Boletos",
+		"document": {
+			"type": "CNPJ",
+			"number": "29799428000128"
+		},
+		"address": {
+			"street": "Avenida Miguel Estefno, 2394",
+			"complement": "Água Funda",
+			"zipCode": "04301-002",
+			"city": "São Paulo",
+			"stateCode": "SP"
+		}
+	},
+	"buyer": {
+		"name": "Usuario Teste",
+		"email": "p@p.com",
+		"document": {
+			"type": "CNPJ",
+			"number": "29.799.428/0001-28"
+		},
+		"address": {
+			"street": "Rua Teste",
+			"number": "2",
+			"complement": "SALA 1",
+			"zipCode": "20931-001",
+			"district": "Centro",
+			"city": "Rio de Janeiro",
+			"stateCode": "RJ"
+		}
+	}
+}`
+
+	result := SanitizeBody(input)
+	assert.NotContains(t, result, "\t")
+}
