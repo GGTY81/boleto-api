@@ -10,9 +10,9 @@ const templateRequest = `
     "invoice_type": "{{.Title.BoletoTypeCode}}",
     "customer": {
         "document": "{{.Buyer.Document.Number}}",
-        "legal_name": "{{.Buyer.Name}}",
+        "legal_name": "{{onlyOneSpace .Buyer.Name}}",
 	{{if eq .Buyer.Document.Type "CNPJ"}}
-        "trade_name": "{{.Buyer.Name}}"
+        "trade_name": "{{onlyOneSpace .Buyer.Name}}"
 	{{else}}
 		"trade_name": null
 	{{end}}
