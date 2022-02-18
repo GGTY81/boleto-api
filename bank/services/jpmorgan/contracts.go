@@ -26,14 +26,14 @@ const templateRequest = `
         "txtInfCliCed": "{{truncateOnly (.Recipient.Name) 80}}"
     },
 	"sacadoOuPagador": {
-        "bairroPagdr": "{{truncateOnly (.Buyer.Address.District) 15}}",
+        "bairroPagdr": "{{truncateOnly (onlyAlphanumerics (onlyOneSpace .Buyer.Address.District)) 15}}",
         "cepPagdr": {{toUint .Buyer.Address.ZipCode}},
-		"cidPagdr": "{{truncateOnly (.Buyer.Address.City) 15}}",
+		"cidPagdr": "{{truncateOnly (onlyAlphanumerics (onlyOneSpace .Buyer.Address.City)) 15}}",
 		"cnpjCpfPagdr": {{toUint .Buyer.Document.Number}},
-		"logradPagdr": "{{truncateOnly (joinSpace (.Buyer.Address.Street) (.Buyer.Address.Number) (.Buyer.Address.Complement)) 40}}",
-		"nomRzSocPagdr": "{{truncateOnly (.Buyer.Name) 40}}",
+		"logradPagdr": "{{truncateOnly (onlyAlphanumerics (onlyOneSpace (joinSpace (.Buyer.Address.Street) (.Buyer.Address.Number) (.Buyer.Address.Complement)))) 40}}",
+		"nomRzSocPagdr": "{{truncateOnly (onlyAlphanumerics (onlyOneSpace .Buyer.Name)) 40}}",
 		"tpPessoaPagdr": {{docType .Buyer.Document}},
-		"ufPagdr": "{{.Buyer.Address.StateCode}}"
+		"ufPagdr": "{{truncateOnly (onlyAlphabetics (removeAllSpaces .Buyer.Address.StateCode)) 2}}"
     },
 	"titulo": {
 		"numDocTit": "{{.Title.DocumentNumber}}",
