@@ -67,6 +67,18 @@ func TestMessageProvider_Success(t *testing.T) {
 						DocumentNumber: "1234567890",
 						NSU:            "123",
 						BoletoType:     "ND",
+						Fees: &models.Fees{
+							Fine: &models.Fine{
+								DaysAfterExpirationDate: 1,
+								AmountInCents:           200,
+								PercentageOnTotal:       1,
+							},
+							Interest: &models.Interest{
+								DaysAfterExpirationDate: 1,
+								AmountPerDayInCents:     200,
+								PercentagePerMonth:      1,
+							},
+						},
 						BoletoTypeCode: "19",
 					},
 					Recipient: models.Recipient{
