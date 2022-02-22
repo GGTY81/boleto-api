@@ -59,8 +59,20 @@ const requestToCaixa = `
                   <FLAG_ACEITE>S</FLAG_ACEITE>
                   <DATA_EMISSAO>{{enDate today "-"}}</DATA_EMISSAO>
                   <JUROS_MORA>
-                     <TIPO>ISENTO</TIPO>
-                     <VALOR>0</VALOR>
+            {{if .Title.Fees.HasInterest}}
+               {{if .Title.Fees.Interest.HasAmountPerDayInCents}}
+                     <TIPO>VALOR_POR_DIA</TIPO>
+                     <DATA>{{enDate (datePlusDays .Title.ExpireDateTime .Title.Fees.Interest.DaysAfterExpirationDate) "-"}}</DATA>
+                     <VALOR>{{toFloatStr .Title.Fees.Interest.AmountPerDayInCents}}</VALOR>
+               {{else}}
+                     <TIPO>TAXA_MENSAL</TIPO>
+                     <DATA>{{enDate (datePlusDays .Title.ExpireDateTime .Title.Fees.Interest.DaysAfterExpirationDate) "-"}}</DATA>
+                     <PERCENTUAL>{{float64ToString "%.2f" .Title.Fees.Interest.PercentagePerMonth}}</PERCENTUAL>
+               {{end}}
+            {{else}}
+               <TIPO>ISENTO</TIPO>
+               <VALOR>0</VALOR>
+            {{end}}
                   </JUROS_MORA>
                   <VALOR_ABATIMENTO>0</VALOR_ABATIMENTO>
                   <POS_VENCIMENTO>
@@ -88,6 +100,16 @@ const requestToCaixa = `
                         <CEP>{{truncateOnly (replace (clearStringCaixa .Buyer.Address.ZipCode) "-" "") 8}}</CEP>
                      </ENDERECO>
                   </PAGADOR>
+               {{if .Title.Fees.HasFine}}                 
+                  <MULTA>
+                     <DATA>{{enDate (datePlusDaysConsideringZeroAsStart .Title.ExpireDateTime .Title.Fees.Fine.DaysAfterExpirationDate) "-"}}</DATA> 
+                  {{if .Title.Fees.Fine.HasAmountInCents}}
+                     <VALOR>{{toFloatStr .Title.Fees.Fine.AmountInCents}}</VALOR>
+                  {{else}}
+                     <PERCENTUAL>{{float64ToString "%.2f" .Title.Fees.Fine.PercentageOnTotal}}</PERCENTUAL>
+                  {{end}}
+                  </MULTA>
+               {{end}}
                   <FICHA_COMPENSACAO>
                      <MENSAGENS>
                         <MENSAGEM>{{truncateOnly (clearStringCaixa .Title.Instructions) 40}}</MENSAGEM>

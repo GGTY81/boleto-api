@@ -37,6 +37,8 @@ func New() bankCaixa {
 	b.validate.Push(caixaValidateAgency)
 	b.validate.Push(validadeOurNumber)
 	b.validate.Push(caixaValidateBoletoType)
+	b.validate.Push(caixaValidateInterest)
+	b.validate.Push(caixaValidateFine)
 	return b
 }
 

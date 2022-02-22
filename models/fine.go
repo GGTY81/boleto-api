@@ -1,61 +1,56 @@
 package models
 
-import "strings"
+import "fmt"
 
 const (
-	MaxFineRate                = 0.010
-	MinDaysToStartChargingFine = 0
+	defaultFineAmountInCents     = 0
+	defaultFinePercentageOnTotal = 0.0
+	minDaysToStartChargingFine   = 1
 )
 
-//Fine Representa as informações sobre Juros
+//Fine Representa as informações sobre Multa
 type Fine struct {
-	Type string  `json:"type,omitempty"`
-	Days int     `json:"days,omitempty"`
-	Rate float64 `json:"rate,omitempty"`
+	DaysAfterExpirationDate uint    `json:"daysAfterExpirationDate,omitempty"`
+	AmountInCents           uint64  `json:"amountInCents,omitempty"`
+	PercentageOnTotal       float64 `json:"percentageOnTotal,omitempty"`
 }
 
-//IsValid Valida as regras de negócio sobre Juros
-func (f *Fine) IsValid(amountInCents int) bool {
-	if f.Days < MinDaysToStartChargingFine {
-		return false
-	}
-
-	if !f.isValidRate(amountInCents) {
-		return false
-	}
-
-	return true
+//HasAmountInCents Verifica se há AmountInCents
+func (fine *Fine) HasAmountInCents() bool {
+	return fine.AmountInCents > defaultFineAmountInCents
 }
 
-func (f *Fine) isValidRate(amountInCents int) bool {
-	pcond := f.isValidPercentualRate()
-	ncond := f.isValidNominalRate(amountInCents)
-
-	return (!pcond && ncond) || (pcond && !ncond)
+//HasPercentageOnTotal Verifica se há PercentageOnTotal
+func (fine *Fine) HasPercentageOnTotal() bool {
+	return fine.PercentageOnTotal > defaultFinePercentageOnTotal
 }
 
-func (f *Fine) isValidPercentualRate() bool {
-	if strings.ToLower(f.Type) != Percentual {
-		return false
-	}
-
-	if f.Rate < 0 || f.Rate > MaxFineRate {
-		return false
-	}
-
-	return true
+//HasDaysAfterExpirationDate Verifica se há DaysAfterExpirationDate
+func (fine *Fine) HasDaysAfterExpirationDate() bool {
+	return fine.DaysAfterExpirationDate >= minDaysToStartChargingFine
 }
 
-func (f *Fine) isValidNominalRate(amountInCents int) bool {
-	if strings.ToLower(f.Type) != Nominal {
-		return false
+//HasExclusiveRateValues Verifica se foram informados os valores reverente a multa de forma exclusiva
+func (fine *Fine) HasExclusiveRateValues() bool {
+	return (fine.HasAmountInCents() || fine.HasPercentageOnTotal()) && !(fine.HasAmountInCents() && fine.HasPercentageOnTotal())
+}
+
+//HasFine Verifica algum dado de multa está preenchido
+func (fine *Fine) HasFine() bool {
+	return fine != nil
+}
+
+//Validate Valida as regras de negócio da struct Fine
+//Caso haja alguma violação retorna o erro caso a regra violada, caso contrário retorna nulo
+func (fine *Fine) Validate() error {
+	if fine.HasFine() {
+		if !fine.HasExclusiveRateValues() {
+			return NewErrorResponse("MP400", "Para o campo Fine deve ser informado exclusivamente o parâmetro AmountInCents ou PercentageOnTotal maiores que zero")
+		}
+		if !fine.HasDaysAfterExpirationDate() {
+			return NewErrorResponse("MP400", fmt.Sprintf("Para o campo Fine o parâmetro DaysAfterExpirationDate precisa ser no mínimo %d", minDaysToStartChargingFine))
+		}
 	}
 
-	if amountInCents <= 0 {
-		return false
-	}
-
-	rate := float64(int(f.Rate)) / float64(amountInCents)
-
-	return rate <= MaxFineRate
+	return nil
 }

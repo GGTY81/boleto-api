@@ -3,6 +3,7 @@ package tmpl
 import (
 	"html/template"
 	"testing"
+	"time"
 
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/test"
@@ -100,6 +101,16 @@ var joinStringsParameters = []test.Parameter{
 	{Input: []string{" ", " ", " "}, Expected: "     "},
 	{Input: []string{"", "", "", "", ""}, Expected: "    "},
 	{Input: []string{"ÁÉÍÓÚÀ", "()*&=-+!:?<", "^~|ºª§°¹²³£¢¬\\\"", "@#$%"}, Expected: "ÁÉÍÓÚÀ ()*&=-+!:?< ^~|ºª§°¹²³£¢¬\\\" @#$%"},
+}
+
+var float64ToStringParameters = []test.Parameter{
+	{Input: -2.0, Expected: "-2.00"},
+	{Input: -2.4, Expected: "-2.40"},
+	{Input: 0.0, Expected: "0.00"},
+	{Input: 0.02, Expected: "0.02"},
+	{Input: 1.0, Expected: "1.00"},
+	{Input: 1.23, Expected: "1.23"},
+	{Input: 1.2379, Expected: "1.24"},
 }
 
 func TestShouldPadLeft(t *testing.T) {
@@ -286,5 +297,34 @@ func TestTruncateOnly(t *testing.T) {
 	for _, fact := range truncateOnlyParameters {
 		result := truncateOnly(fact.Input.(string), fact.Length)
 		assert.Equal(t, fact.Expected, result, "Deve-se truncar uma string corretamente")
+	}
+}
+
+func TestDatePlusDays(t *testing.T) {
+	var daysToAdd uint = 2
+	dateNow := time.Now()
+	dateExpected := dateNow.UTC().Add(time.Hour * 24 * time.Duration(daysToAdd))
+
+	result := datePlusDays(dateNow, daysToAdd)
+
+	assert.Equal(t, dateExpected, result, "Deve incrementar na data, os dias passados no método")
+}
+
+func TestDatePlusDaysConsideringZeroAsStart(t *testing.T) {
+	var daysPassedForTheMethod uint = 3
+	var daysCountingFromZero uint = 2
+	dateNow := time.Now()
+	dateExpected := dateNow.UTC().Add(time.Hour * 24 * time.Duration(daysCountingFromZero))
+
+	result := datePlusDaysConsideringZeroAsStart(dateNow, daysPassedForTheMethod)
+
+	assert.Equal(t, dateExpected, result, "Deve incrementar na data, os dias passados no método, considerando o zero como start")
+}
+
+func TestFloat64ToStringWith2f(t *testing.T) {
+	format := "%.2f"
+	for _, fact := range float64ToStringParameters {
+		result := float64ToString(format, fact.Input.(float64))
+		assert.Equal(t, fact.Expected, result, "Deve formatar o float com duas casas decimais e retornar como string")
 	}
 }

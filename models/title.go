@@ -20,6 +20,7 @@ type Title struct {
 	NSU            string    `json:"nsu,omitempty"`
 	BoletoType     string    `json:"boletoType,omitempty"`
 	Rules          *Rules    `json:"rules,omitempty"`
+	Fees           *Fees     `json:"fees,omitempty"`
 	BoletoTypeCode string
 }
 
@@ -71,6 +72,11 @@ func (t *Title) IsAmountInCentsValid() error {
 //HasRules Verifica se o nó de rules está preenchido
 func (t *Title) HasRules() bool {
 	return t.Rules != nil
+}
+
+//HasFees Verifica se o nó de fees está preenchido
+func (t *Title) HasFees() bool {
+	return t.Fees != nil
 }
 
 func parseDate(t string) (time.Time, error) {

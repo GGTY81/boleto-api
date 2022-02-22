@@ -86,3 +86,33 @@ func caixaValidateBoletoType(b interface{}) error {
 		return validations.InvalidType(t)
 	}
 }
+
+func caixaValidateInterest(b interface{}) error {
+	switch t := b.(type) {
+	case *models.BoletoRequest:
+		if t.Title.Fees.HasInterest() {
+			if err := t.Title.Fees.Interest.Validate(); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	default:
+		return validations.InvalidType(t)
+	}
+}
+
+func caixaValidateFine(b interface{}) error {
+	switch t := b.(type) {
+	case *models.BoletoRequest:
+		if t.Title.Fees.HasFine() {
+			if err := t.Title.Fees.Fine.Validate(); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	default:
+		return validations.InvalidType(t)
+	}
+}
