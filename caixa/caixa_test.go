@@ -119,7 +119,7 @@ func TestTemplateRequestCaixa_CEP_ParseSuccessful(t *testing.T) {
 	s := newStubBoletoRequestCaixa()
 
 	for _, fact := range boletoCepParameters {
-		request := s.WithBuyerZipCode(fact.Input.(string))
+		request := s.WithBuyerZipCode(fact.Input.(string)).Build()
 		result := fmt.Sprintf("%v", f.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 		assert.Contains(t, result, fact.Expected, "Conversão não realizada como esperado")
 	}
@@ -130,7 +130,7 @@ func TestTemplateRequestCaixa_BuyerName_ParseSuccessful(t *testing.T) {
 	s := newStubBoletoRequestCaixa()
 
 	for _, fact := range boletoBuyerNameParameters {
-		request := s.WithBuyerName(fact.Input.(string))
+		request := s.WithBuyerName(fact.Input.(string)).Build()
 		result := fmt.Sprintf("%v", f.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 		assert.Contains(t, result, fact.Expected, "Conversão não realizada como esperado")
 	}
@@ -141,7 +141,7 @@ func TestTemplateRequestCaixa_Instructions_ParseSuccessful(t *testing.T) {
 	s := newStubBoletoRequestCaixa()
 
 	for _, fact := range boletoInstructionsParameters {
-		request := s.WithInstructions(fact.Input.(string))
+		request := s.WithInstructions(fact.Input.(string)).Build()
 		result := fmt.Sprintf("%v", f.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 		assert.Contains(t, result, fact.Expected, "Conversão não realizada como esperado")
 	}
@@ -212,7 +212,7 @@ func TestTemplateRequestCaixa_NumberOfDaysAfterExpirationEqualsOne_NumberOfDaysA
 	flow := flow.NewFlow()
 	caixaRequestStub := newStubBoletoRequestCaixa()
 
-	request := caixaRequestStub.WithStrictRules()
+	request := caixaRequestStub.WithStrictRules().Build()
 	result := fmt.Sprintf("%v", flow.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 	assert.Contains(t, result, "<NUMERO_DIAS>1</NUMERO_DIAS>", "Falha ao encontrar o campo <NUMERO_DIAS>1<NUMERO_DIAS> no request")
 }
@@ -307,4 +307,84 @@ func TestCaixaValidateInterestWithNilFees(t *testing.T) {
 	input := newStubBoletoRequestCaixa().Build()
 
 	assert.Nil(t, caixaValidateInterest(input))
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorIsCNPJ_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentType("CNPJ").Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "SACADOR_AVALISTA")
+
+	assert.Contains(t, nodeContent, "<RAZAO_SOCIAL>PayeeGuarantor Test Name</RAZAO_SOCIAL>", "Erro no mapeamento do campo name do PayeeGuarantor")
+	assert.Contains(t, nodeContent, fmt.Sprintf("<CNPJ>%s</CNPJ>", input.PayeeGuarantor.Document.Number), "Erro no mapeamento do document type do PayeeGuarantor")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorIsCPF_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentType("CPF").Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "SACADOR_AVALISTA")
+
+	assert.Contains(t, nodeContent, "<NOME>PayeeGuarantor Test Name</NOME>", "Erro no mapeamento do campo name do PayeeGuarantor")
+	assert.Contains(t, nodeContent, fmt.Sprintf("<CPF>%s</CPF>", input.PayeeGuarantor.Document.Number), "Erro no mapeamento do document type do PayeeGuarantor")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorIsCPF_ParseFailed(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentType("CNPJ").Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "SACADOR_AVALISTA")
+
+	assert.NotContains(t, nodeContent, "<NOME>PayeeGuarantor Test Name</NOME>", "Erro no mapeamento do campo PayeeGuarantor")
+	assert.NotContains(t, nodeContent, fmt.Sprintf("<CPF>%s</CPF>", input.PayeeGuarantor.Document.Number), "Erro no mapeamento do document type do PayeeGuarantor")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorIsCNPJ_ParseFailed(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentType("CPF").Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "SACADOR_AVALISTA")
+
+	assert.NotContains(t, nodeContent, "<RAZAO_SOCIAL>PayeeGuarantor Test Name</RAZAO_SOCIAL>", "Erro no mapeamento do campo PayeeGuarantor")
+	assert.NotContains(t, nodeContent, fmt.Sprintf("<CNPJ>%s</CNPJ>", input.PayeeGuarantor.Document.Number), "Erro no mapeamento do document type do PayeeGuarantor")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorDocumentInNotValidCPF_ParseFailed(t *testing.T) {
+	mock.StartMockService("9094")
+	cnpjDocument := "00732159000109"
+
+	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentNumber(cnpjDocument).WithPayeeGuarantorDocumentType("CPF").Build()
+
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoFailed(t, output)
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorDocumentInNotValidCNPJ_ParseFailed(t *testing.T) {
+	mock.StartMockService("9094")
+	cpfDocument := "08013156036"
+
+	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentNumber(cpfDocument).WithPayeeGuarantorDocumentType("CNPJ").Build()
+
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoFailed(t, output)
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithoutPayeeGuarantor_HasNotPayeeGuarantorNode(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "SACADOR_AVALISTA")
+
+	assert.Contains(t, nodeContent, "", "Não deve haver o nó PayeeGuarantor")
 }

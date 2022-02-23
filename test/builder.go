@@ -10,6 +10,7 @@ type BuilderBoletoRequest struct {
 	agreement      models.Agreement
 	title          models.Title
 	recipient      models.Recipient
+	PayeeGuarantor *models.PayeeGuarantor
 	buyer          models.Buyer
 	bank           models.BankNumber
 }
@@ -38,6 +39,10 @@ func (b *BuilderBoletoRequest) SetRecipient(recipient models.Recipient) {
 	b.recipient = recipient
 }
 
+func (b *BuilderBoletoRequest) SetPayeeGuarantor(PayeeGuarantor *models.PayeeGuarantor) {
+	b.PayeeGuarantor = PayeeGuarantor
+}
+
 func (b *BuilderBoletoRequest) SetBuyer(buyer models.Buyer) {
 	b.buyer = buyer
 }
@@ -50,6 +55,7 @@ func (b *BuilderBoletoRequest) BoletoRequest() *models.BoletoRequest {
 		Agreement:      b.agreement,
 		Title:          b.title,
 		Recipient:      b.recipient,
+		PayeeGuarantor: b.PayeeGuarantor,
 		Buyer:          b.buyer,
 		RequestKey:     guid.String(),
 	}

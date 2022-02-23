@@ -95,7 +95,6 @@ func caixaValidateInterest(b interface{}) error {
 				return err
 			}
 		}
-
 		return nil
 	default:
 		return validations.InvalidType(t)
@@ -110,7 +109,6 @@ func caixaValidateFine(b interface{}) error {
 				return err
 			}
 		}
-
 		return nil
 	default:
 		return validations.InvalidType(t)

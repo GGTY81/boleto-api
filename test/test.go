@@ -1,6 +1,8 @@
 package test
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"testing"
@@ -15,6 +17,12 @@ type Parameter struct {
 	Input    interface{}
 	Expected interface{}
 	Length   int
+}
+
+type XmlNode struct {
+	XMLName xml.Name
+	Content []byte    `xml:",innerxml"`
+	Nodes   []XmlNode `xml:",any"`
 }
 
 //UInt64TestParameter Parâmetro de teste com input do tipo uint64
@@ -84,4 +92,33 @@ func CreateClientIP(c *gin.Context) {
 	c.Request = new(http.Request)
 	c.Request.Header = make(map[string][]string)
 	c.Request.Header.Add("X-Forwarded-For", "0.0.0.0")
+}
+
+func WalkThroughXml(nodes []XmlNode, f func(XmlNode) bool) {
+	for _, n := range nodes {
+		if f(n) {
+			WalkThroughXml(n.Nodes, f)
+		}
+	}
+}
+
+func GetNode(bodyXml string, tagName string) string {
+	nodeContent := ""
+
+	buf := bytes.NewBuffer([]byte(bodyXml))
+	dec := xml.NewDecoder(buf)
+
+	var n XmlNode
+	err := dec.Decode(&n)
+	if err != nil {
+		panic(err)
+	}
+
+	WalkThroughXml([]XmlNode{n}, func(n XmlNode) bool {
+		if n.XMLName.Local == tagName {
+			nodeContent += string(n.Content)
+		}
+		return true
+	})
+	return nodeContent
 }

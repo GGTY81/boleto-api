@@ -416,8 +416,13 @@ const boletoFormCaixa = `
                             <td>&nbsp;</td>
                         </tr>
                         <tr>
+                        {{if .View.Boleto.HasPayeeGuarantor}}
+                            <td><span class="text"><b>Sacador/Avalista: </b> &nbsp;{{.View.Boleto.PayeeGuarantor.Name}}</span></td>
+                            <td><span class="text"><b>CNPJ/CPF: </b> &nbsp;{{fmtDoc .View.Boleto.PayeeGuarantor.Document}}</span></td>
+                        {{else}}
                             <td><span class="text"><b>Sacador/Avalista: </b> &nbsp;</span></td>
                             <td><span class="text"><b>CNPJ/CPF: </b> &nbsp;</span></td>
+                        {{end}}     
                         </tr>
                     </table>
                 </td>
