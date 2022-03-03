@@ -1,61 +1,56 @@
 package models
 
-import "strings"
+import "fmt"
 
 const (
-	MaxInterestRate                = 0.020
-	MinDaysToStartChargingInterest = 0
+	defaultInterestAmountInCents      = 0
+	defaultInterestPercentagePerMonth = 0.0
+	minDaysToStartChargingInterest    = 1
 )
 
-//Interest Representa as informações sobre Multa
+//Interest Representa as informações sobre juros
 type Interest struct {
-	Type string  `json:"type,omitempty"`
-	Days int     `json:"days,omitempty"`
-	Rate float64 `json:"rate,omitempty"`
+	DaysAfterExpirationDate uint    `json:"daysAfterExpirationDate,omitempty"`
+	AmountPerDayInCents     uint64  `json:"amountPerDayInCents,omitempty"`
+	PercentagePerMonth      float64 `json:"percentagePerMonth,omitempty"`
 }
 
-//IsValid Valida as regras de negócio sobre Juros
-func (i *Interest) IsValid(amountInCents int) bool {
-	if i.Days < MinDaysToStartChargingInterest {
-		return false
-	}
-
-	if !i.isValidRate(amountInCents) {
-		return false
-	}
-
-	return true
+//HasAmountPerDayInCents Verifica se há AmountPerDayInCents
+func (interest *Interest) HasAmountPerDayInCents() bool {
+	return interest.AmountPerDayInCents > defaultInterestAmountInCents
 }
 
-func (i *Interest) isValidRate(amountInCents int) bool {
-	pcond := i.isValidPercentualRate()
-	ncond := i.isValidNominalRate(amountInCents)
-
-	return (!pcond && ncond) || (pcond && !ncond)
+//HasPercentagePerMonth Verifica se há PercentagePerMonth
+func (interest *Interest) HasPercentagePerMonth() bool {
+	return interest.PercentagePerMonth > defaultInterestPercentagePerMonth
 }
 
-func (i *Interest) isValidPercentualRate() bool {
-	if strings.ToLower(i.Type) != Percentual {
-		return false
-	}
-
-	if i.Rate < 0 || i.Rate > MaxInterestRate {
-		return false
-	}
-
-	return true
+//HasDaysAfterExpirationDate Verifica se há DaysAfterExpirationDate
+func (interest *Interest) HasDaysAfterExpirationDate() bool {
+	return interest.DaysAfterExpirationDate >= minDaysToStartChargingInterest
 }
 
-func (i *Interest) isValidNominalRate(amountInCents int) bool {
-	if strings.ToLower(i.Type) != Nominal {
-		return false
+//HasExclusiveRateValues Verifica se foi informados os valores reverente aos juros de forma exclusiva
+func (interest *Interest) HasExclusiveRateValues() bool {
+	return (interest.HasAmountPerDayInCents() || interest.HasPercentagePerMonth()) && !(interest.HasAmountPerDayInCents() && interest.HasPercentagePerMonth())
+}
+
+//HasInterest Verifica se algum dado de juros está preenchido
+func (interest *Interest) HasInterest() bool {
+	return interest != nil
+}
+
+//Validate Valida as regras de negócio da struct Interest
+//Caso haja alguma violação retorna o erro caso a regra infrigida, caso contrário retorna nulo
+func (interest *Interest) Validate() error {
+	if interest.HasInterest() {
+		if !interest.HasExclusiveRateValues() {
+			return NewErrorResponse("MP400", "Para o campo Interest deve ser informado exclusivamente o parâmetro AmountInCents ou PercentagePerMonth maiores que zero")
+		}
+		if !interest.HasDaysAfterExpirationDate() {
+			return NewErrorResponse("MP400", fmt.Sprintf("Para o campo Interest o parâmetro DaysAfterExpirationDate precisa ser no mínimo %d", minDaysToStartChargingInterest))
+		}
 	}
 
-	if amountInCents <= 0 {
-		return false
-	}
-
-	rate := float64(int(i.Rate)) / float64(amountInCents)
-
-	return rate <= MaxInterestRate
+	return nil
 }

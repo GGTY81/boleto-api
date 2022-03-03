@@ -72,6 +72,9 @@ var funcMap = template.FuncMap{
 	"truncateOnly":                       truncateOnly,
 	"toUint":                             toUint,
 	"strToFloat":                         strToFloat,
+	"float64ToString":                    float64ToString,
+	"datePlusDays":                       datePlusDays,
+	"datePlusDaysConsideringZeroAsStart": datePlusDaysConsideringZeroAsStart,
 }
 
 func GetFuncMaps() template.FuncMap {
@@ -180,6 +183,10 @@ func strToFloat(n string) float64 {
 	return s
 }
 
+func float64ToString(format string, value float64) string {
+	return fmt.Sprintf(format, value)
+}
+
 func fmtDoc(doc models.Document) string {
 	if e := doc.ValidateCPF(); e == nil {
 		return fmtCPF(doc.Number)
@@ -222,6 +229,16 @@ func brDate(d time.Time) string {
 
 func enDate(d time.Time, del string) string {
 	return d.Format("2006" + del + "01" + del + "02")
+}
+
+func datePlusDays(date time.Time, days uint) time.Time {
+	timeToPlus := time.Hour * 24 * time.Duration(days)
+	return date.UTC().Add(timeToPlus)
+}
+
+func datePlusDaysConsideringZeroAsStart(date time.Time, days uint) time.Time {
+	daysConsideringZeroAsStart := days - 1
+	return datePlusDays(date, daysConsideringZeroAsStart)
 }
 
 func brDateWithoutDelimiter(d time.Time) string {

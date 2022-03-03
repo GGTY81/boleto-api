@@ -39,6 +39,11 @@ var boletoCepParameters = []test.Parameter{
 	{Input: "98765-456", Expected: "<CEP>98765456</CEP>"},
 }
 
+var interestPercentageParameters = []test.Parameter{
+	{Input: models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 0, PercentagePerMonth: 3.27}},
+	{Input: models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 0, PercentagePerMonth: 4.238}},
+}
+
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
 	mock.StartMockService("9094")
 
@@ -210,4 +215,96 @@ func TestTemplateRequestCaixa_NumberOfDaysAfterExpirationEqualsOne_NumberOfDaysA
 	request := caixaRequestStub.WithStrictRules()
 	result := fmt.Sprintf("%v", flow.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 	assert.Contains(t, result, "<NUMERO_DIAS>1</NUMERO_DIAS>", "Falha ao encontrar o campo <NUMERO_DIAS>1<NUMERO_DIAS> no request")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithFineAndAmountInCents_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithFine(1, 200, 0).Build()
+	dateExpected := input.Title.ExpireDateTime.Format("2006-01-02")
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+
+	assert.Contains(t, b, "<MULTA>", "Erro no mapeamento dos campos básicos do multa - <MULTA>")
+	assert.Contains(t, b, fmt.Sprintf("<DATA>%s</DATA>", dateExpected), "Erro no mapeamento dos campos básicos do multa - <DATA>")
+	assert.Contains(t, b, "<VALOR>2.00</VALOR>", "Erro no mapeamento dos campos básicos do multa - <VALOR>")
+	assert.Contains(t, b, "</MULTA>", "Erro no mapeamento dos campos básicos do multa - </MULTA>")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithFineAndPercentageOnTotal_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithFine(1, 0, 1.3).Build()
+	dateExpected := input.Title.ExpireDateTime.Format("2006-01-02")
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+
+	assert.Contains(t, b, "<MULTA>", "Erro no mapeamento dos campos básicos do multa - <MULTA>")
+	assert.Contains(t, b, fmt.Sprintf("<DATA>%s</DATA>", dateExpected), "Erro no mapeamento dos campos básicos do multa - <DATA>")
+	assert.Contains(t, b, "<PERCENTUAL>1.30</PERCENTUAL>", "Erro no mapeamento dos campos básicos do multa - <VALOR>")
+	assert.Contains(t, b, "</MULTA>", "Erro no mapeamento dos campos básicos do multa - </MULTA>")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithInterestAndTypeIsento_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+
+	assert.Contains(t, b, "<TIPO>ISENTO</TIPO>", "Erro no mapeamento dos campos básicos de juros - <TIPO>")
+	assert.Contains(t, b, "<VALOR>0</VALOR>", "Erro no mapeamento dos campos básicos de juros - <VALOR>")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithInterestAndAmountPerDayInCents_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithInterest(1, 300, 0).Build()
+	daysToAdd := input.Title.Fees.Interest.DaysAfterExpirationDate
+	dateExpected := input.Title.ExpireDateTime.UTC().Add(day * time.Duration(daysToAdd)).Format("2006-01-02")
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+
+	assert.Contains(t, b, "<TIPO>VALOR_POR_DIA</TIPO>", "Erro no mapeamento dos campos básicos de juros - <TIPO>")
+	assert.Contains(t, b, fmt.Sprintf("<DATA>%s</DATA>", dateExpected), "Erro no mapeamento dos campos básicos de juros - <DATA>")
+	assert.Contains(t, b, "<VALOR>3.00</VALOR>", "Erro no mapeamento dos campos básicos de juros - <VALOR>")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithInterestAndPercentagePerMonth_ParseSuccessful(t *testing.T) {
+	f := flow.NewFlow()
+	stub := newStubBoletoRequestCaixa()
+
+	for _, fact := range interestPercentageParameters {
+		interest := fact.Input.(models.Interest)
+		request := stub.WithInterest(interest.DaysAfterExpirationDate, interest.AmountPerDayInCents, interest.PercentagePerMonth).Build()
+		daysToAdd := request.Title.Fees.Interest.DaysAfterExpirationDate
+		dateExpected := request.Title.ExpireDateTime.UTC().Add(day * time.Duration(daysToAdd)).Format("2006-01-02")
+		percentualExpected := fmt.Sprintf("%.2f", request.Title.Fees.Interest.PercentagePerMonth)
+
+		b := fmt.Sprintf("%v", f.From("message://?source=inline", request, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+
+		assert.Contains(t, b, "<TIPO>TAXA_MENSAL</TIPO>", "Erro no mapeamento dos campos básicos de juros - <TIPO>")
+		assert.Contains(t, b, fmt.Sprintf("<DATA>%s</DATA>", dateExpected), "Erro no mapeamento dos campos básicos de juros - <DATA>")
+		assert.Contains(t, b, fmt.Sprintf("<PERCENTUAL>%s</PERCENTUAL>", percentualExpected), "Erro no mapeamento dos campos básicos de juros - <VALOR>")
+	}
+}
+
+func TestCaixaValidateFine(t *testing.T) {
+	input := newStubBoletoRequestCaixa().WithFine(1, 200, 0).Build()
+
+	assert.Nil(t, caixaValidateFine(input))
+}
+
+func TestCaixaValidateFineWithNilFees(t *testing.T) {
+	input := newStubBoletoRequestCaixa().Build()
+
+	assert.Nil(t, caixaValidateFine(input))
+}
+
+func TestCaixaValidateInterest(t *testing.T) {
+	input := newStubBoletoRequestCaixa().WithInterest(1, 0, 10.2).Build()
+
+	assert.Nil(t, caixaValidateInterest(input))
+}
+
+func TestCaixaValidateInterestWithNilFees(t *testing.T) {
+	input := newStubBoletoRequestCaixa().Build()
+
+	assert.Nil(t, caixaValidateInterest(input))
 }
