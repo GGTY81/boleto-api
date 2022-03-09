@@ -75,7 +75,7 @@ func (t *Title) HasRules() bool {
 }
 
 //HasFees Verifica se o nó de fees está preenchido
-func (t *Title) HasFees() bool {
+func (t Title) HasFees() bool {
 	return t.Fees != nil
 }
 

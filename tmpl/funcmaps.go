@@ -75,6 +75,11 @@ var funcMap = template.FuncMap{
 	"float64ToString":                    float64ToString,
 	"datePlusDays":                       datePlusDays,
 	"datePlusDaysConsideringZeroAsStart": datePlusDaysConsideringZeroAsStart,
+	"getInterestInstruction":             getInterestInstruction,
+	"getFineInstruction":                 getFineInstruction,
+	"datePlusDaysLocalTime":              datePlusDaysLocalTime,
+	"calculateFees":                      calculateFees,
+	"calculateInterestByDay":             calculateInterestByDay,
 }
 
 func GetFuncMaps() template.FuncMap {
@@ -443,4 +448,57 @@ func truncateOnly(str string, num int) string {
 		str = string([]rune(str)[0:num])
 	}
 	return str
+}
+
+//calculateFees Calcula o fees em reais por dia, sobre o valor do titulo
+func calculateFees(amountFee uint64, percentageFee float64, titleAmount uint64) float64 {
+	const conversionFactor = 0.01
+	const defaultValueRate = 0
+
+	if amountFee <= defaultValueRate && percentageFee <= defaultValueRate {
+		return defaultValueRate
+	}
+
+	if amountFee > defaultValueRate {
+		return float64(amountFee) * conversionFactor
+	}
+
+	originalAmountToReal := float64(titleAmount) * conversionFactor
+	return (percentageFee * conversionFactor) * originalAmountToReal
+}
+
+//calculateInterestByDay Calcula a taxa de juros em reais por dia, sobre o valor do titulo
+func calculateInterestByDay(amountFee uint64, percentageFee float64, titleAmount uint64) float64 {
+	interestAmount := calculateFees(amountFee, percentageFee, titleAmount)
+
+	if percentageFee > 0 {
+		interestAmount /= 30
+	}
+
+	return interestAmount
+}
+
+func datePlusDaysLocalTime(date time.Time, days uint) time.Time {
+	timeToPlus := time.Hour * 24 * time.Duration(days)
+	return date.Add(timeToPlus)
+}
+
+//getFineInstruction Obtém a instrução de multa
+func getFineInstruction(title models.Title) string {
+	dateFine := datePlusDaysLocalTime(title.ExpireDateTime, title.Fees.Fine.DaysAfterExpirationDate)
+	dateFineFormatted := brDate(dateFine)
+
+	fineAmountInReal := calculateFees(title.Fees.Fine.AmountInCents, title.Fees.Fine.PercentageOnTotal, title.AmountInCents)
+
+	return fmt.Sprintf("APOS %s: MULTA..........R$ %.2f", dateFineFormatted, fineAmountInReal)
+}
+
+//getInterestInstruction Obtém a instrução de juros
+func getInterestInstruction(title models.Title) string {
+	dateInterest := datePlusDaysLocalTime(title.ExpireDateTime, title.Fees.Interest.DaysAfterExpirationDate)
+	dateInterestFormatted := brDate(dateInterest)
+
+	interestAmountByDayInReal := calculateInterestByDay(title.Fees.Interest.AmountPerDayInCents, title.Fees.Interest.PercentagePerMonth, title.AmountInCents)
+
+	return fmt.Sprintf("APOS %s: JUROS POR DIA DE ATRASO.........R$ %.2f", dateInterestFormatted, interestAmountByDayInReal)
 }
