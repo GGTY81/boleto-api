@@ -1,6 +1,7 @@
 package tmpl
 
 import (
+	"fmt"
 	"html/template"
 	"testing"
 	"time"
@@ -9,6 +10,13 @@ import (
 	"github.com/mundipagg/boleto-api/test"
 	"github.com/stretchr/testify/assert"
 )
+
+type TestFee struct {
+	line          uint8
+	AmountFee     uint64
+	PercentageFee float64
+	TitleAmount   uint64
+}
 
 var formatDigitableLineParameters = []test.Parameter{
 	{Input: "34191123456789010111213141516171812345678901112", Expected: "34191.12345 67890.101112 13141.516171 8 12345678901112"},
@@ -111,6 +119,42 @@ var float64ToStringParameters = []test.Parameter{
 	{Input: 1.0, Expected: "1.00"},
 	{Input: 1.23, Expected: "1.23"},
 	{Input: 1.2379, Expected: "1.24"},
+}
+
+var calculateFeesParameters = []test.Parameter{
+	{Input: TestFee{line: 1, AmountFee: 0, PercentageFee: 0, TitleAmount: 1}, Expected: 0.0},
+	{Input: TestFee{line: 2, AmountFee: 200, PercentageFee: 0, TitleAmount: 2000}, Expected: 2.0},
+	{Input: TestFee{line: 3, AmountFee: 346, PercentageFee: 0, TitleAmount: 2000}, Expected: 3.46},
+	{Input: TestFee{line: 4, AmountFee: 122211, PercentageFee: 0, TitleAmount: 2000}, Expected: 1222.1100000000001},
+	{Input: TestFee{line: 5, AmountFee: 0, PercentageFee: 1.00, TitleAmount: 2000}, Expected: 0.2},
+	{Input: TestFee{line: 6, AmountFee: 0, PercentageFee: 1.26, TitleAmount: 2248}, Expected: 0.283248},
+}
+
+var getFineInstructionParameters = []test.Parameter{
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 1, AmountInCents: 200}}}, Expected: "APOS 10/03/2022: MULTA..........R$ 2.00"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, AmountInCents: 346}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 3.46"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, AmountInCents: 122211}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 1222.11"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, PercentageOnTotal: 1.00}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 0.20"},
+	{Input: models.Title{AmountInCents: 2248, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, PercentageOnTotal: 1.26}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 0.28"},
+	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 1, PercentageOnTotal: 0.5}}}, Expected: "APOS 10/03/2022: MULTA..........R$ 0.00"},
+}
+
+var calculateInterestByDayParameters = []test.Parameter{
+	{Input: TestFee{line: 1, AmountFee: 0, PercentageFee: 0, TitleAmount: 1}, Expected: 0.0},
+	{Input: TestFee{line: 2, AmountFee: 200, PercentageFee: 0, TitleAmount: 2000}, Expected: 2.0},
+	{Input: TestFee{line: 3, AmountFee: 346, PercentageFee: 0, TitleAmount: 2000}, Expected: 3.46},
+	{Input: TestFee{line: 4, AmountFee: 122211, PercentageFee: 0, TitleAmount: 2000}, Expected: 1222.1100000000001},
+	{Input: TestFee{line: 5, AmountFee: 0, PercentageFee: 1.00, TitleAmount: 6000}, Expected: 0.02},
+	{Input: TestFee{line: 6, AmountFee: 0, PercentageFee: 1.26, TitleAmount: 83448}, Expected: 0.3504816},
+}
+
+var getInterestInstructionParameters = []test.Parameter{
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 200}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 2.00"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 346}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 3.46"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, AmountPerDayInCents: 122211}}}, Expected: "APOS 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 1222.11"},
+	{Input: models.Title{AmountInCents: 6000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, PercentagePerMonth: 1.00}}}, Expected: "APOS 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.02"},
+	{Input: models.Title{AmountInCents: 83448, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, PercentagePerMonth: 1.26}}}, Expected: "APOS 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.35"},
+	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, PercentagePerMonth: 0.5}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.00"},
 }
 
 func TestShouldPadLeft(t *testing.T) {
@@ -326,5 +370,53 @@ func TestFloat64ToStringWith2f(t *testing.T) {
 	for _, fact := range float64ToStringParameters {
 		result := float64ToString(format, fact.Input.(float64))
 		assert.Equal(t, fact.Expected, result, "Deve formatar o float com duas casas decimais e retornar como string")
+	}
+}
+
+func TestDatePlusDaysLocalTime(t *testing.T) {
+	var daysToAdd uint = 2
+	dateNow := time.Now()
+	dateExpected := dateNow.Add(time.Hour * 24 * time.Duration(daysToAdd))
+
+	result := datePlusDaysLocalTime(dateNow, daysToAdd)
+
+	assert.Equal(t, dateExpected, result, "Deve incrementar na data, os dias passados no método, considerando o local time")
+}
+
+func TestCalculateFees(t *testing.T) {
+	for _, fact := range calculateFeesParameters {
+		testFee := fact.Input.(TestFee)
+		result := calculateFees(testFee.AmountFee, testFee.PercentageFee, testFee.TitleAmount)
+		assert.Equal(t, fact.Expected, result, fmt.Sprintf("CalculateFees - Linha %d: Deve calcular corretamente o Fees", testFee.line))
+	}
+}
+
+func TestCalculateInterestByDay(t *testing.T) {
+	for _, fact := range calculateInterestByDayParameters {
+		testFee := fact.Input.(TestFee)
+		result := calculateInterestByDay(testFee.AmountFee, testFee.PercentageFee, testFee.TitleAmount)
+		assert.Equal(t, fact.Expected, result, fmt.Sprintf("CalculateInterestByDay - Linha %d: Deve calcular corretamente o juros", testFee.line))
+	}
+}
+
+func TestGetFineInstruction(t *testing.T) {
+	expireDateTime, _ := time.Parse("2006-01-02", "2022-03-09")
+
+	for _, fact := range getFineInstructionParameters {
+		title := fact.Input.(models.Title)
+		title.ExpireDateTime = expireDateTime
+		result := getFineInstruction(title)
+		assert.Equal(t, fact.Expected, result, "Deve trazer a instrução de multa corretamente")
+	}
+}
+
+func TestGetInterestInstruction(t *testing.T) {
+	expireDateTime, _ := time.Parse("2006-01-02", "2022-03-09")
+
+	for _, fact := range getInterestInstructionParameters {
+		title := fact.Input.(models.Title)
+		title.ExpireDateTime = expireDateTime
+		result := getInterestInstruction(title)
+		assert.Equal(t, fact.Expected, result, "Deve trazer a instrução de juros corretamente")
 	}
 }
