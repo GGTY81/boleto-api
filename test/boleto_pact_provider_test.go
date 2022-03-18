@@ -1,3 +1,4 @@
+//go:build !unit
 // +build !unit
 
 package test
@@ -10,6 +11,7 @@ import (
 
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/types"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -152,8 +154,15 @@ func TestMessageProvider_Success(t *testing.T) {
 	// Verify the Provider with Pactflow publish contracts
 	//nolint
 	pact.VerifyMessageProvider(t, dsl.VerifyMessageRequest{
-		PactURLs:                   []string{os.Getenv("PACT_URL")},
-		BrokerURL:                  os.Getenv("PACT_BROKER_URL"),
+		PactURLs:  []string{os.Getenv("PACT_URL")},
+		BrokerURL: os.Getenv("PACT_BROKER_URL"),
+		ConsumerVersionSelectors: []types.ConsumerVersionSelector{
+			{
+				Tag:         os.Getenv("GIT_BRANCH"),
+				FallbackTag: "master",
+				Latest:      true,
+			},
+		},
 		BrokerToken:                os.Getenv("PACT_BROKER_TOKEN"),
 		PublishVerificationResults: true,
 		ProviderVersion:            os.Getenv("GITHUB_COMMIT"),
