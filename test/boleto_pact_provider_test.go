@@ -97,6 +97,13 @@ func TestMessageProvider_Success(t *testing.T) {
 							StateCode:  "RJ",
 						},
 					},
+					PayeeGuarantor: &models.PayeeGuarantor{
+						Name: "Nome do PayeeGuarantor (Loja)",
+						Document: models.Document{
+							Type:   "CPF",
+							Number: "11282705792",
+						},
+					},
 					Buyer: models.Buyer{
 						Name:  "Nome do Comprador (Cliente)",
 						Email: "teste@pagar.me",

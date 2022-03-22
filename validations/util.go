@@ -33,3 +33,18 @@ func ModElevenCalculator(a string, m []int) string {
 	}
 	return strconv.Itoa(digit)
 }
+
+//ValidatePayeeGuarantorName Verifica se o nome do lojista é existe
+func ValidatePayeeGuarantorName(b interface{}) error {
+	switch t := b.(type) {
+	case *models.BoletoRequest:
+		if t.HasPayeeGuarantor() {
+			if !t.PayeeGuarantor.HasName() {
+				return models.NewErrorResponse("MPPayeeGuarantorNameType", "Nome do sacador avalista está vazio")
+			}
+		}
+		return nil
+	default:
+		return InvalidType(t)
+	}
+}

@@ -100,16 +100,27 @@ const requestToCaixa = `
                         <CEP>{{truncateOnly (replace (clearStringCaixa .Buyer.Address.ZipCode) "-" "") 8}}</CEP>
                      </ENDERECO>
                   </PAGADOR>
-               {{if .Title.Fees.HasFine}}                 
-                  <MULTA>
-                     <DATA>{{enDate (datePlusDaysConsideringZeroAsStart .Title.ExpireDateTime .Title.Fees.Fine.DaysAfterExpirationDate) "-"}}</DATA> 
-                  {{if .Title.Fees.Fine.HasAmountInCents}}
-                     <VALOR>{{toFloatStr .Title.Fees.Fine.AmountInCents}}</VALOR>
-                  {{else}}
-                     <PERCENTUAL>{{float64ToString "%.2f" .Title.Fees.Fine.PercentageOnTotal}}</PERCENTUAL>
+                  {{if .HasPayeeGuarantor}}
+                     <SACADOR_AVALISTA>
+                        {{if eq .PayeeGuarantor.Document.Type "CPF"}}
+                              <CPF>{{.PayeeGuarantor.Document.Number}}</CPF> 
+                              <NOME>{{truncateOnly (clearStringCaixa (.PayeeGuarantor.Name)) 40}}</NOME> 
+                        {{else}}
+                              <CNPJ>{{.PayeeGuarantor.Document.Number}}</CNPJ>
+                              <RAZAO_SOCIAL>{{truncateOnly (clearStringCaixa (.PayeeGuarantor.Name)) 40}}</RAZAO_SOCIAL>
+                        {{end}}
+                     </SACADOR_AVALISTA>
                   {{end}}
-                  </MULTA>
-               {{end}}
+                  {{if .Title.Fees.HasFine}}                 
+                     <MULTA>
+                        <DATA>{{enDate (datePlusDaysConsideringZeroAsStart .Title.ExpireDateTime .Title.Fees.Fine.DaysAfterExpirationDate) "-"}}</DATA> 
+                     {{if .Title.Fees.Fine.HasAmountInCents}}
+                        <VALOR>{{toFloatStr .Title.Fees.Fine.AmountInCents}}</VALOR>
+                     {{else}}
+                        <PERCENTUAL>{{float64ToString "%.2f" .Title.Fees.Fine.PercentageOnTotal}}</PERCENTUAL>
+                     {{end}}
+                     </MULTA>
+                  {{end}}
                   <FICHA_COMPENSACAO>
                      <MENSAGENS>
                         <MENSAGEM>{{truncateOnly (clearStringCaixa .Title.Instructions) 40}}</MENSAGEM>

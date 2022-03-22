@@ -13,6 +13,7 @@ type StubBoletoRequest struct {
 	Agreement      models.Agreement
 	Title          models.Title
 	Recipient      models.Recipient
+	PayeeGuarantor *models.PayeeGuarantor
 	Buyer          models.Buyer
 	bank           models.BankNumber
 }
@@ -98,11 +99,50 @@ func (s *StubBoletoRequest) WithBuyerZipCode(zipcode string) *StubBoletoRequest 
 	return s
 }
 
+func (s *StubBoletoRequest) WithRecipientDocumentType(documentType string) *StubBoletoRequest {
+	s.Recipient.Document.Type = documentType
+	return s
+}
+
+func (s *StubBoletoRequest) WithRecipientName(recipientName string) *StubBoletoRequest {
+	s.Recipient.Name = recipientName
+	return s
+}
+
+func (s *StubBoletoRequest) WithPayeeGuarantorName(PayeeGuarantorName string) *StubBoletoRequest {
+	s.createStubPayeeGuarantor()
+	s.PayeeGuarantor.Name = PayeeGuarantorName
+	return s
+}
+
+func (s *StubBoletoRequest) WithPayeeGuarantorDocumentNumber(docNumber string) *StubBoletoRequest {
+	s.createStubPayeeGuarantor()
+	s.PayeeGuarantor.Document.Number = docNumber
+	return s
+}
+
+func (s *StubBoletoRequest) WithPayeeGuarantorDocumentType(documentType string) *StubBoletoRequest {
+	s.createStubPayeeGuarantor()
+	s.PayeeGuarantor.Document.Type = documentType
+	return s
+}
+
+func (s *StubBoletoRequest) createStubPayeeGuarantor() {
+	if !s.hasStubPayeeGuarantor() {
+		s.PayeeGuarantor = &models.PayeeGuarantor{}
+	}
+}
+
+func (s *StubBoletoRequest) hasStubPayeeGuarantor() bool {
+	return s.PayeeGuarantor != nil
+}
+
 func (s *StubBoletoRequest) Build() *models.BoletoRequest {
 	s.SetAuthentication(s.Authentication)
 	s.SetAgreement(s.Agreement)
 	s.SetTitle(s.Title)
 	s.SetRecipient(s.Recipient)
+	s.SetPayeeGuarantor(s.PayeeGuarantor)
 	s.SetBuyer(s.Buyer)
 	s.SetBank(s.bank)
 	return s.BoletoRequest()

@@ -88,6 +88,10 @@ var agreementAccountParameters = []ModelTestParameter{
 	{Input: Agreement{Account: "654654654654654654654654654564"}, Length: 8, Expected: false},
 }
 
+var payeeGuarantorParameters = []ModelTestParameter{
+	{Input: PayeeGuarantor{Name: ""}, Expected: false},
+}
+
 func TestIsCpf(t *testing.T) {
 	for _, fact := range isCPFParameters {
 		input := fact.Input.(Document)
@@ -240,5 +244,13 @@ func TestAgreementIsAccountValid(t *testing.T) {
 		input := fact.Input.(Agreement)
 		result := input.IsAccountValid(fact.Length.(int)) == nil
 		assert.Equal(t, fact.Expected, result, "Verifica se a conta é valida")
+	}
+}
+
+func TestPayeeGuarantorNameIsValid(t *testing.T) {
+	for _, fact := range payeeGuarantorParameters {
+		input := fact.Input.(PayeeGuarantor)
+		result := input.HasName()
+		assert.Equal(t, fact.Expected, result, "Verifica se o nome do PayeeGuarantor está preenchido")
 	}
 }

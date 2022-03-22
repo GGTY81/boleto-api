@@ -19,13 +19,14 @@ import (
 
 // BoletoRequest entidade de entrada para o boleto
 type BoletoRequest struct {
-	Authentication Authentication `json:"authentication"`
-	Agreement      Agreement      `json:"agreement"`
-	Title          Title          `json:"title"`
-	Recipient      Recipient      `json:"recipient"`
-	Buyer          Buyer          `json:"buyer"`
-	BankNumber     BankNumber     `json:"bankNumber"`
-	RequestKey     string         `json:"requestKey,omitempty"`
+	Authentication Authentication  `json:"authentication"`
+	Agreement      Agreement       `json:"agreement"`
+	Title          Title           `json:"title"`
+	Recipient      Recipient       `json:"recipient"`
+	PayeeGuarantor *PayeeGuarantor `json:"payeeGuarantor,omitempty"`
+	Buyer          Buyer           `json:"buyer"`
+	BankNumber     BankNumber      `json:"bankNumber"`
+	RequestKey     string          `json:"requestKey,omitempty"`
 }
 
 // BoletoResponse entidade de saída para o boleto
@@ -221,6 +222,11 @@ func BoletoErrorConector(e *flow.ExchangeMessage, u flow.URI, params ...interfac
 //HasErrors verify if Response has any error
 func (b *BoletoResponse) HasErrors() bool {
 	return b.Errors != nil && len(b.Errors) > 0
+}
+
+//HasPayeeGuarantor verify if PayeeGuarantor is not nil
+func (b BoletoRequest) HasPayeeGuarantor() bool {
+	return b.PayeeGuarantor != nil
 }
 
 //GetBoletoResponseError Retorna um BoletoResponse com um erro específico
