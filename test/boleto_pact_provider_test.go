@@ -154,13 +154,17 @@ func TestMessageProvider_Success(t *testing.T) {
 	// Verify the Provider with Pactflow publish contracts
 	//nolint
 	pact.VerifyMessageProvider(t, dsl.VerifyMessageRequest{
-		PactURLs:  []string{os.Getenv("PACT_URL")},
+		// PactURLs:  []string{os.Getenv("PACT_URL")},
 		BrokerURL: os.Getenv("PACT_BROKER_URL"),
 		ConsumerVersionSelectors: []types.ConsumerVersionSelector{
-			{
-				Tag:         os.Getenv("GIT_BRANCH"),
+			types.ConsumerVersionSelector{
+				Tag:         os.Getenv("GITHUB_BRANCH"),
 				FallbackTag: "master",
 				Latest:      true,
+			},
+			types.ConsumerVersionSelector{
+				Tag:    "production",
+				Latest: true,
 			},
 		},
 		BrokerToken:                os.Getenv("PACT_BROKER_TOKEN"),
