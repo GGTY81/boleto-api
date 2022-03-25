@@ -65,6 +65,9 @@ func loadBankLog(c *gin.Context) *log.Log {
 	l.Operation = "RegisterBoleto"
 	l.NossoNumero = getNossoNumeroFromContext(c)
 	l.Recipient = boleto.Recipient.Name
+	if boleto.HasPayeeGuarantor() {
+		l.PayeeGuarantor = boleto.PayeeGuarantor.Name
+	}
 	l.RequestKey = boleto.RequestKey
 	l.BankName = bank.GetBankNameIntegration()
 	l.IPAddress = c.ClientIP()

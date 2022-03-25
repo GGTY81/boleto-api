@@ -56,6 +56,7 @@ func New() bankBradescoNetEmpresa {
 	b.validate.Push(bradescoNetEmpresaValidateAccount)
 	b.validate.Push(bradescoNetEmpresaValidateWallet)
 	b.validate.Push(bradescoNetEmpresaBoletoTypeValidate)
+	b.validate.Push(ValidateMaxExpirationDate)
 	return b
 }
 

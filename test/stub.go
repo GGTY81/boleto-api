@@ -49,6 +49,16 @@ func (s *StubBoletoRequest) WithAgreementAccount(account string) *StubBoletoRequ
 	return s
 }
 
+func (s *StubBoletoRequest) WithWallet(wallet uint16) *StubBoletoRequest {
+	s.Agreement.Wallet = wallet
+	return s
+}
+
+func (s *StubBoletoRequest) WithAuthentication(authentication models.Authentication) *StubBoletoRequest {
+	s.Authentication = authentication
+	return s
+}
+
 func (s *StubBoletoRequest) WithAmountInCents(amount uint64) *StubBoletoRequest {
 	s.Title.AmountInCents = amount
 	return s
@@ -81,6 +91,12 @@ func (s *StubBoletoRequest) WithAcceptDivergentAmount(accepted bool) *StubBoleto
 	}
 
 	s.Title.Rules.AcceptDivergentAmount = accepted
+	return s
+}
+
+func (s *StubBoletoRequest) WithBoletoType(title models.Title) *StubBoletoRequest {
+	s.Title.BoletoType = title.BoletoType
+	s.Title.BoletoTypeCode = title.BoletoTypeCode
 	return s
 }
 

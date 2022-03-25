@@ -49,12 +49,14 @@ func New() bankBradescoShopFacil {
 	b.validate.Push(validations.ValidateExpireDate)
 	b.validate.Push(validations.ValidateBuyerDocumentNumber)
 	b.validate.Push(validations.ValidateRecipientDocumentNumber)
+
 	b.validate.Push(bradescoShopFacilValidateAgency)
 	b.validate.Push(bradescoShopFacilValidateAccount)
 	b.validate.Push(bradescoShopFacilValidateWallet)
 	b.validate.Push(bradescoShopFacilValidateAuth)
 	b.validate.Push(bradescoShopFacilValidateAgreement)
 	b.validate.Push(bradescoShopFacilBoletoTypeValidate)
+	b.validate.Push(ValidateMaxExpirationDate)
 	return b
 }
 

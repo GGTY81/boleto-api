@@ -3,6 +3,8 @@ package bradescoShopFacil
 import (
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/validations"
+	"strings"
+	"time"
 )
 
 func bradescoShopFacilValidateAgency(b interface{}) error {
@@ -45,7 +47,9 @@ func bradescoShopFacilValidateWallet(b interface{}) error {
 func bradescoShopFacilValidateAuth(b interface{}) error {
 	switch t := b.(type) {
 	case *models.BoletoRequest:
-		if t.Authentication.Username == "" || t.Authentication.Password == "" {
+		usr := strings.TrimSpace(t.Authentication.Username)
+		pwd := strings.TrimSpace(t.Authentication.Password)
+		if usr == "" || pwd == "" {
 			return models.NewErrorResponse("MP400", "o nome de usuário e senha devem ser preenchidos")
 		}
 		return nil
@@ -74,6 +78,23 @@ func bradescoShopFacilBoletoTypeValidate(b interface{}) error {
 	case *models.BoletoRequest:
 		if len(t.Title.BoletoType) > 0 && bt[t.Title.BoletoType] == "" {
 			return models.NewErrorResponse("MP400", "espécie de boleto informada não existente")
+		}
+		return nil
+	default:
+		return validations.InvalidType(t)
+	}
+}
+
+// bradescoShopFacilMaxExpirationDateValidate O emissor Bradesco contém um bug na geração da linha digitável onde,
+// quando a data de vencimento é maior do que 21-02-2025 a linha digitável se torna inválida(O própio Bradesco não consegue ler a linha gerada) e não conseguimos gerar a visualização do boleto
+// Para evitarmos esse problema, adicionamos temporariamente essa trava que bloqueia a geração de boletos com data de vencimento após a data em questão.
+func ValidateMaxExpirationDate(b interface{}) error {
+	maxExpDate, _ := time.Parse("2006-01-02", "2025-02-21")
+
+	switch t := b.(type) {
+	case *models.BoletoRequest:
+		if t.Title.ExpireDateTime.After(maxExpDate) {
+			return models.NewErrorResponse("MPExpireDate", "Data de vencimento não pode ser maior que 21-02-2025")
 		}
 		return nil
 	default:
