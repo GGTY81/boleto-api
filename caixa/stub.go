@@ -51,15 +51,19 @@ func newStubBoletoRequestCaixa() *stubBoletoRequestCaixa {
 			Type:   "CPF",
 			Number: "12312312312",
 		},
-		Address: models.Address{
-			Street:     "Rua da Assunção de Sá",
-			Number:     "123",
-			Complement: "Seção A, s 02",
-			ZipCode:    "20520051",
-			City:       "Belém do Pará",
-			District:   "Açaí",
-			StateCode:  "PA",
-		},
+	}
+	return s
+}
+
+func (s *stubBoletoRequestCaixa) WithBuyerAddress() *stubBoletoRequestCaixa {
+	s.Buyer.Address = models.Address{
+		Street:     "Rua da Assunção de Sá",
+		Number:     "123",
+		Complement: "Seção A, s 02",
+		ZipCode:    "20520051",
+		City:       "Belém do Pará",
+		District:   "Açaí",
+		StateCode:  "PA",
 	}
 	return s
 }

@@ -7,3 +7,8 @@ type Buyer struct {
 	Document Document `json:"document,omitempty"`
 	Address  Address  `json:"address,omitempty"`
 }
+
+//HasAddress verify if Adress is not empty
+func (b Buyer) HasAddress() bool {
+	return b.Address != Address{}
+}
