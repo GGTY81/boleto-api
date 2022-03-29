@@ -2,6 +2,7 @@ package validations
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/mundipagg/boleto-api/models"
 )
@@ -42,6 +43,23 @@ func ValidatePayeeGuarantorName(b interface{}) error {
 			if !t.PayeeGuarantor.HasName() {
 				return models.NewErrorResponse("MPPayeeGuarantorNameType", "Nome do sacador avalista está vazio")
 			}
+		}
+		return nil
+	default:
+		return InvalidType(t)
+	}
+}
+
+//ValidateMaxExpirationDate O emissor Bradesco contém um bug na geração da linha digitável onde,
+// quando a data de vencimento é maior do que 21-02-2025 a linha digitável se torna inválida(O própio Bradesco não consegue ler a linha gerada) e não conseguimos gerar a visualização do boleto
+// Para evitarmos esse problema, adicionamos temporariamente essa trava que bloqueia a geração de boletos com data de vencimento após a data em questão.
+func ValidateMaxExpirationDate(b interface{}) error {
+	maxExpDate, _ := time.Parse("2006-01-02", "2025-02-21")
+
+	switch t := b.(type) {
+	case *models.BoletoRequest:
+		if t.Title.ExpireDateTime.After(maxExpDate) {
+			return models.NewErrorResponse("MPExpireDate", "Data de vencimento não pode ser maior que 21/02/2025")
 		}
 		return nil
 	default:

@@ -47,6 +47,7 @@ func New() bankBradescoNetEmpresa {
 	}
 	b.validate.Push(validations.ValidateAmount)
 	b.validate.Push(validations.ValidateExpireDate)
+	b.validate.Push(validations.ValidateMaxExpirationDate)
 	b.validate.Push(validations.ValidateBuyerDocumentNumber)
 	b.validate.Push(validations.ValidateRecipientDocumentNumber)
 	b.validate.Push(validations.ValidateBuyerDocumentNumber)
@@ -56,7 +57,7 @@ func New() bankBradescoNetEmpresa {
 	b.validate.Push(bradescoNetEmpresaValidateAccount)
 	b.validate.Push(bradescoNetEmpresaValidateWallet)
 	b.validate.Push(bradescoNetEmpresaBoletoTypeValidate)
-	b.validate.Push(ValidateMaxExpirationDate)
+
 	return b
 }
 

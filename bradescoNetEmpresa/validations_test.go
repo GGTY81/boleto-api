@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/test"
+	"github.com/mundipagg/boleto-api/validations"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -129,7 +130,7 @@ func Test_MaxDateExpirationBlockValidation_WhenTypeIsBoletoRequest(t *testing.T)
 	for _, fact := range expirationDateParameters {
 		expDate, _ := time.Parse("2006-01-02", fact.Input.(string))
 		request := newStubBoletoRequestBradescoNetEmpresa().WithExpirationDate(expDate).Build()
-		result := ValidateMaxExpirationDate(request)
+		result := validations.ValidateMaxExpirationDate(request)
 		assert.Equal(t, fact.Expected, result == nil, fmt.Sprintf("O resultado: %d não condiz com o esperado: %d, utilizando o input: %d", result, fact.Expected, fact.Input))
 	}
 }
@@ -137,6 +138,6 @@ func Test_MaxDateExpirationBlockValidation_WhenTypeIsBoletoRequest(t *testing.T)
 func Test_MaxDateExpirationBlockValidation_WhenTypeIsInvalid(t *testing.T) {
 
 	request := "Não é um boleto request"
-	result := ValidateMaxExpirationDate(request)
+	result := validations.ValidateMaxExpirationDate(request)
 	assert.IsType(t, models.ErrorResponse{}, result, fmt.Sprintf("O tipo do resultado: %T não condiz com o tipo esperado: %T", result, models.ErrorResponse{}))
 }
