@@ -64,7 +64,7 @@ func (b bankStone) RegisterBoleto(boleto *models.BoletoRequest) (models.BoletoRe
 	b.log.Request(body, stoneURL, head)
 
 	duration := util.Duration(func() {
-		response, header, status, err = util.PostReponseWithHeader(stoneURL, body, config.Get().TimeoutRegister, head)
+		response, header, status, err = util.PostReponseWithHeader(stoneURL, util.SanitizeBody(body), config.Get().TimeoutRegister, head)
 	})
 	metrics.PushTimingMetric("stone-register-boleto-time", duration.Seconds())
 

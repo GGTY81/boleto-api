@@ -68,3 +68,14 @@ func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t
 		assert.Contains(t, response.Errors[0].Message, fact.Expected.(models.ErrorResponse).Message)
 	}
 }
+
+func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
+	mock.StartMockService("9092")
+	certificate.LoadMockCertificates()
+	input := newStubBoletoRequestJPMorgan().WithBuyerName("Nome do \tComprador (Cliente)").Build()
+	bank, _ := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoWithSuccess(t, output)
+}

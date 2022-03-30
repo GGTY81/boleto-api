@@ -14,7 +14,7 @@ const registerPefisa = `
 	"dataVencimento": "{{.Title.ExpireDate}}",
 	"usoEmpresa": "A",
     "emitente": {
-        "nome": "{{.Recipient.Name}}",
+        "nome": "{{onlyOneSpace .Recipient.Name}}",
         {{if (eq .Recipient.Document.Type "CNPJ")}}
         "tipo": "J",        
         {{else}}
@@ -28,18 +28,18 @@ const registerPefisa = `
         "bairro": "{{truncate .Recipient.Address.District 65}}"
     },
     "pagador": {
-        "nome": "{{truncate .Buyer.Name 40}}",
+        "nome": "{{truncate (onlyOneSpace .Buyer.Name) 40}}",
         {{if (eq .Buyer.Document.Type "CNPJ")}}
         "tipo": "J",
         {{else}}
         "tipo": "F",
         {{end}}        
         "cnpjCpf": "{{extractNumbers .Buyer.Document.Number}}",
-        "endereco": "{{truncate .Buyer.Address.Street 40}}",
-        "cidade": "{{truncate .Buyer.Address.City 20}}",
+        "endereco": "{{truncate (onlyOneSpace .Buyer.Address.Street) 40}}",
+        "cidade": "{{truncate (onlyOneSpace .Buyer.Address.City) 20}}",
         "cep": "{{truncate (extractNumbers .Buyer.Address.ZipCode) 8}}",
-        "uf": "{{truncate .Buyer.Address.StateCode 2}}",
-        "bairro": "{{truncate .Buyer.Address.District 65}}"
+        "uf": "{{truncate (removeAllSpaces .Buyer.Address.StateCode) 2}}",
+        "bairro": "{{truncate (onlyOneSpace .Buyer.Address.District) 65}}"
         
     },
     "mensagens": [

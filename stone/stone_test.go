@@ -183,3 +183,13 @@ func BenchmarkBankStoneProcessBoleto(b *testing.B) {
 
 	bank.ProcessBoleto(input)
 }
+
+func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
+	mock.StartMockService("9092")
+	input := newStubBoletoRequestStone().WithAmountInCents(201).WithBuyerName("Nome do \tComprador (Cliente)").Build()
+	bank := New()
+
+	output, _ := bank.ProcessBoleto(input)
+
+	test.AssertProcessBoletoWithSuccess(t, output)
+}
