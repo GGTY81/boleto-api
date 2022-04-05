@@ -412,8 +412,13 @@ const boletoFormCaixa = `
                             <td><span class="text" id="buyer_document"><b>CNPJ/CPF: </b>&nbsp;{{fmtDoc .View.Boleto.Buyer.Document}}</span></td>
                         </tr>
                         <tr>
+                        {{if .View.Boleto.Buyer.HasAddress}}
                             <td><span class="text" id="buyer_address"><b>Endereço: </b>&nbsp;{{.View.Boleto.Buyer.Address.Street}}&nbsp;{{.View.Boleto.Buyer.Address.Number}}, {{.View.Boleto.Buyer.Address.District}} - {{.View.Boleto.Buyer.Address.City}}, {{.View.Boleto.Buyer.Address.StateCode}} - {{.View.Boleto.Buyer.Address.ZipCode}}</span></td>
                             <td>&nbsp;</td>
+                        {{else}}
+                        <td><span class="text" id="buyer_address"><b>Endereço: </b>&nbsp;&nbsp;</span></td>
+                            <td>&nbsp;</td>
+                        {{end}}
                         </tr>
                         <tr>
                         {{if .View.Boleto.HasPayeeGuarantor}}
