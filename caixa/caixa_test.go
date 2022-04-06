@@ -149,7 +149,7 @@ func TestTemplateRequestCaixa_Instructions_ParseSuccessful(t *testing.T) {
 
 func TestTemplateRequestCaixa_WhenRequestV1_ParseSuccessful(t *testing.T) {
 	f := flow.NewFlow()
-	input := newStubBoletoRequestCaixa().Build()
+	input := newStubBoletoRequestCaixa().WithBuyerAddress().Build()
 
 	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 
@@ -172,7 +172,7 @@ func TestTemplateRequestCaixa_WhenRequestV1_ParseSuccessful(t *testing.T) {
 
 func TestTemplateRequestCaixa_WhenRequestWithStrictRulesV2_ParseSuccessful(t *testing.T) {
 	f := flow.NewFlow()
-	input := newStubBoletoRequestCaixa().WithStrictRules().Build()
+	input := newStubBoletoRequestCaixa().WithBuyerAddress().WithStrictRules().Build()
 
 	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 
@@ -191,7 +191,7 @@ func TestTemplateRequestCaixa_WhenRequestWithStrictRulesV2_ParseSuccessful(t *te
 
 func TestTemplateRequestCaixa_WhenRequestWithFlexRulesV2_ParseSuccessful(t *testing.T) {
 	f := flow.NewFlow()
-	input := newStubBoletoRequestCaixa().WithFlexRules().Build()
+	input := newStubBoletoRequestCaixa().WithBuyerAddress().WithFlexRules().Build()
 
 	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
 
@@ -387,4 +387,24 @@ func TestTemplateRequestCaixa_WhenRequestWithoutPayeeGuarantor_HasNotPayeeGuaran
 	nodeContent := test.GetNode(b, "SACADOR_AVALISTA")
 
 	assert.Contains(t, nodeContent, "", "Não deve haver o nó PayeeGuarantor")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithoutBuyerAddress_HasNotBuyerAddressNode(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "ENDERECO")
+
+	assert.Empty(t, nodeContent, "Não deve haver o nó Address no Buyer")
+}
+
+func TestTemplateRequestCaixa_WhenRequestWithBuyerAddress_HasBuyerAddressNode(t *testing.T) {
+	f := flow.NewFlow()
+	input := newStubBoletoRequestCaixa().WithBuyerAddress().Build()
+
+	b := fmt.Sprintf("%v", f.From("message://?source=inline", input, getRequestCaixa(), tmpl.GetFuncMaps()).GetBody())
+	nodeContent := test.GetNode(b, "ENDERECO")
+
+	assert.NotEmpty(t, nodeContent, "Deve haver o nó Address no Buyer")
 }

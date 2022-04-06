@@ -92,6 +92,7 @@ const requestToCaixa = `
 					 	   <CNPJ>{{.Buyer.Document.Number}}</CNPJ>
                      <RAZAO_SOCIAL>{{truncateOnly (clearStringCaixa .Buyer.Name) 40}}</RAZAO_SOCIAL>
 					   {{end}}
+                  {{if .Buyer.HasAddress}}
                      <ENDERECO>
                         <LOGRADOURO>{{truncateOnly (joinSpace (clearStringCaixa .Buyer.Address.Street) (clearStringCaixa .Buyer.Address.Number) (clearStringCaixa .Buyer.Address.Complement)) 40}}</LOGRADOURO>
                         <BAIRRO>{{truncateOnly (clearStringCaixa .Buyer.Address.District) 15}}</BAIRRO>
@@ -99,6 +100,7 @@ const requestToCaixa = `
                         <UF>{{truncateOnly (clearStringCaixa .Buyer.Address.StateCode) 2}}</UF>
                         <CEP>{{truncateOnly (replace (clearStringCaixa .Buyer.Address.ZipCode) "-" "") 8}}</CEP>
                      </ENDERECO>
+                  {{end}}
                   </PAGADOR>
                   {{if .HasPayeeGuarantor}}
                      <SACADOR_AVALISTA>
