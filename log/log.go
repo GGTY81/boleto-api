@@ -25,16 +25,17 @@ var Operation string
 //Recipient o nome do banco
 var Recipient string
 
-//Log struct com os elemtos do log
+//Log struct com os elementos do log
 type Log struct {
-	Operation   string
-	Recipient   string
-	RequestKey  string
-	BankName    string
-	IPAddress   string
-	ServiceUser string
-	NossoNumero string
-	logger      tracer.Logger
+	Operation      string
+	Recipient      string
+	PayeeGuarantor string
+	RequestKey     string
+	BankName       string
+	IPAddress      string
+	ServiceUser    string
+	NossoNumero    string
+	logger         tracer.Logger
 }
 
 //Install instala o "servico" de log do SEQ
@@ -292,6 +293,10 @@ func (l *Log) defaultProperties(messageType string, content interface{}) LogEntr
 		"BankName":    l.BankName,
 		"ServiceUser": l.ServiceUser,
 		"IPAddress":   l.IPAddress,
+	}
+
+	if len(l.PayeeGuarantor) > 0 {
+		props["PayeeGuarantor"] = l.PayeeGuarantor
 	}
 
 	for k, v := range l.basicProperties(messageType) {

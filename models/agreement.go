@@ -22,7 +22,7 @@ type Agreement struct {
 func (a *Agreement) IsAgencyValid() error {
 	re := regexp.MustCompile("(\\D+)")
 	ag := re.ReplaceAllString(a.Agency, "")
-	if len(ag) < 5 && len(ag) > 0 {
+	if len(ag) > 0 && len(ag) < 5 {
 		a.Agency = util.PadLeft(ag, "0", 4)
 		return nil
 	}
@@ -44,7 +44,7 @@ func (a *Agreement) CalculateAgencyDigit(digitCalculator func(agency string) str
 func (a *Agreement) IsAccountValid(accountLength int) error {
 	re := regexp.MustCompile("(\\D+)")
 	ac := re.ReplaceAllString(a.Account, "")
-	if len(ac) < accountLength+1 && len(ac) > 0 {
+	if len(ac) > 0 && len(ac) < accountLength+1 {
 		a.Account = util.PadLeft(ac, "0", uint(accountLength))
 		return nil
 	}

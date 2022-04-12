@@ -43,18 +43,6 @@ func bradescoNetEmpresaValidateWallet(b interface{}) error {
 	}
 }
 
-func bradescoNetEmpresaValidateAgreement(b interface{}) error {
-	switch t := b.(type) {
-	case *models.BoletoRequest:
-		if t.Agreement.AgreementNumber == 0 {
-			return models.NewErrorResponse("MP400", "o código do contrato deve ser preenchido")
-		}
-		return nil
-	default:
-		return validations.InvalidType(t)
-	}
-}
-
 func bradescoNetEmpresaBoletoTypeValidate(b interface{}) error {
 	bt := bradescoNetEmpresaBoletoTypes()
 

@@ -3,6 +3,7 @@ package bradescoShopFacil
 import (
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/validations"
+	"strings"
 )
 
 func bradescoShopFacilValidateAgency(b interface{}) error {
@@ -45,7 +46,9 @@ func bradescoShopFacilValidateWallet(b interface{}) error {
 func bradescoShopFacilValidateAuth(b interface{}) error {
 	switch t := b.(type) {
 	case *models.BoletoRequest:
-		if t.Authentication.Username == "" || t.Authentication.Password == "" {
+		usr := strings.TrimSpace(t.Authentication.Username)
+		pwd := strings.TrimSpace(t.Authentication.Password)
+		if usr == "" || pwd == "" {
 			return models.NewErrorResponse("MP400", "o nome de usuário e senha devem ser preenchidos")
 		}
 		return nil

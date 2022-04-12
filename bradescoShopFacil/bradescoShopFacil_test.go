@@ -7,66 +7,8 @@ import (
 	"github.com/mundipagg/boleto-api/mock"
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/test"
-	"github.com/mundipagg/boleto-api/util"
 	"github.com/stretchr/testify/assert"
 )
-
-const baseMockJSON = `
-{
-    "BankNumber": 237,
-     "Authentication": {
-        "Username": "55555555555",
-        "Password": "55555555555555555"
-    },
-    "Agreement": {
-        "AgreementNumber": 55555555,
-        "Wallet": 25,
-        "Agency":"5555",
-        "Account":"55555"
-    },
-    "Title": {
-        "ExpireDate": "2029-08-01",
-        "AmountInCents": 200,
-        "OurNumber": 12446688,
-        "Instructions": "Senhor caixa, não receber após o vencimento",
-        "DocumentNumber": "1234566"
-    },
-    "Buyer": {
-        "Name": "Luke Skywalker",
-        "Document": {
-            "Type": "CPF",
-            "Number": "01234567890"
-        },
-        "Address": {
-            "Street": "Mos Eisley Cantina",
-            "Number": "123",
-            "Complement": "Apto",
-            "ZipCode": "20001-000",
-            "City": "Tatooine",
-            "District": "Tijuca",
-            "StateCode": "RJ"
-        }
-    },
-    "Recipient": {
-      "Name": "TESTE",
-        "Document": {
-            "Type": "CNPJ",
-            "Number": "00555555000109"
-        },
-
-        "Address": {
-            "Street": "TESTE",
-            "Number": "111",
-            "Complement": "TESTE",
-            "ZipCode": "11111111",
-            "City": "Teste",
-            "District": "",
-            "StateCode": "SP"
-        }
-
-    }
-}
-`
 
 var boletoTypeParameters = []test.Parameter{
 	{Input: models.Title{BoletoType: ""}, Expected: "01"},
@@ -81,8 +23,7 @@ var boletoTypeParameters = []test.Parameter{
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
 	mock.StartMockService("9093")
-	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
+	input := newStubBoletoRequestBradescoShopFacil().Build()
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
@@ -92,9 +33,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
 	mock.StartMockService("9093")
-	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
-	input.Title.AmountInCents = 400
+	input := newStubBoletoRequestBradescoShopFacil().WithAmountInCents(400).Build()
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
@@ -104,21 +43,10 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 
 func TestBarcodeGenerationBradescoShopFacil(t *testing.T) {
 	const expected = "23795796800000001990001250012446693212345670"
-
-	boleto := models.BoletoRequest{}
-	boleto.BankNumber = models.Bradesco
-	boleto.Agreement = models.Agreement{
-		Account: "1234567",
-		Agency:  "1",
-		Wallet:  25,
-	}
 	expireDate, _ := time.Parse("02-01-2006", "01-08-2019")
-	boleto.Title = models.Title{
-		AmountInCents:  199,
-		OurNumber:      124466932,
-		ExpireDateTime: expireDate,
-	}
-	bc := getBarcode(boleto)
+	boleto := newStubBoletoRequestBradescoShopFacil().WithAgreementAgency("1").WithAgreementAccount("1234567").WithExpirationDate(expireDate).WithAmountInCents(199).WithOurNumber(124466932).Build()
+
+	bc := getBarcode(*boleto)
 
 	assert.Equal(t, expected, bc.toString(), "Deve-se montar o código de barras do BradescoShopFacil")
 }
@@ -142,10 +70,10 @@ func TestRemoveDigitFromAccount(t *testing.T) {
 }
 
 func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
-	request := new(models.BoletoRequest)
+	BradescoShopFacilStub := newStubBoletoRequestBradescoShopFacil().Build()
 	for _, fact := range boletoTypeParameters {
-		request.Title = fact.Input.(models.Title)
-		_, result := getBoletoType(request)
+		BradescoShopFacilStub.Title = fact.Input.(models.Title)
+		_, result := getBoletoType(BradescoShopFacilStub)
 		assert.Equal(t, fact.Expected, result, "Deve mapear o boleto type corretamente")
 	}
 }
