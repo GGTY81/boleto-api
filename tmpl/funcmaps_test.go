@@ -131,12 +131,12 @@ var calculateFeesParameters = []test.Parameter{
 }
 
 var getFineInstructionParameters = []test.Parameter{
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 1, AmountInCents: 200}}}, Expected: "APOS 10/03/2022: MULTA..........R$ 2.00"},
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, AmountInCents: 346}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 3.46"},
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, AmountInCents: 122211}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 1222.11"},
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, PercentageOnTotal: 1.00}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 0.20"},
-	{Input: models.Title{AmountInCents: 2248, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, PercentageOnTotal: 1.26}}}, Expected: "APOS 11/03/2022: MULTA..........R$ 0.28"},
-	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 1, PercentageOnTotal: 0.5}}}, Expected: "APOS 10/03/2022: MULTA..........R$ 0.00"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 1, AmountInCents: 200}}}, Expected: "A PARTIR DE 10/03/2022: MULTA..........R$ 2.00"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, AmountInCents: 346}}}, Expected: "A PARTIR DE 11/03/2022: MULTA..........R$ 3.46"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, AmountInCents: 122211}}}, Expected: "A PARTIR DE 11/03/2022: MULTA..........R$ 1222.11"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, PercentageOnTotal: 1.00}}}, Expected: "A PARTIR DE 11/03/2022: MULTA..........R$ 0.20"},
+	{Input: models.Title{AmountInCents: 2248, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 2, PercentageOnTotal: 1.26}}}, Expected: "A PARTIR DE 11/03/2022: MULTA..........R$ 0.28"},
+	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Fine: &models.Fine{DaysAfterExpirationDate: 1, PercentageOnTotal: 0.5}}}, Expected: "A PARTIR DE 10/03/2022: MULTA..........R$ 0.00"},
 }
 
 var calculateInterestByDayParameters = []test.Parameter{
@@ -149,12 +149,13 @@ var calculateInterestByDayParameters = []test.Parameter{
 }
 
 var getInterestInstructionParameters = []test.Parameter{
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 200}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 2.00"},
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 346}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 3.46"},
-	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, AmountPerDayInCents: 122211}}}, Expected: "APOS 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 1222.11"},
-	{Input: models.Title{AmountInCents: 6000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, PercentagePerMonth: 1.00}}}, Expected: "APOS 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.02"},
-	{Input: models.Title{AmountInCents: 83448, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, PercentagePerMonth: 1.26}}}, Expected: "APOS 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.35"},
-	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, PercentagePerMonth: 0.5}}}, Expected: "APOS 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.00"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 20}}}, Expected: "A PARTIR DE 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.200"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, AmountPerDayInCents: 346}}}, Expected: "A PARTIR DE 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 3.460"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, AmountPerDayInCents: 122211}}}, Expected: "A PARTIR DE 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 1222.110"},
+	{Input: models.Title{AmountInCents: 6000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, PercentagePerMonth: 1.00}}}, Expected: "A PARTIR DE 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.020"},
+	{Input: models.Title{AmountInCents: 83448, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 2, PercentagePerMonth: 1.26}}}, Expected: "A PARTIR DE 11/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.350"},
+	{Input: models.Title{AmountInCents: 10, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, PercentagePerMonth: 0.5}}}, Expected: "A PARTIR DE 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.000"},
+	{Input: models.Title{AmountInCents: 2000, Fees: &models.Fees{Interest: &models.Interest{DaysAfterExpirationDate: 1, PercentagePerMonth: 1.0}}}, Expected: "A PARTIR DE 10/03/2022: JUROS POR DIA DE ATRASO.........R$ 0.006"},
 }
 
 var alphanumericsStringsParameters = []test.Parameter{
@@ -183,6 +184,22 @@ var removeAllSpacesStringsParameters = []test.Parameter{
 	{Input: "S P", Expected: "SP"},
 	{Input: "S P ", Expected: "SP"},
 	{Input: "S 	\tP \t", Expected: "SP"},
+}
+
+var roundDownParameters = []test.Parameter{
+	{Input: 0.12346, Expected: 0.1234},
+	{Input: 0.12349, Expected: 0.1234},
+	{Input: 0.12340, Expected: 0.1234},
+	{Input: 1.0, Expected: 1.0},
+	{Input: 0.0, Expected: 0.0},
+}
+
+var float64ToStringTruncateParameters = []test.Parameter{
+	{Input: 0.12346, Expected: "0.1234"},
+	{Input: 0.12349, Expected: "0.1234"},
+	{Input: 0.12340, Expected: "0.1234"},
+	{Input: 1.0, Expected: "1.0000"},
+	{Input: 0.0, Expected: "0.0000"},
 }
 
 func TestShouldPadLeft(t *testing.T) {
@@ -475,4 +492,37 @@ func TestRemoveAllSpaces(t *testing.T) {
 		result := removeAllSpaces(fact.Input.(string))
 		assert.Equal(t, fact.Expected, result, "Deve remover qualquer espaço entre strings")
 	}
+}
+
+func TestRoundDown(t *testing.T) {
+	decimalPlaces := 4
+	for _, fact := range roundDownParameters {
+		result := roundDown(fact.Input.(float64), decimalPlaces)
+		assert.Equal(t, fact.Expected, result, "Deve truncar o número float na quarta casa decimal")
+	}
+}
+
+func TestFloat64ToStringTruncate(t *testing.T) {
+	decimalPlaces := 4
+	numberFormat := "%.4f"
+	for _, fact := range float64ToStringTruncateParameters {
+		result := float64ToStringTruncate(numberFormat, decimalPlaces, fact.Input.(float64))
+		assert.Equal(t, fact.Expected, result, "Converte um número float com 4 decimais")
+	}
+}
+
+func TestConvertAmountInCentsToPercent(t *testing.T) {
+	var totalAmount uint64 = 2000
+	var amount uint64 = 1
+	percentageExpected := 0.05
+	result := convertAmountInCentsToPercent(totalAmount, amount)
+	assert.Equal(t, percentageExpected, result, "Deve retornar a quantidade em porcento de amount dado um totalAmount")
+}
+
+func TestConvertAmountInCentsToPercentPerDay(t *testing.T) {
+	var totalAmount uint64 = 3000
+	var amount uint64 = 1
+	percentageExpected := 1.0
+	result := convertAmountInCentsToPercentPerDay(totalAmount, amount)
+	assert.Equal(t, percentageExpected, result, "Deve retornar a quantidade em porcento de amount dado um totalAmount por dia")
 }

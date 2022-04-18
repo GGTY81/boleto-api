@@ -336,7 +336,19 @@ const boletoFormStone = `
             <tr>
                 <td colspan="6" rowspan="4">
                     <span class="title">Instruções de responsabilidade do BENEFICIÁRIO. Qualquer dúvida sobre este boleto contate o beneficiário.</span>
+                    <p class="content right">&nbsp;</p>
+                    <p class="content right">&nbsp;</p>
                     <p class="content" id="instructions">{{.View.Boleto.Title.Instructions }}</p>
+                    {{if .View.Boleto.Title.HasFees}}
+                        <br/>
+                        <p class="content">** VALORES EXPRESSOS EM REAIS **</p>
+                        {{if .View.Boleto.Title.Fees.Interest.HasInterest}}
+                            <p class="content">{{getInterestInstruction .View.Boleto.Title}}</p>
+                        {{end}}
+                        {{if .View.Boleto.Title.Fees.Fine.HasFine}}
+                            <p class="content">{{getFineInstruction .View.Boleto.Title}}</p>
+                        {{end}}
+                    {{end}}
                 </td>
             </tr>
             <tr>

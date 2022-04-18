@@ -103,6 +103,256 @@ const successWithoutOurNumber = `
 }
 `
 
+const successWithFineOnly = `
+{
+    "account_id": "7e785e98-c859-46c6-9dc7-37ea522ceadf",
+    "amount": 5000,
+    "barcode": "19791895800000050000000088115105980288509901",
+    "beneficiary": {
+        "account_code": "88266374",
+        "address": {
+            "city": "Rio de Janeiro",
+            "country": "Brasil",
+            "extra": null,
+            "neighborhood": "Vila Isabel",
+            "postal_code": "20551080",
+            "state": "RJ",
+            "street": "Rua Visconde de Abaete",
+            "street_number": "97"
+        },
+        "branch_code": "1",
+        "document": "92961229022",
+        "document_type": "cpf",
+        "legal_name": "Nome do CPF 92961229022",
+        "trade_name": null
+    },
+    "cancelled_at": null,
+    "cancelled_reason": null,
+    "cancelled_reason_description": null,
+    "created_at": "2022-04-12T17:47:33Z",
+    "created_by": "application:3279b005-5e40-41c1-996e-8cec24f8006b",
+    "customer": {
+        "document": "13621248773",
+        "document_type": "cpf",
+        "legal_name": "Matheus Palanowski",
+        "trade_name": null
+    },
+    "discounts": [],
+    "expiration_date": "2022-04-17",
+    "expired_at": null,
+    "fee": 0,
+    "fee_metadata": {
+        "billing_exemption_participant": true,
+        "fee": 0,
+        "max_free": 5,
+        "original_fee": 200,
+        "remaining_free": 5
+    },
+    "fine": {
+        "date": "2022-04-18",
+        "value": "2.0"
+    },
+    "id": "ea95560a-6455-4cf9-83dc-af11f9ccf734",
+    "interest": null,
+    "invoice_type": "bill_of_exchange",
+    "issuance_date": "2022-04-12",
+    "limit_date": "2022-04-22",
+    "our_number": "88115105980288509901",
+    "receiver": null,
+    "registered_at": null,
+    "settled_at": null,
+    "status": "CREATED",
+    "writable_line": "19790000058811510598802885099016189580000005000"
+}
+`
+
+const failedFineValue = `
+{
+    "reason": [
+        {
+            "error": "Percentage must be equal or lower than 2.0",
+            "path": [
+                "fine",
+                "value"
+            ]
+        }
+    ],
+    "type": "srn:error:validation"
+}
+`
+
+const failedFineDate = `
+{
+    "reason": [
+        {
+            "error": "fine date should be greater than expiration date",
+            "path": [
+                "fine"
+            ]
+        }
+    ],
+    "type": "srn:error:validation"
+}
+`
+
+const successWithInterestOnly = `
+{
+    "account_id": "7e785e98-c859-46c6-9dc7-37ea522ceadf",
+    "amount": 5000,
+    "barcode": "19797895800000050000000015924667218367048068",
+    "beneficiary": {
+        "account_code": "88266374",
+        "address": {
+            "city": "Rio de Janeiro",
+            "country": "Brasil",
+            "extra": null,
+            "neighborhood": "Vila Isabel",
+            "postal_code": "20551080",
+            "state": "RJ",
+            "street": "Rua Visconde de Abaete",
+            "street_number": "97"
+        },
+        "branch_code": "1",
+        "document": "92961229022",
+        "document_type": "cpf",
+        "legal_name": "Nome do CPF 92961229022",
+        "trade_name": null
+    },
+    "cancelled_at": null,
+    "cancelled_reason": null,
+    "cancelled_reason_description": null,
+    "created_at": "2022-04-12T19:15:20Z",
+    "created_by": "application:3279b005-5e40-41c1-996e-8cec24f8006b",
+    "customer": {
+        "document": "13621248773",
+        "document_type": "cpf",
+        "legal_name": "Matheus Palanowski",
+        "trade_name": null
+    },
+    "discounts": [],
+    "expiration_date": "2022-04-17",
+    "expired_at": null,
+    "fee": 0,
+    "fee_metadata": {
+        "billing_exemption_participant": true,
+        "fee": 0,
+        "max_free": 5,
+        "original_fee": 200,
+        "remaining_free": 5
+    },
+    "fine": null,
+    "id": "b4541f0a-0e76-4bc4-82bd-2897b1ca1563",
+    "interest": {
+        "date": "2022-04-18",
+        "value": "1.0"
+    },
+    "invoice_type": "bill_of_exchange",
+    "issuance_date": "2022-04-12",
+    "limit_date": "2022-04-22",
+    "our_number": "15924667218367048068",
+    "receiver": null,
+    "registered_at": null,
+    "settled_at": null,
+    "status": "CREATED",
+    "writable_line": "19790000051592466721383670480686789580000005000"
+}
+`
+
+const failedInterestValue = `
+{
+    "reason": [
+        {
+            "error": "Percentage must be equal or lower than 1.0",
+            "path": [
+                "interest",
+                "value"
+            ]
+        }
+    ],
+    "type": "srn:error:validation"
+}
+`
+
+const failedInterestDate = `
+{
+    "reason": [
+        {
+            "error": "interest date should be greater than expiration date",
+            "path": [
+                "interest"
+            ]
+        }
+    ],
+    "type": "srn:error:validation"
+}
+`
+
+const successWithFineAndInterest = `
+{
+    "account_id": "7e785e98-c859-46c6-9dc7-37ea522ceadf",
+    "amount": 5000,
+    "barcode": "19798895800000050000000037485189119692884798",
+    "beneficiary": {
+        "account_code": "88266374",
+        "address": {
+            "city": "Rio de Janeiro",
+            "country": "Brasil",
+            "extra": null,
+            "neighborhood": "Vila Isabel",
+            "postal_code": "20551080",
+            "state": "RJ",
+            "street": "Rua Visconde de Abaete",
+            "street_number": "97"
+        },
+        "branch_code": "1",
+        "document": "92961229022",
+        "document_type": "cpf",
+        "legal_name": "Nome do CPF 92961229022",
+        "trade_name": null
+    },
+    "cancelled_at": null,
+    "cancelled_reason": null,
+    "cancelled_reason_description": null,
+    "created_at": "2022-04-12T19:36:59Z",
+    "created_by": "application:3279b005-5e40-41c1-996e-8cec24f8006b",
+    "customer": {
+        "document": "13621248773",
+        "document_type": "cpf",
+        "legal_name": "Matheus Palanowski",
+        "trade_name": null
+    },
+    "discounts": [],
+    "expiration_date": "2022-04-17",
+    "expired_at": null,
+    "fee": 0,
+    "fee_metadata": {
+        "billing_exemption_participant": true,
+        "fee": 0,
+        "max_free": 5,
+        "original_fee": 200,
+        "remaining_free": 5
+    },
+    "fine": {
+        "date": "2022-04-18",
+        "value": "2.0"
+    },
+    "id": "c073397a-b87c-4718-830a-eb50eb6d1f92",
+    "interest": {
+        "date": "2022-04-18",
+        "value": "1.0"
+    },
+    "invoice_type": "bill_of_exchange",
+    "issuance_date": "2022-04-12",
+    "limit_date": "2022-04-22",
+    "our_number": "37485189119692884798",
+    "receiver": null,
+    "registered_at": null,
+    "settled_at": null,
+    "status": "CREATED",
+    "writable_line": "19790000053748518911496928847985889580000005000"
+}
+`
+
 const unauthenticated = `{ "type": "srn:error:unauthenticated" }`
 
 const unauthorized = `{ "type": "srn:error:unauthorized" }`
@@ -146,6 +396,12 @@ func registerStone(c *gin.Context) {
 		c.Data(201, contentApplication, []byte(success))
 	} else if strings.Contains(json, `amount": 200,`) {
 		c.Data(201, contentApplication, []byte(successWithoutOurNumber))
+	} else if strings.Contains(json, `amount": 202,`) {
+		c.Data(201, contentApplication, []byte(successWithFineOnly))
+	} else if strings.Contains(json, `amount": 203,`) {
+		c.Data(201, contentApplication, []byte(successWithInterestOnly))
+	} else if strings.Contains(json, `amount": 204,`) {
+		c.Data(201, contentApplication, []byte(successWithFineAndInterest))
 	} else if strings.Contains(json, `amount": 401,`) {
 		c.Data(401, contentApplication, []byte(unauthenticated))
 	} else if strings.Contains(json, `amount": 403,`) {
@@ -154,6 +410,14 @@ func registerStone(c *gin.Context) {
 		c.Data(409, contentApplication, []byte(conflict))
 	} else if strings.Contains(json, `amount": 422,`) {
 		c.Data(422, contentApplication, []byte(unprocessableEntity))
+	} else if strings.Contains(json, `amount": 301,`) {
+		c.Data(400, contentApplication, []byte(failedFineValue))
+	} else if strings.Contains(json, `amount": 302,`) {
+		c.Data(400, contentApplication, []byte(failedInterestValue))
+	} else if strings.Contains(json, `amount": 303,`) {
+		c.Data(400, contentApplication, []byte(failedFineDate))
+	} else if strings.Contains(json, `amount": 304,`) {
+		c.Data(400, contentApplication, []byte(failedInterestDate))
 	} else if strings.Contains(json, `amount": 4001,`) {
 		c.Data(400, contentApplication, []byte(customer_doc_invalid))
 	} else if strings.Contains(json, `amount": 4002,`) {

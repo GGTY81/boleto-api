@@ -35,21 +35,6 @@ func ModElevenCalculator(a string, m []int) string {
 	return strconv.Itoa(digit)
 }
 
-//ValidatePayeeGuarantorName Verifica se o nome do lojista é existe
-func ValidatePayeeGuarantorName(b interface{}) error {
-	switch t := b.(type) {
-	case *models.BoletoRequest:
-		if t.HasPayeeGuarantor() {
-			if !t.PayeeGuarantor.HasName() {
-				return models.NewErrorResponse("MPPayeeGuarantorNameType", "Nome do sacador avalista está vazio")
-			}
-		}
-		return nil
-	default:
-		return InvalidType(t)
-	}
-}
-
 //ValidateMaxExpirationDate O emissor Bradesco contém um bug na geração da linha digitável onde,
 // quando a data de vencimento é maior do que 21-02-2025 a linha digitável se torna inválida(O própio Bradesco não consegue ler a linha gerada) e não conseguimos gerar a visualização do boleto
 // Para evitarmos esse problema, adicionamos temporariamente essa trava que bloqueia a geração de boletos com data de vencimento após a data em questão.

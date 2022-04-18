@@ -83,29 +83,3 @@ func (s *stubBoletoRequestCaixa) WithFlexRules() *stubBoletoRequestCaixa {
 	}
 	return s
 }
-
-func (s *stubBoletoRequestCaixa) WithFine(daysAfterExpirationDate uint, amountInCents uint64, percentageOnTotal float64) *stubBoletoRequestCaixa {
-	if !s.Title.HasFees() {
-		s.Title.Fees = &models.Fees{}
-	}
-
-	s.Title.Fees.Fine = &models.Fine{
-		DaysAfterExpirationDate: daysAfterExpirationDate,
-		AmountInCents:           amountInCents,
-		PercentageOnTotal:       percentageOnTotal,
-	}
-	return s
-}
-
-func (s *stubBoletoRequestCaixa) WithInterest(daysAfterExpirationDate uint, amountPerDayInCents uint64, percentagePerMonth float64) *stubBoletoRequestCaixa {
-	if !s.Title.HasFees() {
-		s.Title.Fees = &models.Fees{}
-	}
-
-	s.Title.Fees.Interest = &models.Interest{
-		DaysAfterExpirationDate: daysAfterExpirationDate,
-		AmountPerDayInCents:     amountPerDayInCents,
-		PercentagePerMonth:      percentagePerMonth,
-	}
-	return s
-}
