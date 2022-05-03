@@ -16,7 +16,7 @@ import (
 )
 
 func Test_generateJWT(t *testing.T) {
-	mock.StartMockService("9083")
+	mock.StartMockService("9099")
 
 	pkByte, err := generateTestPK()
 	assert.Nil(t, err)
