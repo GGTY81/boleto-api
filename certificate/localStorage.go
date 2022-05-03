@@ -40,7 +40,7 @@ func loadCertificatesOnStorage(from string, certificateName string, pfxBytes []b
 		}
 		SetCertificateOnStore(certificateName, certificateICP)
 
-	case config.Get().CertificateSSLName:
+	case config.Get().CertificateSSLName, config.Get().CitibankCertificateSSLName, config.Get().SantanderCertificateSSLName:
 		var certificateSSL, err = GetSSLCertificate(certificateName, pfxBytes, getPassWordToCertificate(from, ssl))
 		if err != nil {
 			return err
