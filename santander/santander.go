@@ -42,8 +42,8 @@ func New() (bankSantander, error) {
 	}
 
 	certificates := certificate.TLSCertificate{
-		Crt: config.Get().CertificateSSLName,
-		Key: config.Get().CertificateSSLName,
+		Crt: config.Get().SantanderCertificateSSLName,
+		Key: config.Get().SantanderCertificateSSLName,
 	}
 
 	onceTransport.Do(func() {
