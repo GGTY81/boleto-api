@@ -182,6 +182,8 @@ func configFlags(devMode, mockMode, disableLog bool) {
 		os.Setenv("PSW_CERTIFICATE_ICP_NAME", "yourPass")
 		os.Setenv("CERTIFICATE_SSL_NAME", "yourCertificateSSL")
 		os.Setenv("PSW_CERTIFICATE_SSL_NAME", "yourPass")
+		os.Setenv("CITIBANK_CERTIFICATE_SSL_NAME", "citibankSSL")
+		os.Setenv("SANTANDER_CERTIFICATE_SSL_NAME", "santanderSSL")
 		os.Setenv("ENABLE_FILESERVER_CERTIFICATE", "false")
 		os.Setenv("SPLUNK_SOURCE_TYPE", "_json")
 		os.Setenv("SPLUNK_SOURCE_INDEX", "main")
