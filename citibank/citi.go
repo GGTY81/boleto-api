@@ -37,8 +37,8 @@ func New() (bankCiti, error) {
 	}
 
 	certificates := certificate.TLSCertificate{
-		Crt: config.Get().CertificateSSLName,
-		Key: config.Get().CertificateSSLName,
+		Crt: config.Get().CitibankCertificateSSLName,
+		Key: config.Get().CitibankCertificateSSLName,
 	}
 
 	onceTransport.Do(func() {

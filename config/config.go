@@ -93,6 +93,8 @@ type Config struct {
 	PswCertificateICP                string
 	CertificateSSLName               string
 	PswCertificateSSL                string
+	CitibankCertificateSSLName       string
+	SantanderCertificateSSLName      string
 	EnableFileServerCertificate      bool
 	SplunkAddress                    string
 	SplunkKey                        string
@@ -224,6 +226,8 @@ func Install(mockMode, devMode, disableLog bool) {
 		PswCertificateICP:                os.Getenv("PSW_CERTIFICATE_ICP_NAME"),
 		CertificateSSLName:               os.Getenv("CERTIFICATE_SSL_NAME"),
 		PswCertificateSSL:                os.Getenv("PSW_CERTIFICATE_SSL_NAME"),
+		CitibankCertificateSSLName:       os.Getenv("CITIBANK_CERTIFICATE_SSL_NAME"),
+		SantanderCertificateSSLName:      os.Getenv("SANTANDER_CERTIFICATE_SSL_NAME"),
 		EnableFileServerCertificate:      os.Getenv("ENABLE_FILESERVER_CERTIFICATE") == "true",
 		SplunkSourceType:                 os.Getenv("SPLUNK_SOURCE_TYPE"),
 		SplunkIndex:                      os.Getenv("SPLUNK_SOURCE_INDEX"),

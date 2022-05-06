@@ -59,7 +59,10 @@ func installCertificates() {
 		certificate.LoadMockCertificates()
 		return
 	}
-	err := certificate.InstanceStoreCertificatesFromAzureVault(config.Get().VaultName, config.Get().CertificateICPName, config.Get().CertificateSSLName)
+
+	vaultCertificates := []string{config.Get().CertificateICPName, config.Get().CertificateSSLName, config.Get().CitibankCertificateSSLName, config.Get().SantanderCertificateSSLName}
+
+	err := certificate.InstanceStoreCertificatesFromAzureVault(config.Get().VaultName, vaultCertificates...)
 	if err == nil {
 		l.InfoWithBasic("Success in load certificates from azureVault", "LoadFromAzureVault", nil)
 	} else {
@@ -68,7 +71,9 @@ func installCertificates() {
 		os.Exit(1)
 	}
 
-	err = certificate.InstanceStoreCertificatesFromAzureBlob(config.Get().AzureStorageOpenBankSkName, config.Get().AzureStorageJPMorganPkName, config.Get().AzureStorageJPMorganCrtName, config.Get().AzureStorageJPMorganSignCrtName)
+	blobCertificates := []string{config.Get().AzureStorageOpenBankSkName, config.Get().AzureStorageJPMorganPkName, config.Get().AzureStorageJPMorganCrtName, config.Get().AzureStorageJPMorganSignCrtName}
+
+	err = certificate.InstanceStoreCertificatesFromAzureBlob(blobCertificates...)
 	if err != nil {
 		l.ErrorWithBasic("Error loading open bank secret key from blob", "LoadFromAzureBlob", err)
 		time.Sleep(10 * time.Second)
