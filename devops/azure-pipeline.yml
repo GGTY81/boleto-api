@@ -205,13 +205,15 @@ stages:
         - task: ArchiveFiles@2
           displayName: Archive Files
           inputs:
-            rootFolderOrFile: $(Build.Repository.LocalPath)/build-output
-            includeRootFolder: False
-            archiveType: tar
-            sevenZipCompression: 5
-            tarCompression: none
-            archiveFile: $(Build.ArtifactStagingDirectory)/boleto-api-$(Build.BuildId).tar
+            rootFolderOrFile: '$(Build.Repository.LocalPath)/build-output'
+            includeRootFolder: false
+            archiveType: 'tar'
+            tarCompression: 'none'
+            archiveFile: '$(Build.ArtifactStagingDirectory)/boleto-api-$(Build.BuildId).tar'
+            replaceExistingArchive: true
         - task: PublishBuildArtifacts@1
           displayName: Publish Artifact
           inputs:
-            TargetPath: '\\my\share\$(Build.DefinitionName)\$(Build.BuildNumber)'
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
+            publishLocation: 'Container'
