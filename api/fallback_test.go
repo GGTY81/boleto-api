@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package api
@@ -15,7 +16,7 @@ import (
 )
 
 func Test_fallback(t *testing.T) {
-	mock.StartMockService("9101")
+	mock.StartMockService("9093")
 
 	var fallback = new(Fallback)
 

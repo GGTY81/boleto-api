@@ -22,7 +22,7 @@ var boletoTypeParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9092")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(200).Build()
 	bank := New()
 
@@ -32,7 +32,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9092")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(201).Build()
 	bank := New()
 
@@ -42,7 +42,7 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 }
 
 func TestProcessBoleto_WhenServiceRespondsCertificateFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9092")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(202).Build()
 	bank := New()
 
@@ -61,7 +61,7 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9092")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestBradescoNetEmpresa().WithAmountInCents(204).WithBuyerName("Usuario 	Teste").Build()
 	bank := New()
 

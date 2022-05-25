@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package stone
@@ -83,7 +84,7 @@ func Test_TemplateRequestStone_WhenBuyerIsCompany_ParseSuccessful(t *testing.T) 
 }
 
 func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9093")
 
 	input := newStubBoletoRequestStone().WithAmountInCents(201).Build()
 	bank := New()
@@ -95,7 +96,7 @@ func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBolet
 
 func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t *testing.T) {
 	bank := New()
-	mock.StartMockService("9099")
+	mock.StartMockService("9093")
 
 	for _, fact := range boletoResponseFailParameters {
 		request := fact.Input.(*models.BoletoRequest)
@@ -132,7 +133,7 @@ func Test_GetBankLog(t *testing.T) {
 }
 
 func Test_bankStone_ProcessBoleto(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9093")
 
 	bankInst := New()
 
@@ -181,7 +182,7 @@ func Test_bankStone_ProcessBoleto(t *testing.T) {
 }
 
 func BenchmarkBankStoneProcessBoleto(b *testing.B) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9093")
 
 	input := newStubBoletoRequestStone().WithAmountInCents(201).Build()
 	bank := New()
@@ -190,7 +191,7 @@ func BenchmarkBankStoneProcessBoleto(b *testing.B) {
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestStone().WithAmountInCents(201).WithBuyerName("Nome do \tComprador (Cliente)").Build()
 	bank := New()
 

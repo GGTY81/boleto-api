@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package storage_test
@@ -23,7 +24,7 @@ func Test_NewAzureBlob_WhenInvalidParameters_ReturnError(t *testing.T) {
 }
 
 func Test_NewAzureBlob_WhenValidParameters_ReturAzureBlobClient(t *testing.T) {
-	mock.StartMockService("9100")
+	mock.StartMockService("9093")
 	AzureBlobClient, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
@@ -35,7 +36,7 @@ func Test_NewAzureBlob_WhenValidParameters_ReturAzureBlobClient(t *testing.T) {
 }
 
 func TestAzureBlob_Download(t *testing.T) {
-	mock.StartMockService("9100")
+	mock.StartMockService("9093")
 	azureBlobInst, err := storage.NewAzureBlob(
 		config.Get().AzureStorageAccount,
 		config.Get().AzureStorageAccessKey,
@@ -76,7 +77,7 @@ func TestAzureBlob_Download(t *testing.T) {
 }
 
 func Test_Upload_WhenValidParameters_LoadsSuccessfully(t *testing.T) {
-	mock.StartMockService("9100")
+	mock.StartMockService("9093")
 	clientBlob, err := storage.GetClient()
 
 	assert.Nil(t, err)
@@ -95,7 +96,7 @@ func Test_Upload_WhenValidParameters_LoadsSuccessfully(t *testing.T) {
 }
 
 func Test_Upload_WhenInvalidAuthentication_LoadsSuccessfully(t *testing.T) {
-	mock.StartMockService("9100")
+	mock.StartMockService("9093")
 	clientBlob, _ := storage.NewAzureBlob(
 		"loginXXX",
 		"passwordXXX",

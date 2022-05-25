@@ -81,7 +81,7 @@ var boletoTypeParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9091")
+	mock.StartMockService("9093")
 	input := new(models.BoletoRequest)
 	util.FromJSON(baseMockJSON, input)
 	bank := New()
@@ -92,7 +92,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9091")
+	mock.StartMockService("9093")
 	input := new(models.BoletoRequest)
 	util.FromJSON(baseMockJSON, input)
 	input.Title.AmountInCents = 400
@@ -104,7 +104,7 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 }
 
 func TestProcessBoleto_WhenAccountInvalid_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9091")
+	mock.StartMockService("9093")
 	input := new(models.BoletoRequest)
 	util.FromJSON(baseMockJSON, input)
 	input.Agreement.Account = ""

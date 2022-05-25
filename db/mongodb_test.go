@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package db_test
@@ -17,7 +18,7 @@ import (
 )
 
 func TestCreateMongo(t *testing.T) {
-	mock.StartMockService("9089")
+	mock.StartMockService("9093")
 	conn, err := db.CreateMongo()
 
 	assert.Nil(t, err)
@@ -25,7 +26,7 @@ func TestCreateMongo(t *testing.T) {
 }
 
 func TestCreateMongoMustNoBeRecreated(t *testing.T) {
-	mock.StartMockService("9089")
+	mock.StartMockService("9093")
 	conn1, err := db.CreateMongo()
 
 	assert.Nil(t, err)
@@ -40,7 +41,7 @@ func TestCreateMongoMustNoBeRecreated(t *testing.T) {
 }
 
 func TestCheckMongo(t *testing.T) {
-	mock.StartMockService("9089")
+	mock.StartMockService("9093")
 	err := db.CheckMongo()
 
 	assert.Nil(t, err)
@@ -48,7 +49,7 @@ func TestCheckMongo(t *testing.T) {
 
 func TestGetBoletoById(t *testing.T) {
 
-	mock.StartMockService("9089")
+	mock.StartMockService("9093")
 
 	bank := caixa.New()
 	input := newStubBoletoRequestDb(models.Caixa).Build()
@@ -158,7 +159,7 @@ func TestGetBoletoById(t *testing.T) {
 }
 
 func TestMongoDb_GetUserCredentials(t *testing.T) {
-	mock.StartMockService("9089")
+	mock.StartMockService("9093")
 
 	gandalfID := "60c293944808daa6fdf2f3b1"
 	gID, _ := primitive.ObjectIDFromHex(gandalfID)

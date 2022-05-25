@@ -21,7 +21,7 @@ var boletoTypeParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9096")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestItau().Build()
 	bank := New()
 
@@ -31,7 +31,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9096")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestItau().WithAmountInCents(400).Build()
 
 	bank := New()
@@ -43,7 +43,7 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeIs500_ShouldHasFailedBoletoResponseWithWrongContentAndStatusCodeIs500(t *testing.T) {
-	mock.StartMockService("9096")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestItau().WithAmountInCents(500).Build()
 
 	bank := New()
@@ -54,7 +54,7 @@ func TestProcessBoleto_WhenServiceRespondsFailedWithWrongContentAndStatusCodeIs5
 }
 
 func TestProcessBoleto_WhenRequestHasInvalidAccountParameters_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9096")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestItau().WithAmountInCents(200).WithAgreementAccount("").Build()
 
 	bank := New()
@@ -65,7 +65,7 @@ func TestProcessBoleto_WhenRequestHasInvalidAccountParameters_ShouldHasFailedBol
 }
 
 func TestProcessBoleto_WhenRequestHasInvalidUserNameParameter_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9096")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestItau().WithAuthenticationUserName("").WithAmountInCents(200).Build()
 
 	bank := New()
@@ -85,7 +85,7 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9096")
+	mock.StartMockService("9093")
 	input := newStubBoletoRequestItau().WithBuyerName("Usuario \tTeste").Build()
 	bank := New()
 

@@ -52,7 +52,7 @@ var boletoTypeParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9098")
+	mock.StartMockService("9093")
 	input := new(models.BoletoRequest)
 	util.FromJSON(baseMockJSON, input)
 	bank, _ := New()
