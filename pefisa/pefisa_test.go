@@ -21,7 +21,7 @@ var boletoTypeParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9044")
 
 	input := newStubBoletoRequestPefisa().Build()
 	bank := New()
@@ -32,7 +32,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9043")
 
 	input := newStubBoletoRequestPefisa().WithAmountInCents(201).Build()
 	bank := New()
@@ -52,7 +52,7 @@ func TestGetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
 }
 
 func TestTemplateResponse_WhenRequestHasTabCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9045")
 	input := newStubBoletoRequestPefisa().WithBuyerName("Usuario \tTeste").Build()
 	bank := New()
 

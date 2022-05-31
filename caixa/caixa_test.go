@@ -46,7 +46,7 @@ var interestPercentageParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9018")
 
 	input := newStubBoletoRequestCaixa().Build()
 	bank := New()
@@ -57,7 +57,7 @@ func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoleto
 }
 
 func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9017")
 
 	input := newStubBoletoRequestCaixa().WithAmountInCents(400).Build()
 	bank := New()
@@ -69,7 +69,7 @@ func TestProcessBoleto_WhenServiceRespondsFailed_ShouldHasFailedBoletoResponse(t
 
 func TestProcessBoleto_WhenRequestContainsInvalidOurNumberParameter_ShouldHasFailedBoletoResponse(t *testing.T) {
 	largeOurNumber := uint(9999999999999999)
-	mock.StartMockService("9093")
+	mock.StartMockService("9016")
 
 	input := newStubBoletoRequestCaixa().WithOurNumber(largeOurNumber).Build()
 
@@ -355,7 +355,7 @@ func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorIsCNPJ_ParseFailed(t 
 }
 
 func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorDocumentInNotValidCPF_ParseFailed(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9020")
 	cnpjDocument := "00732159000109"
 
 	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentNumber(cnpjDocument).WithPayeeGuarantorDocumentType("CPF").Build()
@@ -368,7 +368,7 @@ func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorDocumentInNotValidCPF
 }
 
 func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorDocumentInNotValidCNPJ_ParseFailed(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9019")
 	cpfDocument := "08013156036"
 
 	input := newStubBoletoRequestCaixa().WithPayeeGuarantorName("PayeeGuarantor Test Name").WithPayeeGuarantorDocumentNumber(cpfDocument).WithPayeeGuarantorDocumentType("CNPJ").Build()

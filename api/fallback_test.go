@@ -16,7 +16,7 @@ import (
 )
 
 func Test_fallback(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9001")
 
 	var fallback = new(Fallback)
 

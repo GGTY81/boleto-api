@@ -26,7 +26,7 @@ var boletoResponseFailParameters = []test.Parameter{
 }
 
 func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9003")
 	certificate.LoadMockCertificates()
 	input := newStubBoletoRequestJPMorgan().Build()
 	bank, _ := New()
@@ -40,7 +40,7 @@ func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBolet
 }
 
 func Test_ProcessBoleto_WhenServiceRespondsWithShortOurNUmber_ShouldHasPadZerosAndSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9005")
 	certificate.LoadMockCertificates()
 	input := newStubBoletoRequestJPMorgan().WithAmountInCents(211).Build()
 	bank, _ := New()
@@ -54,7 +54,7 @@ func Test_ProcessBoleto_WhenServiceRespondsWithShortOurNUmber_ShouldHasPadZerosA
 }
 
 func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9004")
 	certificate.LoadMockCertificates()
 	bank, _ := New()
 
@@ -70,7 +70,7 @@ func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9006")
 	certificate.LoadMockCertificates()
 	input := newStubBoletoRequestJPMorgan().WithBuyerName("Nome do \tComprador (Cliente)").Build()
 	bank, _ := New()

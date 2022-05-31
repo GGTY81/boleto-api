@@ -13,7 +13,7 @@ import (
 )
 
 func Test_installCertificates(t *testing.T) {
-	mock.StartMockService("9093")
+	mock.StartMockService("9002")
 
 	tests := []struct {
 		name        string
