@@ -5,6 +5,7 @@ package stone
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/PMoneda/flow"
 	"github.com/mundipagg/boleto-api/mock"
@@ -33,6 +34,10 @@ var boletoResponseFailParameters = []test.Parameter{
 	{Input: newStubBoletoRequestStone().WithAmountInCents(4003).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:not allowed,path:[amount]}]`}},
 	{Input: newStubBoletoRequestStone().WithAmountInCents(4004).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:is invalid,path:[receiver,document]}]`}},
 	{Input: newStubBoletoRequestStone().WithAmountInCents(4005).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:is invalid,path:[account_id]},{error:not allowed,path:[amount]}]`}},
+	{Input: newStubBoletoRequestStone().WithAmountInCents(301).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:Percentage must be equal or lower than 2.0,path:[fine,value]}]`}},
+	{Input: newStubBoletoRequestStone().WithAmountInCents(302).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:Percentage must be equal or lower than 1.0,path:[interest,value]}]`}},
+	{Input: newStubBoletoRequestStone().WithAmountInCents(303).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:fine date should be greater than expiration date,path:[fine]}]`}},
+	{Input: newStubBoletoRequestStone().WithAmountInCents(304).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:interest date should be greater than expiration date,path:[interest]}]`}},
 	{Input: newStubBoletoRequestStone().WithAmountInCents(504).Build(), Expected: models.ErrorResponse{Code: `MPTimeout`, Message: `Post http://localhost:9099/stone/registrarBoleto: context deadline exceeded`}},
 }
 
@@ -185,11 +190,96 @@ func BenchmarkBankStoneProcessBoleto(b *testing.B) {
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9092")
+	mock.StartMockService("9099")
 	input := newStubBoletoRequestStone().WithAmountInCents(201).WithBuyerName("Nome do \tComprador (Cliente)").Build()
 	bank := New()
 
 	output, _ := bank.ProcessBoleto(input)
 
 	test.AssertProcessBoletoWithSuccess(t, output)
+}
+
+func Test_TemplateRequestStone_WhenHasFine_AndWithPercentageOnTotal_ParseSuccessful(t *testing.T) {
+	mock.StartMockService("9099")
+	var result map[string]interface{}
+	f := flow.NewFlow()
+
+	var boletoDate uint = 1
+	var amount uint64 = 0
+	var percentage float64 = 2.0
+
+	input := newStubBoletoRequestStone().WithFine(boletoDate, amount, percentage).Build()
+
+	valueFineExpected := "2.00"
+	daysToAdd := input.Title.Fees.Fine.DaysAfterExpirationDate
+	dateFineExpected := input.Title.ExpireDateTime.UTC().Add(day * time.Duration(daysToAdd)).Format("2006-01-02")
+
+	body := fmt.Sprintf("%v", f.From("message://?source=inline", input, templateRequest, tmpl.GetFuncMaps()).GetBody())
+	_ = util.FromJSON(body, &result)
+
+	assert.Equal(t, result["fine"].(map[string]interface{})["date"], dateFineExpected)
+	assert.Equal(t, result["fine"].(map[string]interface{})["value"], valueFineExpected)
+}
+
+func Test_TemplateRequestStone_WhenHasFine_AndWithAmountInCents_ParseSuccessful(t *testing.T) {
+	mock.StartMockService("9099")
+	var result map[string]interface{}
+	f := flow.NewFlow()
+
+	var boletoDate uint = 1
+	var amount uint64 = 25
+	var percentage float64 = 0
+	input := newStubBoletoRequestStone().WithAmountInCents(20000).WithFine(boletoDate, amount, percentage).Build()
+
+	valueFineExpected := "0.12"
+	daysToAdd := input.Title.Fees.Fine.DaysAfterExpirationDate
+	dateFineExpected := input.Title.ExpireDateTime.UTC().Add(day * time.Duration(daysToAdd)).Format("2006-01-02")
+
+	body := fmt.Sprintf("%v", f.From("message://?source=inline", input, templateRequest, tmpl.GetFuncMaps()).GetBody())
+	_ = util.FromJSON(body, &result)
+
+	assert.Equal(t, result["fine"].(map[string]interface{})["date"], dateFineExpected)
+	assert.Equal(t, result["fine"].(map[string]interface{})["value"], valueFineExpected)
+}
+
+func Test_TemplateRequestStone_WhenHasInterest_AndWithPercentageOnTotal_ParseSuccessful(t *testing.T) {
+	mock.StartMockService("9099")
+	var result map[string]interface{}
+	f := flow.NewFlow()
+
+	var boletoDate uint = 1
+	var amount uint64 = 0
+	var percentage float64 = 1.0
+	input := newStubBoletoRequestStone().WithInterest(boletoDate, amount, percentage).Build()
+
+	valueFineExpected := "1.00"
+	daysToAdd := input.Title.Fees.Interest.DaysAfterExpirationDate
+	dateFineExpected := input.Title.ExpireDateTime.UTC().Add(day * time.Duration(daysToAdd)).Format("2006-01-02")
+
+	body := fmt.Sprintf("%v", f.From("message://?source=inline", input, templateRequest, tmpl.GetFuncMaps()).GetBody())
+	_ = util.FromJSON(body, &result)
+
+	assert.Equal(t, result["interest"].(map[string]interface{})["date"], dateFineExpected)
+	assert.Equal(t, result["interest"].(map[string]interface{})["value"], valueFineExpected)
+}
+
+func Test_TemplateRequestStone_WhenHasInterest_AndWithAmountInCents_ParseSuccessful(t *testing.T) {
+	mock.StartMockService("9099")
+	var result map[string]interface{}
+	f := flow.NewFlow()
+
+	var boletoDate uint = 1
+	var amount uint64 = 5
+	var percentage float64 = 0
+	input := newStubBoletoRequestStone().WithAmountInCents(20000).WithInterest(boletoDate, amount, percentage).Build()
+
+	valueInterestxpected := "0.75"
+	daysToAdd := input.Title.Fees.Interest.DaysAfterExpirationDate
+	dateInterestExpected := input.Title.ExpireDateTime.UTC().Add(day * time.Duration(daysToAdd)).Format("2006-01-02")
+
+	body := fmt.Sprintf("%v", f.From("message://?source=inline", input, templateRequest, tmpl.GetFuncMaps()).GetBody())
+	_ = util.FromJSON(body, &result)
+
+	assert.Equal(t, result["interest"].(map[string]interface{})["date"], dateInterestExpected)
+	assert.Equal(t, result["interest"].(map[string]interface{})["value"], valueInterestxpected)
 }

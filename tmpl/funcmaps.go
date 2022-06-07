@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"html"
 	"html/template"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -21,69 +22,72 @@ import (
 )
 
 var funcMap = template.FuncMap{
-	"today":                              today,
-	"todayCiti":                          todayCiti,
-	"brdate":                             brDate,
-	"replace":                            replace,
-	"docType":                            docType,
-	"trim":                               trim,
-	"padLeft":                            padLeft,
-	"clearString":                        clearString,
-	"toString":                           toString,
-	"toString64":                         toString64,
-	"fmtDigitableLine":                   fmtDigitableLine,
-	"fmtCNPJ":                            fmtCNPJ,
-	"fmtCPF":                             fmtCPF,
-	"fmtDoc":                             fmtDoc,
-	"truncate":                           truncateString,
-	"fmtNumber":                          fmtNumber,
-	"joinSpace":                          joinSpace,
-	"brDateWithoutDelimiter":             brDateWithoutDelimiter,
-	"enDateWithoutDelimiter":             enDateWithoutDelimiter,
-	"fullDate":                           fulldate,
-	"enDate":                             enDate,
-	"hasErrorTags":                       hasErrorTags,
-	"toFloatStr":                         toFloatStr,
-	"concat":                             concat,
-	"base64":                             base64,
-	"unscape":                            unscape,
-	"unescapeHtmlString":                 unescapeHtmlString,
-	"trimLeft":                           trimLeft,
-	"santanderNSUPrefix":                 santanderNSUPrefix,
-	"santanderEnv":                       santanderEnv,
-	"formatSingleLine":                   formatSingleLine,
-	"diff":                               diff,
-	"mod11dv":                            calculateOurNumberMod11,
-	"mod10ItauDv":                        mod10Itau,
-	"printIfNotProduction":               printIfNotProduction,
-	"itauEnv":                            itauEnv,
-	"caixaEnv":                           caixaEnv,
-	"extractNumbers":                     extractNumbers,
-	"splitValues":                        splitValues,
-	"brDateDelimiter":                    brDateDelimiter,
-	"brDateDelimiterTime":                brDateDelimiterTime,
-	"toString16":                         toString16,
-	"mod11BradescoShopFacilDv":           mod11BradescoShopFacilDv,
-	"bsonMongoToString":                  bsonMongoToString,
-	"escapeStringOnJson":                 escapeStringOnJson,
-	"removeSpecialCharacter":             removeSpecialCharacter,
-	"sanitizeCitibankSpecialCharacteres": sanitizeCitibankSpecialCharacteres,
-	"clearStringCaixa":                   clearStringCaixa,
-	"truncateOnly":                       truncateOnly,
-	"toUint":                             toUint,
-	"strToFloat":                         strToFloat,
-	"float64ToString":                    float64ToString,
-	"datePlusDays":                       datePlusDays,
-	"datePlusDaysConsideringZeroAsStart": datePlusDaysConsideringZeroAsStart,
-	"getInterestInstruction":             getInterestInstruction,
-	"getFineInstruction":                 getFineInstruction,
-	"datePlusDaysLocalTime":              datePlusDaysLocalTime,
-	"calculateFees":                      calculateFees,
-	"calculateInterestByDay":             calculateInterestByDay,
-	"onlyAlphabetics":                    onlyAlphabetics,
-	"onlyAlphanumerics":                  onlyAlphanumerics,
-	"onlyOneSpace":                       onlyOneSpace,
-	"removeAllSpaces":                    removeAllSpaces,
+	"today":                               today,
+	"todayCiti":                           todayCiti,
+	"brdate":                              brDate,
+	"replace":                             replace,
+	"docType":                             docType,
+	"trim":                                trim,
+	"padLeft":                             padLeft,
+	"clearString":                         clearString,
+	"toString":                            toString,
+	"toString64":                          toString64,
+	"fmtDigitableLine":                    fmtDigitableLine,
+	"fmtCNPJ":                             fmtCNPJ,
+	"fmtCPF":                              fmtCPF,
+	"fmtDoc":                              fmtDoc,
+	"truncate":                            truncateString,
+	"fmtNumber":                           fmtNumber,
+	"joinSpace":                           joinSpace,
+	"brDateWithoutDelimiter":              brDateWithoutDelimiter,
+	"enDateWithoutDelimiter":              enDateWithoutDelimiter,
+	"fullDate":                            fulldate,
+	"enDate":                              enDate,
+	"hasErrorTags":                        hasErrorTags,
+	"toFloatStr":                          toFloatStr,
+	"concat":                              concat,
+	"base64":                              base64,
+	"unscape":                             unscape,
+	"unescapeHtmlString":                  unescapeHtmlString,
+	"trimLeft":                            trimLeft,
+	"santanderNSUPrefix":                  santanderNSUPrefix,
+	"santanderEnv":                        santanderEnv,
+	"formatSingleLine":                    formatSingleLine,
+	"diff":                                diff,
+	"mod11dv":                             calculateOurNumberMod11,
+	"mod10ItauDv":                         mod10Itau,
+	"printIfNotProduction":                printIfNotProduction,
+	"itauEnv":                             itauEnv,
+	"caixaEnv":                            caixaEnv,
+	"extractNumbers":                      extractNumbers,
+	"splitValues":                         splitValues,
+	"brDateDelimiter":                     brDateDelimiter,
+	"brDateDelimiterTime":                 brDateDelimiterTime,
+	"toString16":                          toString16,
+	"mod11BradescoShopFacilDv":            mod11BradescoShopFacilDv,
+	"bsonMongoToString":                   bsonMongoToString,
+	"escapeStringOnJson":                  escapeStringOnJson,
+	"removeSpecialCharacter":              removeSpecialCharacter,
+	"sanitizeCitibankSpecialCharacteres":  sanitizeCitibankSpecialCharacteres,
+	"clearStringCaixa":                    clearStringCaixa,
+	"truncateOnly":                        truncateOnly,
+	"toUint":                              toUint,
+	"strToFloat":                          strToFloat,
+	"float64ToString":                     float64ToString,
+	"datePlusDays":                        datePlusDays,
+	"datePlusDaysConsideringZeroAsStart":  datePlusDaysConsideringZeroAsStart,
+	"getInterestInstruction":              getInterestInstruction,
+	"getFineInstruction":                  getFineInstruction,
+	"datePlusDaysLocalTime":               datePlusDaysLocalTime,
+	"calculateFees":                       calculateFees,
+	"calculateInterestByDay":              calculateInterestByDay,
+	"onlyAlphabetics":                     onlyAlphabetics,
+	"onlyAlphanumerics":                   onlyAlphanumerics,
+	"onlyOneSpace":                        onlyOneSpace,
+	"removeAllSpaces":                     removeAllSpaces,
+	"convertAmountInCentsToPercent":       convertAmountInCentsToPercent,
+	"convertAmountInCentsToPercentPerDay": convertAmountInCentsToPercentPerDay,
+	"float64ToStringTruncate":             float64ToStringTruncate,
 }
 
 func GetFuncMaps() template.FuncMap {
@@ -194,6 +198,19 @@ func strToFloat(n string) float64 {
 
 func float64ToString(format string, value float64) string {
 	return fmt.Sprintf(format, value)
+}
+
+// Truncamento se precision for 2 Ex: 12.3496 -> 12.34
+// precision: Quantidade de casas decimais depois da vírgula
+func roundDown(val float64, precision int) float64 {
+	return math.Floor(float64(float32(val)*float32(math.Pow10(precision)))) / math.Pow10(precision)
+}
+
+// Converte um número float para string
+// precision: Quantidade de casas decimais depois da vírgula
+func float64ToStringTruncate(format string, precision int, value float64) string {
+	b := fmt.Sprintf(format, roundDown(value, precision))
+	return b
 }
 
 func fmtDoc(doc models.Document) string {
@@ -495,7 +512,7 @@ func getFineInstruction(title models.Title) string {
 
 	fineAmountInReal := calculateFees(title.Fees.Fine.AmountInCents, title.Fees.Fine.PercentageOnTotal, title.AmountInCents)
 
-	return fmt.Sprintf("APOS %s: MULTA..........R$ %.2f", dateFineFormatted, fineAmountInReal)
+	return fmt.Sprintf("A PARTIR DE %s: MULTA..........R$ %.2f", dateFineFormatted, roundDown(fineAmountInReal, 2))
 }
 
 //getInterestInstruction Obtém a instrução de juros
@@ -505,7 +522,7 @@ func getInterestInstruction(title models.Title) string {
 
 	interestAmountByDayInReal := calculateInterestByDay(title.Fees.Interest.AmountPerDayInCents, title.Fees.Interest.PercentagePerMonth, title.AmountInCents)
 
-	return fmt.Sprintf("APOS %s: JUROS POR DIA DE ATRASO.........R$ %.2f", dateInterestFormatted, interestAmountByDayInReal)
+	return fmt.Sprintf("A PARTIR DE %s: JUROS POR DIA DE ATRASO.........R$ %.3f", dateInterestFormatted, roundDown(interestAmountByDayInReal, 3))
 }
 
 func onlyAlphanumerics(str string) string {
@@ -522,4 +539,13 @@ func onlyOneSpace(str string) string {
 
 func removeAllSpaces(str string) string {
 	return regexp.MustCompile(`\s+`).ReplaceAllString(str, "")
+}
+
+func convertAmountInCentsToPercent(totalAmount, amount uint64) float64 {
+	a := float64(amount) * 100 / float64(totalAmount)
+	return a
+}
+
+func convertAmountInCentsToPercentPerDay(totalAmount, amount uint64) float64 {
+	return float64(amount) * 30 * 100 / float64(totalAmount)
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/test"
 	"github.com/mundipagg/boleto-api/tmpl"
+	"github.com/mundipagg/boleto-api/validations"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -288,25 +289,25 @@ func TestTemplateRequestCaixa_WhenRequestWithInterestAndPercentagePerMonth_Parse
 func TestCaixaValidateFine(t *testing.T) {
 	input := newStubBoletoRequestCaixa().WithFine(1, 200, 0).Build()
 
-	assert.Nil(t, caixaValidateFine(input))
+	assert.Nil(t, validations.ValidateFine(input))
 }
 
 func TestCaixaValidateFineWithNilFees(t *testing.T) {
 	input := newStubBoletoRequestCaixa().Build()
 
-	assert.Nil(t, caixaValidateFine(input))
+	assert.Nil(t, validations.ValidateFine(input))
 }
 
 func TestCaixaValidateInterest(t *testing.T) {
 	input := newStubBoletoRequestCaixa().WithInterest(1, 0, 10.2).Build()
 
-	assert.Nil(t, caixaValidateInterest(input))
+	assert.Nil(t, validations.ValidateInterest(input))
 }
 
 func TestCaixaValidateInterestWithNilFees(t *testing.T) {
 	input := newStubBoletoRequestCaixa().Build()
 
-	assert.Nil(t, caixaValidateInterest(input))
+	assert.Nil(t, validations.ValidateInterest(input))
 }
 
 func TestTemplateRequestCaixa_WhenRequestWithPayeeGuarantorIsCNPJ_ParseSuccessful(t *testing.T) {

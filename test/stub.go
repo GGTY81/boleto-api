@@ -94,6 +94,15 @@ func (s *StubBoletoRequest) WithAcceptDivergentAmount(accepted bool) *StubBoleto
 	return s
 }
 
+func (s *StubBoletoRequest) WithMaxDaysToPayPastDue(days uint) *StubBoletoRequest {
+	if !s.Title.HasRules() {
+		s.Title.Rules = &models.Rules{}
+	}
+
+	s.Title.Rules.MaxDaysToPayPastDue = days
+	return s
+}
+
 func (s *StubBoletoRequest) WithBoletoType(title models.Title) *StubBoletoRequest {
 	s.Title.BoletoType = title.BoletoType
 	s.Title.BoletoTypeCode = title.BoletoTypeCode
@@ -151,6 +160,32 @@ func (s *StubBoletoRequest) createStubPayeeGuarantor() {
 
 func (s *StubBoletoRequest) hasStubPayeeGuarantor() bool {
 	return s.PayeeGuarantor != nil
+}
+
+func (s *StubBoletoRequest) WithFine(daysAfterExpirationDate uint, amountInCents uint64, percentageOnTotal float64) *StubBoletoRequest {
+	if !s.Title.HasFees() {
+		s.Title.Fees = &models.Fees{}
+	}
+
+	s.Title.Fees.Fine = &models.Fine{
+		DaysAfterExpirationDate: daysAfterExpirationDate,
+		AmountInCents:           amountInCents,
+		PercentageOnTotal:       percentageOnTotal,
+	}
+	return s
+}
+
+func (s *StubBoletoRequest) WithInterest(daysAfterExpirationDate uint, amountPerDayInCents uint64, percentagePerMonth float64) *StubBoletoRequest {
+	if !s.Title.HasFees() {
+		s.Title.Fees = &models.Fees{}
+	}
+
+	s.Title.Fees.Interest = &models.Interest{
+		DaysAfterExpirationDate: daysAfterExpirationDate,
+		AmountPerDayInCents:     amountPerDayInCents,
+		PercentagePerMonth:      percentagePerMonth,
+	}
+	return s
 }
 
 func (s *StubBoletoRequest) Build() *models.BoletoRequest {

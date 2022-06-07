@@ -32,6 +32,8 @@ func New() bankStone {
 	b.validate.Push(validations.ValidateRecipientDocumentNumber)
 
 	b.validate.Push(stoneValidateAccessKeyNotEmpty)
+	b.validate.Push(validations.ValidateInterest)
+	b.validate.Push(validations.ValidateFine)
 
 	return b
 }
