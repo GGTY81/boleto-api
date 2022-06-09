@@ -17,6 +17,7 @@ variables:
   CGO_ENABLED: 0
   
 trigger:
+  batch: true
   branches:
     include:
     - '*'
