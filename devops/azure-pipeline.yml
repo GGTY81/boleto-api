@@ -6,7 +6,7 @@ pool:
 variables:
   BuildConfiguration: 'release'
   BuildPlatform: 'any cpu'
-  LintExecute: 'true'
+  LintExecute: 'false'
   ContractTestExecute: 'true'
   RunscopeExecute: 'false'
   Organization: mundipagg
