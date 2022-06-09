@@ -19,8 +19,7 @@ variables:
 trigger:
   branches:
     include:
-    - feature/*
-    - fix/*
+    - '*'
   tags:
     include:
     - '*'
