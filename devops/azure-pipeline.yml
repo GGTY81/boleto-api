@@ -36,6 +36,33 @@ resources:
 stages:
   - stage: QA
     jobs:
+      - job: Linter
+        displayName: Linter
+        workspace:
+          clean: all
+        steps:
+          - task: GoTool@0
+            displayName: Use Go 1.13.14
+            inputs:
+              version: 1.13.14
+          - task: Go@0
+            displayName: go mod download
+            inputs:
+              command: custom
+              customCommand: mod
+              arguments: download
+              workingDirectory: $(System.DefaultWorkingDirectory)
+          - task: Bash@3
+            displayName: Install Go lint
+            inputs:
+              targetType: inline
+              script: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(System.DefaultWorkingDirectory) v1.42.1
+          - task: Bash@3
+            condition: eq(variables['LintExecute'], 'true')
+            displayName: Run linter
+            inputs:
+              targetType: inline
+              script: $(System.DefaultWorkingDirectory)/golangci-lint run --new-from-rev=origin/master --timeout 2m0s --allow-parallel-runners
       - job: QualityAnalysis
         displayName: Quality Analysis
         workspace:
@@ -61,17 +88,6 @@ stages:
               customCommand: mod
               arguments: download
               workingDirectory: $(System.DefaultWorkingDirectory)
-          - task: Bash@3
-            displayName: Install Go lint
-            inputs:
-              targetType: inline
-              script: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(System.DefaultWorkingDirectory) v1.42.1
-          - task: Bash@3
-            condition: eq(variables['LintExecute'], 'true')
-            displayName: Run linter
-            inputs:
-              targetType: inline
-              script: $(System.DefaultWorkingDirectory)/golangci-lint run --new-from-rev=origin/master --timeout 2m0s --allow-parallel-runners
           - task: Go@0
             displayName: go test
             inputs:
