@@ -6,7 +6,7 @@ pool:
 variables:
   BuildConfiguration: 'release'
   BuildPlatform: 'any cpu'
-  LintExecute: 'false'
+  LintExecute: 'true'
   ContractTestExecute: 'true'
   RunscopeExecute: 'false'
   Organization: mundipagg
@@ -48,7 +48,7 @@ stages:
             inputs:
               version: 1.13.14
           - task: Bash@3
-            displayName: Install Go lint
+            displayName: Install ubuntu requerements
             inputs:
               targetType: inline
               script: |
