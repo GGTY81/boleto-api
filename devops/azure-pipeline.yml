@@ -52,7 +52,7 @@ stages:
             inputs:
               targetType: inline
               script: |
-                apt-get update && apt-get install -y ca-certificates openssl curl
+                apt-get update && apt-get install -y ca-certificates openssl curl default-jre
                 export cert_location=/usr/local/share/ca-certificates
           - task: Go@0
             displayName: go mod download
