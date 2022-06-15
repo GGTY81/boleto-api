@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package stone
@@ -13,7 +14,7 @@ import (
 )
 
 func Test_authenticate(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9047")
 
 	pkByte, err := generateTestPK()
 	assert.Nil(t, err)

@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package app
@@ -12,7 +13,7 @@ import (
 )
 
 func Test_installCertificates(t *testing.T) {
-	mock.StartMockService("9080")
+	mock.StartMockService("9002")
 
 	tests := []struct {
 		name        string

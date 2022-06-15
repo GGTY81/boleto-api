@@ -17,10 +17,10 @@ variables:
   CGO_ENABLED: 0
   
 trigger:
+  batch: true
   branches:
     include:
-    - feature/*
-    - fix/*
+    - '*'
   tags:
     include:
     - '*'
@@ -36,8 +36,8 @@ resources:
 stages:
   - stage: QA
     jobs:
-      - job: QualityAnalysis
-        displayName: Quality Analysis
+      - job: Linter
+        displayName: Linter
         workspace:
           clean: all
         steps:
@@ -52,18 +52,42 @@ stages:
               customCommand: mod
               arguments: download
               workingDirectory: $(System.DefaultWorkingDirectory)
-          - task: PowerShell@2
-            condition: eq(variables['LintExecute'], 'true')
+          - task: Bash@3
             displayName: Install Go lint
             inputs:
               targetType: inline
               script: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(System.DefaultWorkingDirectory) v1.42.1
-          - task: PowerShell@2
+          - task: Bash@3
             condition: eq(variables['LintExecute'], 'true')
             displayName: Run linter
             inputs:
               targetType: inline
               script: $(System.DefaultWorkingDirectory)/golangci-lint run --new-from-rev=origin/master --timeout 2m0s --allow-parallel-runners
+      - job: QualityAnalysis
+        displayName: Quality Analysis
+        workspace:
+          clean: all
+        container:
+          image: ubuntu:18.04
+        steps:
+          - task: GoTool@0
+            displayName: Use Go 1.13.14
+            inputs:
+              version: 1.13.14
+          - task: Bash@3
+            displayName: Install ubuntu requerements
+            inputs:
+              targetType: inline
+              script: |
+                apt-get update && apt-get install -y ca-certificates openssl curl default-jre
+                export cert_location=/usr/local/share/ca-certificates
+          - task: Go@0
+            displayName: go mod download
+            inputs:
+              command: custom
+              customCommand: mod
+              arguments: download
+              workingDirectory: $(System.DefaultWorkingDirectory)
           - task: Go@0
             displayName: go test
             inputs:

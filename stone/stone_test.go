@@ -1,3 +1,4 @@
+//go:build integration || !unit
 // +build integration !unit
 
 package stone
@@ -34,11 +35,7 @@ var boletoResponseFailParameters = []test.Parameter{
 	{Input: newStubBoletoRequestStone().WithAmountInCents(4003).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:not allowed,path:[amount]}]`}},
 	{Input: newStubBoletoRequestStone().WithAmountInCents(4004).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:is invalid,path:[receiver,document]}]`}},
 	{Input: newStubBoletoRequestStone().WithAmountInCents(4005).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:is invalid,path:[account_id]},{error:not allowed,path:[amount]}]`}},
-	{Input: newStubBoletoRequestStone().WithAmountInCents(301).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:Percentage must be equal or lower than 2.0,path:[fine,value]}]`}},
-	{Input: newStubBoletoRequestStone().WithAmountInCents(302).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:Percentage must be equal or lower than 1.0,path:[interest,value]}]`}},
-	{Input: newStubBoletoRequestStone().WithAmountInCents(303).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:fine date should be greater than expiration date,path:[fine]}]`}},
-	{Input: newStubBoletoRequestStone().WithAmountInCents(304).Build(), Expected: models.ErrorResponse{Code: `srn:error:validation`, Message: `[{error:interest date should be greater than expiration date,path:[interest]}]`}},
-	{Input: newStubBoletoRequestStone().WithAmountInCents(504).Build(), Expected: models.ErrorResponse{Code: `MPTimeout`, Message: `Post http://localhost:9099/stone/registrarBoleto: context deadline exceeded`}},
+	{Input: newStubBoletoRequestStone().WithAmountInCents(504).Build(), Expected: models.ErrorResponse{Code: `MPTimeout`, Message: `Post http://localhost:9052/stone/registrarBoleto: context deadline exceeded`}},
 }
 
 func Test_GetBoletoType_WhenCalled_ShouldBeMapTypeSuccessful(t *testing.T) {
@@ -83,7 +80,7 @@ func Test_TemplateRequestStone_WhenBuyerIsCompany_ParseSuccessful(t *testing.T) 
 }
 
 func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9051")
 
 	input := newStubBoletoRequestStone().WithAmountInCents(201).Build()
 	bank := New()
@@ -95,7 +92,7 @@ func Test_ProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBolet
 
 func Test_ProcessBoleto_WhenServiceRespondsUnsuccessful_ShouldHasErrorResponse(t *testing.T) {
 	bank := New()
-	mock.StartMockService("9099")
+	mock.StartMockService("9052")
 
 	for _, fact := range boletoResponseFailParameters {
 		request := fact.Input.(*models.BoletoRequest)
@@ -132,7 +129,7 @@ func Test_GetBankLog(t *testing.T) {
 }
 
 func Test_bankStone_ProcessBoleto(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9050")
 
 	bankInst := New()
 
@@ -181,7 +178,7 @@ func Test_bankStone_ProcessBoleto(t *testing.T) {
 }
 
 func BenchmarkBankStoneProcessBoleto(b *testing.B) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9049")
 
 	input := newStubBoletoRequestStone().WithAmountInCents(201).Build()
 	bank := New()
@@ -190,7 +187,7 @@ func BenchmarkBankStoneProcessBoleto(b *testing.B) {
 }
 
 func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessful(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9053")
 	input := newStubBoletoRequestStone().WithAmountInCents(201).WithBuyerName("Nome do \tComprador (Cliente)").Build()
 	bank := New()
 
@@ -200,7 +197,7 @@ func TestTemplateResponse_WhenRequestHasSpecialCharacter_ShouldBeParsedSuccessfu
 }
 
 func Test_TemplateRequestStone_WhenHasFine_AndWithPercentageOnTotal_ParseSuccessful(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9094")
 	var result map[string]interface{}
 	f := flow.NewFlow()
 
@@ -222,7 +219,7 @@ func Test_TemplateRequestStone_WhenHasFine_AndWithPercentageOnTotal_ParseSuccess
 }
 
 func Test_TemplateRequestStone_WhenHasFine_AndWithAmountInCents_ParseSuccessful(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9095")
 	var result map[string]interface{}
 	f := flow.NewFlow()
 
@@ -243,7 +240,7 @@ func Test_TemplateRequestStone_WhenHasFine_AndWithAmountInCents_ParseSuccessful(
 }
 
 func Test_TemplateRequestStone_WhenHasInterest_AndWithPercentageOnTotal_ParseSuccessful(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9096")
 	var result map[string]interface{}
 	f := flow.NewFlow()
 
@@ -264,7 +261,7 @@ func Test_TemplateRequestStone_WhenHasInterest_AndWithPercentageOnTotal_ParseSuc
 }
 
 func Test_TemplateRequestStone_WhenHasInterest_AndWithAmountInCents_ParseSuccessful(t *testing.T) {
-	mock.StartMockService("9099")
+	mock.StartMockService("9097")
 	var result map[string]interface{}
 	f := flow.NewFlow()
 

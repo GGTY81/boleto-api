@@ -54,49 +54,56 @@ var boletoTypeParameters = []test.Parameter{
 }
 
 func TestProcessBoleto_WhenServiceRespondsSuccessfully_ShouldHasSuccessfulBoletoResponse(t *testing.T) {
-	mock.StartMockService("9095")
+	mock.StartMockService("9021")
 	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
+	errConvert := util.FromJSON(baseMockJSON, input)
 	bank, _ := New()
 
 	output, _ := bank.ProcessBoleto(input)
-
+	
+	assert.Nil(t, errConvert)
 	test.AssertProcessBoletoWithSuccess(t, output)
 }
 
 func TestProcessBoleto_WhenServiceRespondsWithDataWhitespaces_ShouldHasBadGatewayErrorResponse(t *testing.T) {
-	mock.StartMockService("9095")
+	mock.StartMockService("9024")
 	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
+	errConvert := util.FromJSON(baseMockJSON, input)
+
 	input.Title.AmountInCents = 100
 	bank, _ := New()
 
 	_, err := bank.ProcessBoleto(input)
 
+	assert.Nil(t, errConvert)
 	test.AssertError(t, err, models.BadGatewayError{})
 }
 
 func TestProcessBoleto_WhenServiceRespondsWithDataEmpty_ShouldHasBadGatewayErrorResponse(t *testing.T) {
-	mock.StartMockService("9095")
+	mock.StartMockService("9022")
 	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
+	errConvert := util.FromJSON(baseMockJSON, input)
+
 	input.Title.AmountInCents = 101
 	bank, _ := New()
 
 	_, err := bank.ProcessBoleto(input)
 
+	assert.Nil(t, errConvert)
 	test.AssertError(t, err, models.BadGatewayError{})
 }
 
 func TestProcessBoleto_WhenServiceRespondsWithDataNil_ShouldHasInternalServerErrorResponse(t *testing.T) {
-	mock.StartMockService("9095")
+	mock.StartMockService("9023")
 	input := new(models.BoletoRequest)
-	util.FromJSON(baseMockJSON, input)
+	errConvert := util.FromJSON(baseMockJSON, input)
+
 	input.Title.AmountInCents = 102
 	bank, _ := New()
 
 	_, err := bank.ProcessBoleto(input)
 
+	assert.Nil(t, errConvert)
 	test.AssertError(t, err, models.InternalServerError{})
 }
 
