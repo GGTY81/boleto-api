@@ -1,6 +1,8 @@
 package bb
 
 import (
+	"fmt"
+
 	"github.com/mundipagg/boleto-api/models"
 	"github.com/mundipagg/boleto-api/validations"
 )
@@ -81,7 +83,12 @@ func bbValidateTitleInstructions(b interface{}) error {
 func bbValidateTitleDocumentNumber(b interface{}) error {
 	switch t := b.(type) {
 	case *models.BoletoRequest:
-		return t.Title.ValidateDocumentNumber()
+		maxAllowedLength := 15
+		if len(t.Title.DocumentNumber) > maxAllowedLength {
+			message := fmt.Sprintf("O campo documentNumber do título ultrapassou o limite permitido de %d caracteres", maxAllowedLength)
+			return models.NewErrorResponse("MP400", message)
+		}
+		return nil
 	default:
 		return validations.InvalidType(t)
 	}

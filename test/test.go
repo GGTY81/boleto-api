@@ -14,6 +14,7 @@ import (
 
 //Parameter Parâmetro de teste com input generico
 type Parameter struct {
+	Line     int
 	Input    interface{}
 	Expected interface{}
 	Length   int

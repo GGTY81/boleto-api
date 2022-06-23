@@ -1,27 +1,12 @@
 package bb
 
-/*
-@author Philippe Moneda
-@date 10/04/2017
-Descreve o padrão de mensagem para Boletos do Banco do Brasil
-*/
-const authBB = `## Content-Type:application/x-www-form-urlencoded
-## Cache-Control:no-cache
-## Authorization:Basic {{base64 (concat .Authentication.Username ":" .Authentication.Password)}}
-grant_type=client_credentials&scope=cobranca.registro-boletos`
+import (
+	"testing"
 
-const authLetterBBResponse = `
-{
-	"access_token":"{{authToken}}"	
-}
-`
+	"github.com/stretchr/testify/assert"
+)
 
-//GetBBAuthLetters retorna as cartas de envio e retorno de autencação do BB
-func GetBBAuthLetters() (string, string) {
-	return authBB, authLetterBBResponse
-}
-
-const registerBoleto = `
+const requestExpected = `
  ## SOAPACTION:registrarBoleto
  ##	Authorization:Bearer {{.Authentication.AuthorizationToken}}
  ## Content-Type:text/xml; charset=utf-8
@@ -61,29 +46,8 @@ const registerBoleto = `
 </soapenv:Envelope>
  `
 
-//getRequest retorna o template do Banco do Brasil
-func getRequest() string {
-	return registerBoleto
-}
+func Test_GivenTheGetRequestMethodWasCalled_ThenItShouldCorrectlyGetTheRequestTemplate(t *testing.T) {
+	result := getRequest()
 
-const registerBoletoBBResponse = `
-
-<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
-<SOAP-ENV:Body>
-	<ns0:resposta xmlns:ns0="http://www.tibco.com/schemas/bws_registro_cbr/Recursos/XSD/Schema.xsd">
-		<ns0:siglaSistemaMensagem />
-		<ns0:codigoRetornoPrograma>{{returnCode}}</ns0:codigoRetornoPrograma>
-		<ns0:nomeProgramaErro>{{errorCode}}</ns0:nomeProgramaErro>
-		<ns0:textoMensagemErro>{{errorMessage}}</ns0:textoMensagemErro>
-		<ns0:linhaDigitavel>{{digitableLine}}</ns0:linhaDigitavel>
-		<ns0:codigoBarraNumerico>{{barcodeNumber}}</ns0:codigoBarraNumerico>				
-	</ns0:resposta>
-</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>
-
-`
-
-func getResponseBB() string {
-	return registerBoletoBBResponse
+	assert.Equal(t, requestExpected, result, "Deve trazer corretamente o template de request")
 }
